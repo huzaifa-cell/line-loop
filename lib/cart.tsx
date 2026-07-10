@@ -1,0 +1,154 @@
+"use client";
+
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+} from "react";
+import type { Product } from "./products";
+
+export interface CartLine {
+  slug: string;
+  name: string;
+  price: number;
+  image: string;
+  size: string;
+  colour: string;
+  qty: number;
+  variantId: string;
+}
+
+interface CartState {
+  lines: CartLine[];
+  isOpen: boolean;
+  count: number;
+  subtotal: number;
+  open: () => void;
+  close: () => void;
+  add: (product: Product, size: string, colour: string, qty?: number, variantId?: string) => void;
+  remove: (slug: string, size: string, colour: string) => void;
+  setQty: (slug: string, size: string, colour: string, qty: number) => void;
+  clear: () => void;
+}
+
+const CartContext = createContext<CartState | null>(null);
+const STORAGE_KEY = "lineloop-cart";
+
+function lineKey(slug: string, size: string, colour: string) {
+  return `${slug}__${size}__${colour}`;
+}
+
+// Lazy initialiser — reads localStorage only in the browser (no SSR access).
+function loadInitialLines(): CartLine[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as CartLine[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function CartProvider({ children }: { children: React.ReactNode }) {
+  const [lines, setLines] = useState<CartLine[]>(loadInitialLines);
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Persist writes to localStorage (synchronising React -> external store).
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(lines));
+    } catch {
+      /* ignore */
+    }
+  }, [lines]);
+
+  const add: CartState["add"] = useCallback(
+    (product, size, colour, qty = 1, variantId) => {
+      setLines((prev) => {
+        const k = lineKey(product.slug, size, colour);
+        const existing = prev.find(
+          (l) => lineKey(l.slug, l.size, l.colour) === k
+        );
+        if (existing) {
+          return prev.map((l) =>
+            lineKey(l.slug, l.size, l.colour) === k
+              ? { ...l, qty: l.qty + qty }
+              : l
+          );
+        }
+        return [
+          ...prev,
+          {
+            slug: product.slug,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            size,
+            colour,
+            qty,
+            variantId: variantId ?? `${product.slug}-${size}-${colour}`,
+          },
+        ];
+      });
+      setIsOpen(true);
+    },
+    []
+  );
+
+  const remove: CartState["remove"] = useCallback((slug, size, colour) => {
+    setLines((prev) =>
+      prev.filter((l) => lineKey(l.slug, l.size, l.colour) !== lineKey(slug, size, colour))
+    );
+  }, []);
+
+  const setQty: CartState["setQty"] = useCallback(
+    (slug, size, colour, qty) => {
+      if (qty < 1) {
+        remove(slug, size, colour);
+        return;
+      }
+      setLines((prev) =>
+        prev.map((l) =>
+          lineKey(l.slug, l.size, l.colour) === lineKey(slug, size, colour)
+            ? { ...l, qty }
+            : l
+        )
+      );
+    },
+    [remove]
+  );
+
+  const clear = useCallback(() => setLines([]), []);
+  const open = useCallback(() => setIsOpen(true), []);
+  const close = useCallback(() => setIsOpen(false), []);
+
+  const count = useMemo(() => lines.reduce((n, l) => n + l.qty, 0), [lines]);
+  const subtotal = useMemo(
+    () => lines.reduce((s, l) => s + l.price * l.qty, 0),
+    [lines]
+  );
+
+  const value: CartState = {
+    lines,
+    isOpen,
+    count,
+    subtotal,
+    open,
+    close,
+    add,
+    remove,
+    setQty,
+    clear,
+  };
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+}
+
+export function useCart() {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart must be used within CartProvider");
+  return ctx;
+}

@@ -1,26 +1,171 @@
 @import "tailwindcss";
 
+/*
+  LINE&LOOP — design tokens
+  The single brand accent is Thread Red (#e31e24), honouring the logo's red
+  clothing-hanger "I" and red needle-and-thread "&". Used sparingly: announcement
+  bar, footer, Sold Out, focus states, active filter/step underlines, stitch accents.
+  0px radius across the board. No gradients, no shadows. Photography carries it.
+*/
+@theme {
+  /* Colors — exactly 4, the brand palette */
+  --color-brand-red: #e31e24; /* Thread Red */
+  --color-brand-red-deep: #c0181e;
+  --color-ink-black: #000000;
+  --color-warm-parchment: #f4f1e4;
+  --color-ivory-mist: #fcfaf1;
+
+  /* Typography — Font Families (variables come from next/font in layout) */
+  --font-good-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-redaction: var(--font-fraunces), ui-serif, Georgia, serif;
+
+  /* Typography — Scale */
+  --text-caption: 12px;
+  --leading-caption: 1;
+  --tracking-caption: 0.6px;
+  --text-body: 16px;
+  --leading-body: 1.8;
+  --tracking-body: 0.08px;
+  --text-subheading: 24px;
+  --leading-subheading: 1.8;
+  --tracking-subheading: 0.12px;
+  --text-heading: 32px;
+  --leading-heading: 1.8;
+  --tracking-heading: 0.16px;
+  --text-display: 72px;
+  --leading-display: 1.05;
+  --tracking-display: 0.144px;
+
+  /* Spacing */
+  --spacing-5: 5px;
+  --spacing-10: 10px;
+  --spacing-15: 15px;
+  --spacing-20: 20px;
+  --spacing-30: 30px;
+  --spacing-60: 60px;
+  --spacing-80: 80px;
+
+  /* Layout */
+  --page-max-width: 1280px;
+
+  /* Stitch motif — thread/needle brand metaphor */
+  --stitch-dash: 4px;
+  --stitch-gap: 3px;
+  --stitch-weight: 1px;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --surface-editorial-canvas: #f4f1e4;
+  --surface-hero-void: #000000;
+  --surface-brand-whisper: #e31e24; /* Thread Red */
+  --stitch-color-default: #000000;
+  --stitch-color-accent: #e31e24;
+
+  --background: #f4f1e4;
+  --foreground: #000000;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* 0px radius everywhere — flush gallery composition */
+* {
+  border-radius: 0 !important;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--color-warm-parchment);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-warm-parchment);
+  color: var(--color-ink-black);
+  font-family: var(--font-good-sans);
+  font-size: 16px;
+  line-height: 1.8;
+  letter-spacing: 0.08px;
+}
+
+/* Display wordmark — used once per page */
+.font-wordmark {
+  font-family: var(--font-redaction);
+  font-weight: 700;
+  font-size: clamp(48px, 13vw, 132px);
+  line-height: 1;
+  letter-spacing: 0.144px;
+}
+
+/* Caption utility — 12px labels */
+.caption {
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.6px;
+}
+
+/* Underlined text link — the system's primary interaction */
+.link-underline {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 3px;
+  background-image: linear-gradient(
+    to right,
+    currentColor 0%,
+    currentColor 100%
+  );
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+  transition: background-size 0.25s ease;
+}
+.link-underline:hover {
+  background-size: 100% 2px;
+}
+
+/* Stitch motif — dashed thread lines (default black, accent Thread Red) */
+.stitch-line {
+  border-top: var(--stitch-weight) dashed var(--stitch-color-default);
+}
+.stitch-line--accent {
+  border-top: var(--stitch-weight) dashed var(--stitch-color-accent);
+}
+
+/*
+  Dashed-border CTA — the ONE deliberate exception to the text-link-only rule
+  (spec law 1). Used only for Add to Bag / Checkout / Place Order. Dashed border
+  echoes the stitch motif; never filled, never rounded.
+*/
+.dashed-cta {
+  display: inline-block;
+  width: 100%;
+  border: 1px dashed var(--color-ink-black);
+  background: transparent;
+  color: var(--color-ink-black);
+  font-family: var(--font-good-sans);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.dashed-cta:hover:not(:disabled) {
+  background: var(--color-ink-black);
+  color: var(--color-ivory-mist);
+}
+.dashed-cta:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Accessibility — visible focus ring */
+:focus-visible {
+  outline: 2px solid var(--color-brand-red);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--color-brand-red);
+  color: var(--color-ivory-mist);
 }

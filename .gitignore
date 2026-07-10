@@ -36,6 +36,13 @@ yarn-error.log*
 # vercel
 .vercel
 
+# file-based data store (orders, reviews, inventory, settings)
+/.data
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.env.local
+
+# clerk configuration (can include secrets)
+/.clerk/
