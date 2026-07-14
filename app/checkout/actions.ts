@@ -1,0 +1,100 @@
+"use server";
+
+import { createSupabaseAdminClient } from "@/lib/supabase";
+
+export async function createStorefrontOrder(data: any) {
+  const supabase = createSupabaseAdminClient();
+
+  // 1. Generate an order number
+  const { count } = await supabase.from('orders').select('*', { count: 'exact', head: true });
+  const nextNumber = (count || 0) + 1;
+  const orderNumber = `LL-${new Date().getFullYear()}-${String(nextNumber).padStart(5, '0')}`;
+
+  // 2. Insert the main order record
+  const { data: order, error: orderError } = await supabase
+    .from('orders')
+    .insert({
+      order_number: orderNumber,
+      guest_email: data.shippingAddress.email,
+      status: 'pending',
+      payment_method: data.paymentMethod,
+      payment_status: data.paymentMethod === 'cod' ? 'cod_pending' : (data.paymentMethod === 'bank' ? 'bank_transfer_under_review' : 'pending'),
+      subtotal: data.subtotal,
+      shipping_amount: data.shippingCost,
+      discount_amount: data.discountAmount || 0,
+      total: data.grandTotal,
+      shipping_address: data.shippingAddress,
+      discount_code: data.discountCode || null
+    })
+    .select('id')
+    .single();
+
+  if (orderError || !order) {
+    throw new Error(orderError?.message || "Failed to create order");
+  }
+
+  // 3. Process items and inventory
+  for (const item of data.items) {
+    // Find the matching variant to decrement stock
+    let query = supabase
+      .from('product_variants')
+      .select('id, stock_quantity')
+      .eq('product_id', item.product.id)
+      .eq('size', item.selectedSize);
+
+    if (item.selectedColor && item.selectedColor !== "Default") {
+      query = query.eq('color', item.selectedColor);
+    }
+    
+    const { data: variant } = await query.limit(1).single();
+
+    let variantId = null;
+    let variantLabel = `${item.selectedSize}`;
+    if (item.selectedColor && item.selectedColor !== "Default") {
+       variantLabel += ` / ${item.selectedColor}`;
+    }
+
+    if (variant) {
+      variantId = variant.id;
+      // Decrement stock
+      await supabase
+        .from('product_variants')
+        .update({ stock_quantity: variant.stock_quantity - item.quantity })
+        .eq('id', variant.id);
+
+      // Log inventory deduction immediately for COD/Card. For Bank Transfer, 
+      // the Admin panel processes the final log, but we deduct stock here to reserve it.
+      await supabase
+        .from('inventory_log')
+        .insert({
+          variant_id: variant.id,
+          change_amount: -item.quantity,
+          reason: 'sale',
+          order_id: order.id
+        });
+    }
+
+    // Insert order item
+    await supabase
+      .from('order_items')
+      .insert({
+        order_id: order.id,
+        variant_id: variantId,
+        product_title: item.product.name,
+        variant_label: variantLabel,
+        unit_price: item.product.price,
+        quantity: item.quantity
+      });
+  }
+
+  // Log initial status
+  await supabase
+    .from('order_status_history')
+    .insert({
+      order_id: order.id,
+      status: 'pending',
+      note: 'Order placed via storefront'
+    });
+
+  return { success: true, orderId: order.id, orderNumber };
+}

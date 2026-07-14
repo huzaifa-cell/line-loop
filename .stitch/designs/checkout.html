@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Checkout | LINE&amp;LOOP</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface": "#e5e2e1",
+                    "on-tertiary-fixed": "#1a1c1c",
+                    "surface-container": "#201f1f",
+                    "on-tertiary-container": "#f0f0f0",
+                    "tertiary-fixed-dim": "#c6c6c7",
+                    "surface-variant": "#353534",
+                    "secondary-container": "#474747",
+                    "secondary": "#c6c6c6",
+                    "tertiary-container": "#6c6d6d",
+                    "surface-container-high": "#2a2a2a",
+                    "on-error-container": "#ffdad6",
+                    "on-surface-variant": "#e6bdb8",
+                    "on-secondary-fixed": "#1b1b1b",
+                    "surface-container-low": "#1c1b1b",
+                    "primary-fixed-dim": "#ffb4ac",
+                    "secondary-fixed-dim": "#c6c6c6",
+                    "primary-fixed": "#ffdad6",
+                    "on-secondary-container": "#b5b5b5",
+                    "inverse-primary": "#c00015",
+                    "surface": "#131313",
+                    "primary-container": "#d61c22",
+                    "surface-container-lowest": "#0e0e0e",
+                    "on-primary-container": "#ffece9",
+                    "on-secondary-fixed-variant": "#474747",
+                    "on-primary-fixed": "#410002",
+                    "on-primary-fixed-variant": "#93000d",
+                    "inverse-surface": "#e5e2e1",
+                    "on-secondary": "#303030",
+                    "error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#454747",
+                    "tertiary": "#c6c6c7",
+                    "outline-variant": "#5d3f3c",
+                    "on-primary": "#690006",
+                    "surface-bright": "#393939",
+                    "error": "#ffb4ab",
+                    "surface-dim": "#131313",
+                    "secondary-fixed": "#e2e2e2",
+                    "on-background": "#e5e2e1",
+                    "background": "#131313",
+                    "surface-container-highest": "#353534",
+                    "surface-tint": "#ffb4ac",
+                    "primary": "#ffb4ac",
+                    "on-tertiary": "#2f3131",
+                    "on-error": "#690005",
+                    "inverse-on-surface": "#313030",
+                    "tertiary-fixed": "#e2e2e2",
+                    "outline": "#ad8884"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "sm": "16px",
+                    "margin-desktop": "80px",
+                    "md": "32px",
+                    "lg": "64px",
+                    "gutter": "24px",
+                    "xl": "128px",
+                    "base": "4px",
+                    "margin-mobile": "20px",
+                    "xs": "8px"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "caption": ["Inter"],
+                    "label-md": ["Inter"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "display-lg-mobile": ["40px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "0.03em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+                    "display-lg": ["64px", {"lineHeight": "1.1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "caption": ["12px", {"lineHeight": "1.4", "letterSpacing": "0.02em", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Custom transitions */
+        .input-focus-effect {
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+        
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+        
+        @media (min-width: 1024px) {
+            .checkout-grid {
+                grid-template-columns: 1.5fr 1fr;
+                gap: 64px;
+            }
+        }
+
+        /* Kinetic Noir subtle background */
+        body {
+            background-color: #131313;
+            color: #e5e2e1;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- Header (Shared-ish but Task Specific) -->
+<header class="bg-surface sticky top-0 z-50 border-b border-on-surface/10 w-full px-margin-mobile md:px-margin-desktop py-xs flex justify-between items-center">
+<a class="flex items-center gap-2 text-on-surface hover:opacity-70 transition-opacity" href="#">
+<span class="material-symbols-outlined">arrow_back</span>
+<span class="font-label-md text-label-md uppercase tracking-widest hidden md:inline">Your Bag</span>
+</a>
+<div class="font-display-lg-mobile text-display-lg-mobile font-bold tracking-tighter text-on-surface">LINE&amp;LOOP</div>
+<div class="w-12"></div> <!-- Spacer for balance -->
+</header>
+<main class="min-h-screen px-margin-mobile md:px-margin-desktop py-lg">
+<div class="checkout-grid max-w-[1440px] mx-auto">
+<!-- Left Column: Checkout Forms -->
+<div class="space-y-xl">
+<!-- Section 1: Contact Information -->
+<section>
+<div class="flex justify-between items-end mb-md">
+<h2 class="font-headline-md text-headline-md uppercase tracking-widest">Contact</h2>
+<span class="font-caption text-caption text-secondary">ALREADY HAVE AN ACCOUNT? <a class="underline hover:text-primary transition-colors" href="#">LOG IN</a></span>
+</div>
+<div class="space-y-sm">
+<input class="w-full bg-transparent border-b border-on-surface/20 py-sm px-0 focus:outline-none focus:border-primary-container input-focus-effect font-label-md text-on-surface placeholder:text-on-surface/30" placeholder="EMAIL ADDRESS" type="email"/>
+<input class="w-full bg-transparent border-b border-on-surface/20 py-sm px-0 focus:outline-none focus:border-primary-container input-focus-effect font-label-md text-on-surface placeholder:text-on-surface/30" placeholder="PHONE NUMBER (E.G. +92 300 1234567)" type="tel"/>
+</div>
+</section>
+<!-- Section 2: Shipping Address -->
+<section>
+<h2 class="font-headline-md text-headline-md uppercase tracking-widest mb-md">Shipping Address</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+<div class="md:col-span-2">
+<input class="w-full bg-transparent border-b border-on-surface/20 py-sm px-0 focus:outline-none focus:border-primary-container input-focus-effect font-label-md text-on-surface placeholder:text-on-surface/30" placeholder="FULL NAME" type="text"/>
+</div>
+<div class="md:col-span-2">
+<input class="w-full bg-transparent border-b border-on-surface/20 py-sm px-0 focus:outline-none focus:border-primary-container input-focus-effect font-label-md text-on-surface placeholder:text-on-surface/30" placeholder="ADDRESS LINE 1" type="text"/>
+</div>
+<div class="md:col-span-2">
+<input class="w-full bg-transparent border-b border-on-surface/20 py-sm px-0 focus:outline-none focus:border-primary-container input-focus-effect font-label-md text-on-surface placeholder:text-on-surface/30" placeholder="APARTMENT, SUITE, ETC. (OPTIONAL)" type="text"/>
+</div>
+<select class="w-full bg-transparent border-b border-on-surface/20 py-sm px-0 focus:outline-none focus:border-primary-container input-focus-effect font-label-md text-on-surface appearance-none cursor-pointer">
+<option disabled="" selected="" value="">CITY</option>
+<option value="karachi">KARACHI</option>
+<option value="lahore">LAHORE</option>
+<option value="islamabad">ISLAMABAD</option>
+</select>
+<input class="w-full bg-transparent border-b border-on-surface/20 py-sm px-0 focus:outline-none focus:border-primary-container input-focus-effect font-label-md text-on-surface placeholder:text-on-surface/30" placeholder="PROVINCE" type="text"/>
+<input class="w-full bg-transparent border-b border-on-surface/20 py-sm px-0 focus:outline-none focus:border-primary-container input-focus-effect font-label-md text-on-surface placeholder:text-on-surface/30" placeholder="POSTAL CODE" type="text"/>
+<div class="relative">
+<input class="w-full bg-transparent border-b border-on-surface/20 py-sm px-0 font-label-md text-on-surface/50 cursor-not-allowed" readonly="" type="text" value="PAKISTAN"/>
+</div>
+</div>
+</section>
+<!-- Section 3: Shipping Method -->
+<section>
+<h2 class="font-headline-md text-headline-md uppercase tracking-widest mb-md">Shipping Method</h2>
+<div class="space-y-sm">
+<label class="flex items-center justify-between p-sm border border-on-surface/10 rounded cursor-pointer hover:bg-surface-container-low transition-all">
+<div class="flex items-center gap-sm">
+<input checked="" class="w-4 h-4 text-primary-container bg-transparent border-on-surface/30 focus:ring-0" name="shipping" type="radio"/>
+<div>
+<p class="font-label-md text-on-surface">STANDARD DELIVERY</p>
+<p class="font-caption text-secondary uppercase">3-5 BUSINESS DAYS</p>
+</div>
+</div>
+<span class="font-label-md text-on-surface uppercase">FREE</span>
+</label>
+<label class="flex items-center justify-between p-sm border border-on-surface/10 rounded cursor-pointer hover:bg-surface-container-low transition-all">
+<div class="flex items-center gap-sm">
+<input class="w-4 h-4 text-primary-container bg-transparent border-on-surface/30 focus:ring-0" name="shipping" type="radio"/>
+<div>
+<p class="font-label-md text-on-surface">EXPRESS DELIVERY</p>
+<p class="font-caption text-secondary uppercase">1-2 BUSINESS DAYS</p>
+</div>
+</div>
+<span class="font-label-md text-on-surface uppercase">RS. 500</span>
+</label>
+</div>
+</section>
+<!-- Section 4: Payment -->
+<section>
+<h2 class="font-headline-md text-headline-md uppercase tracking-widest mb-md">Payment</h2>
+<div class="space-y-sm border border-on-surface/10 rounded overflow-hidden">
+<!-- COD -->
+<div class="p-sm bg-surface-container-low border-b border-on-surface/10">
+<label class="flex items-center gap-sm cursor-pointer">
+<input checked="" class="w-4 h-4 text-primary-container bg-transparent border-on-surface/30 focus:ring-0" name="payment" type="radio"/>
+<span class="font-label-md text-on-surface uppercase">CASH ON DELIVERY (COD)</span>
+</label>
+</div>
+<!-- Bank Transfer -->
+<div class="p-sm border-b border-on-surface/10">
+<label class="flex items-center gap-sm cursor-pointer">
+<input class="w-4 h-4 text-primary-container bg-transparent border-on-surface/30 focus:ring-0" name="payment" type="radio"/>
+<span class="font-label-md text-on-surface uppercase">BANK TRANSFER</span>
+</label>
+</div>
+<!-- Credit/Debit Card -->
+<div class="p-sm">
+<label class="flex items-center gap-sm mb-md cursor-pointer">
+<input class="w-4 h-4 text-primary-container bg-transparent border-on-surface/30 focus:ring-0" name="payment" type="radio"/>
+<span class="font-label-md text-on-surface uppercase">CREDIT / DEBIT CARD</span>
+</label>
+<div class="grid grid-cols-2 gap-sm pl-8">
+<input class="col-span-2 w-full bg-transparent border-b border-on-surface/20 py-base px-0 focus:outline-none focus:border-primary-container input-focus-effect font-label-md text-on-surface placeholder:text-on-surface/30" placeholder="CARD NUMBER" type="text"/>
+<input class="w-full bg-transparent border-b border-on-surface/20 py-base px-0 focus:outline-none focus:border-primary-container input-focus-effect font-label-md text-on-surface placeholder:text-on-surface/30" placeholder="EXPIRY (MM/YY)" type="text"/>
+<input class="w-full bg-transparent border-b border-on-surface/20 py-base px-0 focus:outline-none focus:border-primary-container input-focus-effect font-label-md text-on-surface placeholder:text-on-surface/30" placeholder="CVV" type="text"/>
+</div>
+</div>
+</div>
+</section>
+<button class="w-full bg-primary-container text-on-primary-container py-md font-label-md text-label-md tracking-[0.2em] uppercase transition-all hover:bg-opacity-90 hover:tracking-[0.25em] active:scale-[0.99] mt-lg">
+                    PLACE ORDER
+                </button>
+</div>
+<!-- Right Column: Sticky Summary -->
+<aside class="relative mt-xl lg:mt-0">
+<div class="lg:sticky lg:top-[120px] space-y-lg">
+<div class="bg-surface-container-low p-lg rounded-lg border border-on-surface/5">
+<h3 class="font-headline-md text-headline-md uppercase tracking-widest mb-lg">Order Summary</h3>
+<!-- Items -->
+<div class="space-y-md mb-lg">
+<div class="flex gap-md">
+<div class="w-20 h-24 bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up high-fashion photography of a deep crimson embroidered silk kurta with intricate gold needlework details. The fabric has a subtle premium sheen under soft editorial studio lighting against a dark charcoal background. The composition is minimal and elegant, emphasizing craftsmanship and material quality in a Kinetic Noir style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBM9DAWh1uB-_VruQK0c9W4QCZIyXsPUfxNxQBgv3RD3L0c-M988VGt4HtD6-M2IL-60asMIy1ECPWS0bkYfMJmIPguDQtdSITLPhybBddIAEn8vcMarbvFEMeHp5do_9DVEtJ0WsInTIm-bbPTo_QY-VaT-dZVZDn-RxJvpmXCmTJFEOai4zwgpeuYH4chgHCfshDPo9vIFeRGtgW2RWGEivKmuy10XrlkMvCO30TeNBd3Ao4N83S3uYBFwuvfBs29guIEi0sokQsf"/>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<p class="font-label-md text-on-surface uppercase">EMBROIDERED SILK KURTA</p>
+<p class="font-caption text-secondary">SIZE: M / CRIMSON</p>
+</div>
+<p class="font-label-md text-on-surface">RS. 18,500</p>
+</div>
+</div>
+<div class="flex gap-md">
+<div class="w-20 h-24 bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Professional apparel photography of wide-legged silk palazzo trousers in deep obsidian black. The drape of the fabric is highlighted by dramatic side lighting, showcasing its liquid-like movement and premium texture. Minimalist aesthetic with a high-fashion editorial feel, set against a dark, moody studio environment to match the Kinetic Noir theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4K7daN-DkyLJDQZV7JnTyTjYVauV5WreffEtILro8uFcKhjtjREFmMXQ2ieNEPMN6t2v7iaCplmKB1GzCHPI1sEsXZJt3hvMMa_nhrdbQDmtezxrM7gcQhAz856hYsZ1Wm3Qlkf2INbjbl8l-x-9Zt2-x3hPVwFbuS2K_XEngBRgIJdDEO668NfrVrq6SYkSoOPrsVIYE2Rv7h9aQEQ7ulO6j1dnHqYWohYvMxSZ_ccfoFGFHnvXXFbnOD4UAfhIVFsXHv0CcrsuQ"/>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<p class="font-label-md text-on-surface uppercase">SILK PALAZZO TROUSERS</p>
+<p class="font-caption text-secondary">SIZE: M / BLACK</p>
+</div>
+<p class="font-label-md text-on-surface">RS. 8,500</p>
+</div>
+</div>
+</div>
+<hr class="border-on-surface/10 mb-lg"/>
+<!-- Promo Code -->
+<div class="flex gap-sm mb-lg">
+<input class="flex-1 bg-transparent border-b border-on-surface/20 py-sm px-0 focus:outline-none focus:border-primary-container input-focus-effect font-label-md text-on-surface placeholder:text-on-surface/30" placeholder="DISCOUNT CODE" type="text"/>
+<button class="font-label-md text-primary uppercase tracking-widest hover:text-white transition-colors px-base">APPLY</button>
+</div>
+<!-- Calculations -->
+<div class="space-y-sm mb-lg">
+<div class="flex justify-between font-body-md text-secondary">
+<span>SUBTOTAL</span>
+<span>RS. 27,000</span>
+</div>
+<div class="flex justify-between font-body-md text-secondary">
+<span>SHIPPING</span>
+<span>FREE</span>
+</div>
+</div>
+<div class="flex justify-between items-end pt-md border-t border-on-surface/10">
+<span class="font-headline-md text-headline-md uppercase tracking-widest">Total</span>
+<span class="font-display-lg-mobile text-display-lg-mobile font-bold text-on-surface">RS. 27,000</span>
+</div>
+</div>
+<!-- Trust Badges -->
+<div class="grid grid-cols-3 gap-sm py-sm px-md">
+<div class="flex flex-col items-center text-center gap-xs">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'wght' 200;">lock</span>
+<span class="font-caption text-secondary uppercase tracking-tighter">SECURE PAYMENT</span>
+</div>
+<div class="flex flex-col items-center text-center gap-xs">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'wght' 200;">assignment_return</span>
+<span class="font-caption text-secondary uppercase tracking-tighter">FREE RETURNS</span>
+</div>
+<div class="flex flex-col items-center text-center gap-xs">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'wght' 200;">diamond</span>
+<span class="font-caption text-secondary uppercase tracking-tighter">HANDMADE QUALITY</span>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest border-t border-on-surface/10 w-full px-margin-mobile md:px-margin-desktop py-lg flex flex-col md:flex-row justify-between items-center gap-gutter">
+<div class="font-headline-md text-headline-md font-bold text-on-surface">LINE&amp;LOOP</div>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="font-caption text-caption uppercase tracking-widest text-secondary hover:text-primary transition-colors duration-200" href="#">PRIVACY POLICY</a>
+<a class="font-caption text-caption uppercase tracking-widest text-secondary hover:text-primary transition-colors duration-200" href="#">TERMS OF SERVICE</a>
+<a class="font-caption text-caption uppercase tracking-widest text-secondary hover:text-primary transition-colors duration-200" href="#">SHIPPING &amp; RETURNS</a>
+</div>
+<div class="font-caption text-caption uppercase tracking-widest text-secondary opacity-80">© 2024 LINE&amp;LOOP. ALL RIGHTS RESERVED.</div>
+</footer>
+<script>
+        // Micro-interaction for input fields
+        document.querySelectorAll('input, select').forEach(element => {
+            element.addEventListener('focus', () => {
+                element.parentElement.classList.add('border-primary-container');
+            });
+            element.addEventListener('blur', () => {
+                element.parentElement.classList.remove('border-primary-container');
+            });
+        });
+
+        // Simple shipping method toggle logic appearance
+        const shippingInputs = document.querySelectorAll('input[name="shipping"]');
+        shippingInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                shippingInputs.forEach(i => i.closest('label').classList.remove('bg-surface-container-low'));
+                if(e.target.checked) e.target.closest('label').classList.add('bg-surface-container-low');
+            });
+        });
+
+        // Simple payment method toggle logic appearance
+        const paymentInputs = document.querySelectorAll('input[name="payment"]');
+        paymentInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                paymentInputs.forEach(i => i.closest('div').classList.remove('bg-surface-container-low'));
+                // Just aesthetic for the demo
+                if(e.target.checked) e.target.parentElement.parentElement.classList.add('bg-surface-container-low');
+            });
+        });
+    </script>
+</body></html>

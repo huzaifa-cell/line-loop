@@ -23,9 +23,6 @@ export default function NotFound() {
           <Link href="/" className="caption uppercase link-underline">
             Home
           </Link>
-          <Link href="/journal" className="caption uppercase link-underline">
-            Journal
-          </Link>
           <Link href="/track-order" className="caption uppercase link-underline">
             Track Order
           </Link>

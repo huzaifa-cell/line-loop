@@ -1,170 +1,111 @@
-import type { Metadata } from "next";
+import { AnimatedWrapper } from "@/components/AnimatedWrapper";
 import Image from "next/image";
-import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "About — The Craft",
-  description:
-    "How LINE&LOOP garments are made — hand-dyed, block-printed, and tailored by hand in small batches with making families across Pakistan.",
-};
-
-const steps = [
-  {
-    n: "01",
-    title: "Source",
-    body: "Raw cotton, mulberry silk and lawn, bought directly from mill co-operatives. No synthetics, no middlemen.",
-  },
-  {
-    n: "02",
-    title: "Dye & Print",
-    body: "Yarn and cloth are hand-dyed or block-printed with carved teak blocks — a single suit can move through sixteen dye stages.",
-  },
-  {
-    n: "03",
-    title: "Tailor",
-    body: "Cut and stitched by hand at our Lahore atelier. French seams, natural-fibre thread, no factory shortcuts.",
-  },
-  {
-    n: "04",
-    title: "Finish",
-    body: "Pressed, checked, and wrapped by hand. Made to order, so nothing is wasted and nothing is overproduced.",
-  },
-];
-
-const artisans = [
-  {
-    name: "The Khatri Block-Printers",
-    place: "Sindh",
-    craft: "Hand block-print & Ajrakh",
-    image:
-      "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    name: "The Lucknow Chikankari Collective",
-    place: "Lucknow",
-    craft: "Shadow-work hand embroidery",
-    image:
-      "https://images.unsplash.com/photo-1583391733981-3d1c0e9a8d9e?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    name: "The LINE&LOOP Atelier",
-    place: "Lahore",
-    craft: "Cutting, tailoring & finish",
-    image:
-      "https://images.unsplash.com/photo-1599391443912-70916ab4f977?auto=format&fit=crop&w=600&q=80",
-  },
-];
-
-export default function AboutPage() {
+export default function About() {
   return (
     <>
-      {/* Hero */}
-      <section className="relative h-[70vh] min-h-[440px] w-full bg-ink-black overflow-hidden">
-        <Image
-          src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=2000&q=80"
-          alt="Hands block-printing cloth by hand"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover opacity-75"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink-black/30 via-transparent to-ink-black/70" />
-        <div className="absolute inset-0 flex items-center justify-center px-4">
-          <h1 className="font-wordmark text-ivory-mist text-center select-none mix-blend-exclusion">
-            MADE BY HAND
+      {/* Hero Story Section */}
+      <section className="relative min-h-[60vh] md:min-h-[70vh] flex flex-col justify-center items-center text-center overflow-hidden bg-espresso">
+        <div className="absolute inset-0 z-0">
+          <Image 
+            src="https://images.unsplash.com/photo-1716504628084-97224213ca6d?auto=format&fit=crop&q=80&w=2560"
+            alt="Artisan hands stitching"
+            fill
+            priority
+            sizes="100vw"
+            quality={70}
+            className="object-cover opacity-30 sepia-[.2] contrast-125 mix-blend-luminosity"
+          />
+        </div>
+        <AnimatedWrapper className="relative z-10 max-w-4xl space-y-6 px-margin-mobile md:px-margin-desktop" delay={0.2}>
+          <span className="font-label-caps text-label-caps text-brand-red uppercase tracking-[0.3em]">Our Story</span>
+          <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg text-ivory tracking-tight leading-tight font-normal">
+            THE ART OF SLOW FASHION
           </h1>
+        </AnimatedWrapper>
+      </section>
+
+      {/* Our Philosophy */}
+      <section className="bg-ivory py-section-gap-mobile md:py-section-gap px-margin-mobile md:px-margin-desktop">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center max-w-7xl mx-auto">
+          <AnimatedWrapper delay={0.1} className="relative aspect-[3/4] rounded-lg overflow-hidden shadow-xl">
+            <Image 
+              src="https://images.unsplash.com/photo-1589363348179-3cced6b7b6d3?auto=format&fit=crop&q=80&w=1200"
+              alt="Linen garment detail"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              quality={75}
+              className="object-cover transition-transform duration-1000 hover:scale-105"
+            />
+          </AnimatedWrapper>
+          
+          <AnimatedWrapper delay={0.3} className="space-y-8">
+            <h2 className="font-headline-md text-headline-md text-espresso font-normal">
+              A Rejection of Mass Production
+            </h2>
+            <div className="space-y-6 font-body-lg text-body-lg text-taupe font-light leading-relaxed">
+              <p>
+                LINE&LOOP was born out of a desire to return to the roots of garment making. In a world obsessed with velocity, we choose to pause. 
+              </p>
+              <p>
+                Every kurti, shalwar kameez, and trouser is cut, dyed, and stitched by hand in our small ateliers in Pakistan. We don&apos;t believe in seasonal trends that expire; we believe in creating timeless, feminine silhouettes that endure.
+              </p>
+              <p>
+                Our pieces are made in extremely small batches. This isn&apos;t artificial scarcity—it is a true reflection of the time and labor required to craft garments the right way.
+              </p>
+            </div>
+          </AnimatedWrapper>
         </div>
       </section>
 
-      {/* Story */}
-      <section className="bg-warm-parchment py-[var(--spacing-80)]">
-        <div className="mx-auto max-w-[680px] px-6 text-center">
-          <p className="caption uppercase tracking-[0.2em] mb-[var(--spacing-20)]">
-            Our Story
-          </p>
-          <p className="text-base leading-[1.8]">
-            LINE&LOOP began as a refusal of the disposable. We make handmade
-            ladies&rsquo; garments slowly &mdash; hand-dyed, block-printed, and
-            tailored by people we know by name. We work with making families
-            across Pakistan in tiny, fair-paid batches, because the hands behind
-            a cloth are part of its value. Every piece carries the slight
-            imperfections of the human who made it. That, to us, is the whole
-            point.
-          </p>
-        </div>
-      </section>
-
-      {/* Process */}
-      <section className="bg-ivory-mist py-[var(--spacing-80)]">
-        <div className="mx-auto max-w-[var(--page-max-width)] px-6">
-          <h2 className="text-[32px] font-bold leading-none mb-[var(--spacing-60)]">
-            How a Piece is Made
-          </h2>
-          <div className="grid gap-[5px] sm:grid-cols-2 lg:grid-cols-4">
-            {steps.map((s) => (
-              <div key={s.n} className="bg-warm-parchment p-[var(--spacing-30)]">
-                <p className="caption uppercase font-bold">{s.n}</p>
-                <div className="stitch-line w-8 my-[var(--spacing-15)]" />
-                <h3 className="text-[24px] font-bold leading-none">
-                  {s.title}
-                </h3>
-                <p className="text-base leading-[1.7] mt-[var(--spacing-15)]">
-                  {s.body}
-                </p>
-              </div>
+      {/* The Process */}
+      <section className="bg-mocha py-section-gap-mobile md:py-section-gap px-margin-mobile md:px-margin-desktop border-y border-taupe">
+        <div className="max-w-7xl mx-auto">
+          <AnimatedWrapper className="text-center mb-12 md:mb-20">
+            <h2 className="font-headline-md text-headline-md text-ivory font-normal">OUR CRAFT</h2>
+          </AnimatedWrapper>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+            {[
+              {
+                step: '01',
+                title: 'Sourcing Natural Fibers',
+                desc: 'We use exclusively natural, breathable fabrics like high-grade linen, cotton, and silk, sourced responsibly to ensure a soft touch against the skin.'
+              },
+              {
+                step: '02',
+                title: 'Hand-Dyeing & Block Printing',
+                desc: 'Colors are achieved through traditional vat dyeing and intricate hand-block printing techniques that render every single piece subtly unique.'
+              },
+              {
+                step: '03',
+                title: 'Precision Stitching',
+                desc: 'Our master tailors finish each garment with robust, precise stitching, focusing on the internal architecture of the piece as much as its external drape.'
+              }
+            ].map((item, i) => (
+              <AnimatedWrapper key={item.step} delay={0.2 * i} className="space-y-6">
+                <span className="font-display-lg text-brand-red opacity-50">{item.step}.</span>
+                <h3 className="font-headline-sm text-headline-sm text-ivory font-normal">{item.title}</h3>
+                <p className="font-body-md text-beige font-light">{item.desc}</p>
+                <div className="w-12 h-[1px] bg-taupe"></div>
+              </AnimatedWrapper>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Artisans */}
-      <section className="bg-warm-parchment py-[var(--spacing-80)]">
-        <div className="mx-auto max-w-[var(--page-max-width)] px-6">
-          <h2 className="text-[32px] font-bold leading-none mb-[var(--spacing-30)]">
-            The Makers
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-[5px]">
-            {artisans.map((a) => (
-              <div key={a.name}>
-                <div className="relative aspect-[4/5] bg-ivory-mist">
-                  <Image
-                    src={a.image}
-                    alt={`${a.name}, ${a.place}`}
-                    fill
-                    sizes="(max-width: 640px) 100vw, 33vw"
-                    className="object-cover"
-                  />
-                </div>
-                <p className="caption font-bold uppercase mt-[var(--spacing-15)]">
-                  {a.name}
-                </p>
-                <p className="caption opacity-70">
-                  {a.craft} · {a.place}
-                </p>
-              </div>
-            ))}
+      {/* Founder Note */}
+      <section className="bg-ivory py-section-gap-mobile md:py-section-gap px-margin-mobile md:px-margin-desktop text-center">
+        <AnimatedWrapper delay={0.2} className="max-w-3xl mx-auto space-y-8 md:space-y-12">
+          <span className="material-symbols-outlined text-4xl text-brand-red">format_quote</span>
+          <p className="font-headline-sm text-headline-sm text-espresso font-normal leading-relaxed italic">
+            &ldquo;We aren&apos;t just making clothes. We are preserving a heritage of craftsmanship that deserves to be worn, celebrated, and passed down.&rdquo;
+          </p>
+          <div className="space-y-1">
+            <h4 className="font-label-caps text-label-caps text-espresso tracking-widest">FOUNDER & CREATIVE DIRECTOR</h4>
+            <p className="font-body-md text-taupe">LINE&LOOP</p>
           </div>
-        </div>
-      </section>
-
-      {/* Sustainability / care */}
-      <section id="care" className="bg-ivory-mist py-[var(--spacing-80)]">
-        <div className="mx-auto max-w-[680px] px-6 text-center">
-          <p className="caption uppercase tracking-[0.2em] mb-[var(--spacing-20)]">
-            Care &amp; Conscience
-          </p>
-          <p className="text-base leading-[1.8]">
-            Natural dyes fade gently with time and light &mdash; that is
-            character, not wear. Hand wash cold, dry in shade, iron on reverse
-            where embroidered. We repair what we make, for as long as you wear it.
-          </p>
-          <Link
-            href="/shop"
-            className="caption uppercase link-underline inline-block mt-[var(--spacing-30)]"
-          >
-            Shop the Collection
-          </Link>
-        </div>
+        </AnimatedWrapper>
       </section>
     </>
   );

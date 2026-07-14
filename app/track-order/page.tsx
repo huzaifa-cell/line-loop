@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getOrderByNumberAndEmail } from "@/lib/orders";
+import { getStorefrontOrderByNumberAndEmail } from "@/lib/storefront";
 import { formatPrice } from "@/lib/utils";
 import StitchDivider from "@/components/StitchDivider";
 import Breadcrumb from "@/components/Breadcrumb";
@@ -24,7 +24,7 @@ export default async function TrackOrderPage({
   let notFound = false;
 
   if (orderNumber && email) {
-    order = await getOrderByNumberAndEmail(orderNumber, email);
+    order = await getStorefrontOrderByNumberAndEmail(orderNumber, email);
     if (!order) notFound = true;
   }
 
@@ -92,7 +92,7 @@ export default async function TrackOrderPage({
               <div className="space-y-[var(--spacing-10)]">
                 {order.lines.map((line) => (
                   <div
-                    key={`${line.slug}-${line.size}-${line.colour}`}
+                    key={`${line.name}-${line.size}-${line.colour}`}
                     className="flex justify-between caption"
                   >
                     <span>

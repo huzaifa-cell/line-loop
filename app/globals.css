@@ -1,171 +1,216 @@
 @import "tailwindcss";
 
-/*
-  LINE&LOOP — design tokens
-  The single brand accent is Thread Red (#e31e24), honouring the logo's red
-  clothing-hanger "I" and red needle-and-thread "&". Used sparingly: announcement
-  bar, footer, Sold Out, focus states, active filter/step underlines, stitch accents.
-  0px radius across the board. No gradients, no shadows. Photography carries it.
-*/
 @theme {
-  /* Colors — exactly 4, the brand palette */
-  --color-brand-red: #e31e24; /* Thread Red */
-  --color-brand-red-deep: #c0181e;
-  --color-ink-black: #000000;
-  --color-warm-parchment: #f4f1e4;
-  --color-ivory-mist: #fcfaf1;
+  /* Feminine Noir Palette */
+  --color-brand-red: #D61C22;
+  --color-espresso: #1A1616;
+  --color-mocha: #231F1F;
+  --color-taupe: #2C2727;
+  --color-ivory: #F9F6F0;
+  --color-beige: #D4CDC4;
 
-  /* Typography — Font Families (variables come from next/font in layout) */
-  --font-good-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-redaction: var(--font-fraunces), ui-serif, Georgia, serif;
+  /* Mappings for Stitch HTML classes */
+  --color-surface-container-lowest: var(--color-espresso);
+  --color-surface-container: var(--color-mocha);
+  --color-surface-container-highest: var(--color-taupe);
+  --color-background: var(--color-espresso);
+  --color-surface: var(--color-espresso);
+  
+  --color-on-surface: var(--color-ivory);
+  --color-on-surface-variant: var(--color-beige);
+  
+  --color-primary-container: var(--color-brand-red);
+  --color-on-primary-container: #ffffff;
+  --color-primary: #E84A4F;
 
-  /* Typography — Scale */
-  --text-caption: 12px;
-  --leading-caption: 1;
-  --tracking-caption: 0.6px;
-  --text-body: 16px;
-  --leading-body: 1.8;
-  --tracking-body: 0.08px;
-  --text-subheading: 24px;
-  --leading-subheading: 1.8;
-  --tracking-subheading: 0.12px;
-  --text-heading: 32px;
-  --leading-heading: 1.8;
-  --tracking-heading: 0.16px;
-  --text-display: 72px;
-  --leading-display: 1.05;
-  --tracking-display: 0.144px;
+  /* New design-system palette (used by product, cart, checkout, etc.) */
+  --color-ink-black: #141414;
+  --color-warm-parchment: #F5F1EA;
+  --color-ivory-mist: #FAF7F0;
 
-  /* Spacing */
-  --spacing-5: 5px;
+  /* Typography */
+  --font-inter: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-fraunces: var(--font-fraunces), ui-serif, Georgia, serif;
+
+  /* The Stitch HTML uses these custom font classes */
+  --font-display-lg: var(--font-fraunces);
+  --font-display-lg-mobile: var(--font-fraunces);
+  --font-headline-md: var(--font-fraunces);
+  --font-headline-sm: var(--font-fraunces);
+  --font-body-lg: var(--font-inter);
+  --font-body-md: var(--font-inter);
+  --font-button: var(--font-inter);
+  --font-label-caps: var(--font-inter);
+
+  /* Map the sizes from HTML */
+  --text-display-lg: clamp(40px, 6vw, 64px);
+  --text-display-lg-mobile: 40px;
+  --text-headline-md: clamp(24px, 4vw, 32px);
+  --text-headline-sm: clamp(20px, 3vw, 24px);
+  --text-body-lg: clamp(16px, 2vw, 18px);
+  --text-body-md: 16px;
+  --text-button: 14px;
+  --text-label-caps: 12px;
+  
+  --spacing-margin-desktop: 64px;
+  --spacing-margin-mobile: 20px;
+  --spacing-unit: 4px;
+  --spacing-gutter: 24px;
+  --spacing-section-gap: 120px;
+  --spacing-section-gap-mobile: 48px;
+  --spacing-section-gap-tablet: 80px;
+
+  /* New design-system spacing scale */
   --spacing-10: 10px;
   --spacing-15: 15px;
   --spacing-20: 20px;
   --spacing-30: 30px;
+  --spacing-40: 40px;
   --spacing-60: 60px;
   --spacing-80: 80px;
 
-  /* Layout */
+  /* Page layout */
   --page-max-width: 1280px;
-
-  /* Stitch motif — thread/needle brand metaphor */
-  --stitch-dash: 4px;
-  --stitch-gap: 3px;
-  --stitch-weight: 1px;
 }
 
-:root {
-  --surface-editorial-canvas: #f4f1e4;
-  --surface-hero-void: #000000;
-  --surface-brand-whisper: #e31e24; /* Thread Red */
-  --stitch-color-default: #000000;
-  --stitch-color-accent: #e31e24;
-
-  --background: #f4f1e4;
-  --foreground: #000000;
-}
-
-/* 0px radius everywhere — flush gallery composition */
-* {
-  border-radius: 0 !important;
-}
-
-html {
-  background: var(--color-warm-parchment);
-  -webkit-font-smoothing: antialiased;
+/* Base resets and overrides */
+html, body {
+  background-color: var(--color-espresso);
+  color: var(--color-ivory);
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
   text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
 }
 
-body {
-  background: var(--color-warm-parchment);
-  color: var(--color-ink-black);
-  font-family: var(--font-good-sans);
-  font-size: 16px;
-  line-height: 1.8;
-  letter-spacing: 0.08px;
+/* Prevent horizontal overflow on all viewports */
+/* Removed overflow-x: hidden on html to allow standard document scrolling */
+
+/* Improve touch scrolling on mobile */
+* {
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Display wordmark — used once per page */
-.font-wordmark {
-  font-family: var(--font-redaction);
-  font-weight: 700;
-  font-size: clamp(48px, 13vw, 132px);
-  line-height: 1;
-  letter-spacing: 0.144px;
-}
-
-/* Caption utility — 12px labels */
+/* Caption — small uppercase label text used across the design system */
 .caption {
   font-size: 12px;
-  line-height: 1;
-  letter-spacing: 0.6px;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
 }
 
-/* Underlined text link — the system's primary interaction */
+/* Link underline — animated underline that grows on hover */
 .link-underline {
-  position: relative;
-  display: inline-block;
-  padding-bottom: 3px;
-  background-image: linear-gradient(
-    to right,
-    currentColor 0%,
-    currentColor 100%
-  );
-  background-position: 0 100%;
-  background-repeat: no-repeat;
-  background-size: 100% 1px;
-  transition: background-size 0.25s ease;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: currentColor;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
 }
 .link-underline:hover {
-  background-size: 100% 2px;
+  opacity: 1;
 }
 
-/* Stitch motif — dashed thread lines (default black, accent Thread Red) */
+/* Stitch line — dashed border separator echoing the brand's thread motif */
 .stitch-line {
-  border-top: var(--stitch-weight) dashed var(--stitch-color-default);
+  border-top: 1px dashed currentColor;
+  opacity: 0.3;
 }
 .stitch-line--accent {
-  border-top: var(--stitch-weight) dashed var(--stitch-color-accent);
+  border-top: 1px dashed var(--color-brand-red);
+  opacity: 0.6;
 }
 
-/*
-  Dashed-border CTA — the ONE deliberate exception to the text-link-only rule
-  (spec law 1). Used only for Add to Bag / Checkout / Place Order. Dashed border
-  echoes the stitch motif; never filled, never rounded.
-*/
+/* Dashed CTA — the one deliberate exception to text-link-only (Add to Bag, Checkout) */
 .dashed-cta {
-  display: inline-block;
+  display: block;
   width: 100%;
-  border: 1px dashed var(--color-ink-black);
-  background: transparent;
-  color: var(--color-ink-black);
-  font-family: var(--font-good-sans);
+  border: 1px dashed currentColor;
+  padding: 16px 24px;
+  text-align: center;
   font-size: 12px;
-  font-weight: 700;
   line-height: 1;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.1em;
+  font-weight: 600;
   text-transform: uppercase;
-  padding: 18px 20px;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 .dashed-cta:hover:not(:disabled) {
   background: var(--color-ink-black);
-  color: var(--color-ivory-mist);
+  color: var(--color-warm-parchment);
 }
 .dashed-cta:disabled {
-  opacity: 0.35;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
-/* Accessibility — visible focus ring */
-:focus-visible {
-  outline: 2px solid var(--color-brand-red);
-  outline-offset: 3px;
+/* Wordmark — large display text for hero/brand moments */
+.font-wordmark {
+  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(28px, 10vw, 80px);
+  letter-spacing: -0.02em;
+  line-height: 1;
 }
 
-::selection {
-  background: var(--color-brand-red);
-  color: var(--color-ivory-mist);
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Typography styles mapped from HTML sizes */
+.text-display-lg { font-size: var(--text-display-lg); line-height: 1.1; letter-spacing: -0.04em; }
+.text-display-lg-mobile { font-size: var(--text-display-lg-mobile); line-height: 1.1; letter-spacing: -0.02em; }
+.text-headline-md { font-size: var(--text-headline-md); line-height: 1.2; letter-spacing: -0.02em; }
+.text-headline-sm { font-size: var(--text-headline-sm); line-height: 1.3; }
+.text-body-lg { font-size: var(--text-body-lg); line-height: 1.6; }
+.text-body-md { font-size: var(--text-body-md); line-height: 1.6; }
+.text-button { font-size: var(--text-button); line-height: 1; letter-spacing: 0.05em; font-weight: 600; }
+.text-label-caps { font-size: var(--text-label-caps); line-height: 1; letter-spacing: 0.1em; font-weight: 700; }
+
+/* Responsive padding utilities — mobile-first, scaling up to desktop */
+.px-margin-mobile { padding-left: var(--spacing-margin-mobile); padding-right: var(--spacing-margin-mobile); }
+.px-margin-desktop { padding-left: var(--spacing-margin-desktop); padding-right: var(--spacing-margin-desktop); }
+.py-section-gap-mobile { padding-top: var(--spacing-section-gap-mobile); padding-bottom: var(--spacing-section-gap-mobile); }
+.py-section-gap-tablet { padding-top: var(--spacing-section-gap-tablet); padding-bottom: var(--spacing-section-gap-tablet); }
+
+/* Content visibility — skip rendering offscreen sections for faster paint */
+@media (max-width: 768px) {
+  .content-visibility-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 400px;
+  }
+}
+
+/* Reduce motion preference — respect user setting */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Smooth font rendering for icon fonts */
+.material-symbols-outlined {
+  text-rendering: optimizeSpeed;
+}
+
+/* Image rendering optimization */
+img {
+  content-visibility: auto;
 }

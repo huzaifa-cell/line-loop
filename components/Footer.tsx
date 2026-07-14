@@ -1,85 +1,64 @@
-"use client";
-
 import Link from "next/link";
+import Image from "next/image";
 
-/**
- * Page-close branding strip — full-width brand-red band that bookends
- * the announcement bar at the top of the page.
- * Client component because of the newsletter form.
- */
-const footerNav = [
-  { label: "Shop", href: "/shop" },
-  { label: "About", href: "/about" },
-  { label: "Journal", href: "/journal" },
-  { label: "Track Order", href: "/track-order" },
-  { label: "Account", href: "/account" },
-  { label: "Contact", href: "mailto:hello@lineloop.pk" },
-];
-
-export default function Footer() {
+export function Footer() {
   return (
-    <footer className="bg-brand-red text-ink-black mt-[var(--spacing-80)]">
-      <div className="mx-auto max-w-[var(--page-max-width)] px-6 py-[var(--spacing-60)]">
-        <div className="grid gap-[var(--spacing-60)] md:grid-cols-3">
-          <div>
-            <p className="font-wordmark text-[40px] leading-none">LINE&LOOP</p>
-            <p className="caption mt-[var(--spacing-20)] max-w-xs">
-              Handmade ladies&rsquo; garments, made slowly. Cut, dyed and
-              stitched by hand in small batches.
-            </p>
-          </div>
-
-          <div>
-            <p className="caption uppercase font-bold mb-[var(--spacing-20)]">
-              Explore
-            </p>
-            <ul className="space-y-[var(--spacing-15)]">
-              {footerNav.map((item) => (
-                <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className="caption link-underline capitalize"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <p className="caption uppercase font-bold mb-[var(--spacing-20)]">
-              The Letter
-            </p>
-            <p className="caption max-w-xs">
-              New pieces, studio notes and slow-fashion stories. No noise.
-            </p>
-            <form
-              className="mt-[var(--spacing-20)] flex border-b border-ink-black"
-              onSubmit={(e) => e.preventDefault()}
-            >
-              <input
-                type="email"
-                required
-                placeholder="Email address"
-                aria-label="Email address"
-                className="caption bg-transparent py-[var(--spacing-10)] flex-1 outline-none placeholder:text-ink-black/50"
-              />
-              <button
-                type="submit"
-                className="caption uppercase font-bold py-[var(--spacing-10)]"
-              >
-                Subscribe
-              </button>
-            </form>
+    <footer className="bg-espresso border-t border-mocha px-margin-mobile md:px-margin-desktop py-section-gap-mobile md:py-section-gap">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-gutter">
+        {/* Brand Info */}
+        <div className="md:col-span-5 space-y-6 md:space-y-8">
+          <Image 
+            src="/lineloop-logo.png" 
+            alt="LINE&LOOP Logo" 
+            width={160} 
+            height={50} 
+            className="h-10 md:h-12 w-auto rounded-sm"
+            sizes="(max-width: 768px) 120px, 160px"
+            loading="lazy"
+            style={{ width: "auto" }}
+          />
+          <p className="font-body-md text-beige max-w-xs leading-relaxed text-sm md:text-base">
+            Curating luxury artisanal garments with a focus on sustainable slow fashion and heritage craftsmanship. Designed for the feminine silhouette.
+          </p>
+          <div className="flex gap-4">
+            <Link href="#" className="text-ivory hover:text-brand-red transition-colors">
+              <span className="material-symbols-outlined">face_nod</span>
+            </Link>
+            <Link href="#" className="text-ivory hover:text-brand-red transition-colors">
+              <span className="material-symbols-outlined">photo_camera</span>
+            </Link>
+            <Link href="#" className="text-ivory hover:text-brand-red transition-colors">
+              <span className="material-symbols-outlined">play_circle</span>
+            </Link>
           </div>
         </div>
-
-        <div className="mt-[var(--spacing-60)] pt-[var(--spacing-20)] border-t border-ink-black/30 flex flex-col sm:flex-row justify-between gap-[var(--spacing-10)]">
-          <p className="caption">
-            © {new Date().getFullYear()} LINE&LOOP. All rights reserved.
-          </p>
-          <p className="caption">Handmade in Pakistan · Ships nationwide</p>
+        {/* Links */}
+        <div className="md:col-span-3 grid grid-cols-2 md:grid-cols-1 gap-4 md:gap-4">
+          <h4 className="font-label-caps text-label-caps text-ivory uppercase tracking-widest mb-2 md:mb-4">Information</h4>
+          <div className="flex flex-col gap-2 md:gap-0">
+            <Link href="/shop" className="font-body-md text-beige hover:text-brand-red transition-colors">SHOP</Link>
+            <Link href="/about" className="font-body-md text-beige hover:text-brand-red transition-colors">ABOUT</Link>
+            <Link href="#" className="font-body-md text-beige hover:text-brand-red transition-colors">INSTAGRAM</Link>
+            <Link href="#" className="font-body-md text-beige hover:text-brand-red transition-colors">PINTEREST</Link>
+          </div>
+        </div>
+        {/* Newsletter */}
+        <div className="md:col-span-4 space-y-4 md:space-y-6">
+          <h4 className="font-label-caps text-label-caps text-ivory uppercase tracking-widest mb-2 md:mb-4">Newsletter</h4>
+          <p className="font-body-md text-beige text-sm md:text-base">Join our journey and receive updates on new collections and artisanal stories.</p>
+          <form className="flex border-b border-mocha pb-2">
+            <input className="bg-transparent border-none focus:ring-0 focus:outline-none text-ivory w-full font-body-md text-sm md:text-base" placeholder="Email Address" type="email" />
+            <button className="text-ivory hover:text-brand-red transition-all" type="submit">
+              <span className="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </form>
+        </div>
+      </div>
+      <div className="mt-12 md:mt-24 pt-8 border-t border-mocha flex flex-col md:flex-row justify-between items-center gap-4">
+        <span className="font-body-md text-beige text-xs md:text-sm">© 2026 LINE&LOOP. HANDMADE GARMENTS, MADE SLOWLY.</span>
+        <div className="flex gap-8">
+          <Link href="#" className="font-label-caps text-[10px] text-beige hover:text-ivory">PRIVACY</Link>
+          <Link href="#" className="font-label-caps text-[10px] text-beige hover:text-ivory">TERMS</Link>
         </div>
       </div>
     </footer>

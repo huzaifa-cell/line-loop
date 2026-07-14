@@ -1,162 +1,183 @@
 "use client";
 
+import { useCart } from "@/lib/CartContext";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect } from "react";
-import { useCart } from "@/lib/cart";
-import { formatPrice } from "@/lib/utils";
-import DashedCTA from "@/components/DashedCTA";
+import { motion, AnimatePresence } from "framer-motion";
 
-/**
- * Slide-over cart drawer (right). CHECKOUT uses the dashed-border CTA,
- * the single deliberate exception to the text-link-only rule (spec law 1).
- */
 export default function CartDrawer() {
-  const { isOpen, close, lines, subtotal, count, setQty, remove } = useCart();
-
-  // Lock scroll while open.
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = "";
-      };
-    }
-  }, [isOpen]);
-
-  // Close on Escape.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [close]);
+  const { items, isOpen, closeCart, removeItem, updateQuantity, itemCount, subtotal, shipping, total } = useCart();
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        onClick={close}
-        className={`fixed inset-0 z-50 bg-ink-black/40 transition-opacity duration-300 ${
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-        aria-hidden={!isOpen}
-      />
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={closeCart}
+            className="fixed inset-0 bg-espresso/40 backdrop-blur-sm z-[100]"
+          />
 
-      {/* Panel */}
-      <aside
-        className={`fixed top-0 right-0 z-50 h-full w-full max-w-md bg-warm-parchment flex flex-col transition-transform duration-300 ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-        role="dialog"
-        aria-label="Shopping cart"
-        aria-hidden={!isOpen}
-      >
-        <div className="flex items-center justify-between px-6 h-14 border-b border-ink-black/15">
-          <p className="caption uppercase font-bold">Your Bag ({count})</p>
-          <button onClick={close} className="caption uppercase" aria-label="Close cart">
-            Close
-          </button>
-        </div>
-
-        {lines.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-[var(--spacing-20)]">
-            <p className="text-2xl font-bold">Your bag is empty</p>
-            <p className="caption">
-              Every piece is made to order. Find something worth keeping.
-            </p>
-            <Link
-              href="/shop"
-              onClick={close}
-              className="caption uppercase link-underline mt-[var(--spacing-10)]"
-            >
-              Shop the Collection
-            </Link>
-          </div>
-        ) : (
-          <>
-            <div className="flex-1 overflow-y-auto px-6 py-[var(--spacing-20)] divide-y divide-ink-black/15">
-              {lines.map((line) => (
-                <div
-                  key={`${line.slug}-${line.size}-${line.colour}`}
-                  className="flex gap-[var(--spacing-20)] py-[var(--spacing-20)]"
+          {/* Drawer Panel */}
+          <motion.aside
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed top-0 right-0 h-full w-full sm:w-[480px] max-w-[100vw] bg-white border-l border-espresso/10 z-[101] flex flex-col"
+          >
+            {/* Header */}
+            <div className="px-4 md:px-8 pt-6 md:pt-8 pb-4 border-b border-espresso/10">
+              <div className="flex justify-between items-center">
+                <h2 className="font-headline-md text-headline-md text-espresso uppercase tracking-[0.15em]">
+                  Your Bag
+                </h2>
+                <button
+                  onClick={closeCart}
+                  className="text-espresso/70 hover:text-brand-red transition-colors cursor-pointer"
                 >
-                  <Link
-                    href={`/product/${line.slug}`}
-                    onClick={close}
-                    className="relative w-20 h-24 shrink-0 bg-ivory-mist"
-                  >
-                    <Image
-                      src={line.image}
-                      alt={line.name}
-                      fill
-                      sizes="80px"
-                      className="object-cover"
-                    />
-                  </Link>
-                  <div className="flex-1 min-w-0">
-                    <p className="caption font-bold">{line.name}</p>
-                    <p className="caption mt-[3px]">
-                      {line.colour} · {line.size}
-                    </p>
-                    <p className="caption mt-[3px] font-bold">
-                      {formatPrice(line.price)}
-                    </p>
-                    <div className="mt-[var(--spacing-10)] flex items-center gap-[var(--spacing-15)]">
-                      <div className="flex items-center border border-ink-black">
-                        <button
-                          onClick={() =>
-                            setQty(line.slug, line.size, line.colour, line.qty - 1)
-                          }
-                          className="caption w-7 h-7 hover:bg-ink-black hover:text-warm-parchment transition-colors"
-                          aria-label="Decrease quantity"
-                        >
-                          –
-                        </button>
-                        <span className="caption w-7 text-center">{line.qty}</span>
-                        <button
-                          onClick={() =>
-                            setQty(line.slug, line.size, line.colour, line.qty + 1)
-                          }
-                          className="caption w-7 h-7 hover:bg-ink-black hover:text-warm-parchment transition-colors"
-                          aria-label="Increase quantity"
-                        >
-                          +
-                        </button>
+                  <span className="material-symbols-outlined text-[24px]">close</span>
+                </button>
+              </div>
+              <p className="font-label-caps text-[11px] text-espresso/70 uppercase tracking-widest mt-1">
+                {itemCount} {itemCount === 1 ? "Item" : "Items"}
+              </p>
+            </div>
+
+            {/* Content */}
+            {items.length === 0 ? (
+              /* Empty State */
+              <div className="flex-1 flex flex-col items-center justify-center px-4 md:px-8 text-center">
+                <span className="material-symbols-outlined text-[64px] text-espresso/30 mb-6">
+                  shopping_bag
+                </span>
+                <h3 className="font-headline-sm text-headline-sm text-espresso mb-2">
+                  Your bag is empty
+                </h3>
+                <p className="font-body-md text-espresso/70 mb-8">
+                  Discover our curated collection of handmade garments.
+                </p>
+                <Link
+                  href="/shop"
+                  onClick={closeCart}
+                  className="bg-brand-red text-white px-8 py-3 font-label-caps text-label-caps uppercase tracking-[0.2em] rounded-md hover:bg-espresso hover:text-white transition-all duration-500"
+                >
+                  Shop the Collection
+                </Link>
+              </div>
+            ) : (
+              <>
+                {/* Items List */}
+                <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 space-y-6">
+                  {items.map((item) => (
+                    <motion.div
+                      key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`}
+                      layout
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="flex gap-4"
+                    >
+                      {/* Thumbnail */}
+                      <div className="relative w-20 h-28 shrink-0 overflow-hidden rounded-sm bg-beige/30">
+                        <Image
+                          src={item.product.image}
+                          alt={item.product.name}
+                          fill
+                          sizes="80px"
+                          className="object-cover"
+                        />
                       </div>
-                      <button
-                        onClick={() => remove(line.slug, line.size, line.colour)}
-                        className="caption uppercase link-underline"
-                      >
-                        Remove
-                      </button>
+
+                      {/* Info */}
+                      <div className="flex-1 flex flex-col justify-between min-w-0">
+                        <div>
+                          <div className="flex justify-between items-start gap-2">
+                            <h4 className="font-label-caps text-[11px] text-espresso uppercase tracking-wider truncate">
+                              {item.product.name}
+                            </h4>
+                            <button
+                              onClick={() => removeItem(item.product.id)}
+                              className="text-espresso/50 hover:text-brand-red transition-colors shrink-0 cursor-pointer"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                          </div>
+                          <p className="font-label-caps text-[10px] text-espresso/60 uppercase tracking-wider mt-0.5">
+                            Size: {item.selectedSize} | Color: {item.selectedColor}
+                          </p>
+                          <p className="font-label-caps text-[12px] text-espresso font-medium mt-1">
+                            Rs. {item.product.price.toLocaleString()}
+                          </p>
+                        </div>
+
+                        {/* Quantity Stepper */}
+                        <div className="flex items-center border border-espresso/20 rounded-sm w-fit mt-2">
+                          <button
+                            onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                            className="px-2.5 py-1 text-espresso/70 hover:text-brand-red transition-colors cursor-pointer"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">remove</span>
+                          </button>
+                          <span className="px-3 py-1 font-body-md text-espresso text-sm min-w-[28px] text-center">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                            className="px-2.5 py-1 text-espresso/70 hover:text-brand-red transition-colors cursor-pointer"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">add</span>
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Order Summary & CTA */}
+                <div className="px-4 md:px-8 py-4 md:py-6 border-t border-espresso/10 bg-white">
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between font-label-caps text-[11px] uppercase tracking-widest">
+                      <span className="text-espresso/70">Subtotal</span>
+                      <span className="text-espresso font-medium">Rs. {subtotal.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between font-label-caps text-[11px] uppercase tracking-widest">
+                      <span className="text-espresso/70">Shipping</span>
+                      <span className={shipping === 0 ? "text-brand-red font-medium" : "text-espresso font-medium"}>
+                        {shipping === 0 ? "FREE" : `Rs. ${shipping.toLocaleString()}`}
+                      </span>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                  <div className="border-t border-espresso/10 pt-4 mb-6">
+                    <div className="flex justify-between font-headline-sm text-[18px] uppercase tracking-wider">
+                      <span className="text-espresso font-medium">Total</span>
+                      <span className="text-espresso font-medium">Rs. {total.toLocaleString()}</span>
+                    </div>
+                  </div>
 
-            <div className="border-t border-ink-black px-6 py-[var(--spacing-20)] space-y-[var(--spacing-15)]">
-              <div className="flex justify-between caption">
-                <span>Subtotal</span>
-                <span className="font-bold">{formatPrice(subtotal)}</span>
-              </div>
-              <p className="caption">
-                Shipping & taxes calculated at checkout. Made to order — allow
-                2–3 weeks.
-              </p>
-              <Link href="/checkout" onClick={close}>
-                <DashedCTA>Checkout</DashedCTA>
-              </Link>
-              <button
-                onClick={close}
-                className="w-full caption uppercase link-underline py-[var(--spacing-10)]"
-              >
-                Continue Shopping
-              </button>
-            </div>
-          </>
-        )}
-      </aside>
-    </>
+                  <Link
+                    href="/checkout"
+                    onClick={closeCart}
+                    className="block w-full bg-brand-red text-white py-4 font-label-caps text-label-caps uppercase tracking-[0.2em] rounded-md hover:bg-espresso hover:text-white transition-all duration-500 text-center shadow-lg shadow-brand-red/20"
+                  >
+                    Proceed to Checkout
+                  </Link>
+                  <button
+                    onClick={closeCart}
+                    className="w-full mt-3 py-2 text-center font-label-caps text-[11px] text-espresso/70 underline underline-offset-4 decoration-espresso/20 hover:text-brand-red hover:decoration-brand-red transition-all cursor-pointer"
+                  >
+                    Continue Shopping
+                  </button>
+                </div>
+              </>
+            )}
+          </motion.aside>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

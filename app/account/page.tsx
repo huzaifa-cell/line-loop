@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { getOrdersByEmail } from "@/lib/orders";
+import { getStorefrontOrdersByEmail, getStorefrontProducts } from "@/lib/storefront";
 import Breadcrumb from "@/components/Breadcrumb";
 import AccountTabs from "./AccountTabs";
 import EmptyState from "@/components/EmptyState";
@@ -19,7 +19,8 @@ export default async function AccountPage() {
   }
 
   const email = user.emailAddresses?.[0]?.emailAddress ?? "";
-  const orders = await getOrdersByEmail(email);
+  const orders = await getStorefrontOrdersByEmail(email);
+  const products = await getStorefrontProducts();
 
   return (
     <section className="bg-warm-parchment py-[var(--spacing-30)]">
@@ -41,8 +42,9 @@ export default async function AccountPage() {
             status: o.status,
             total: o.total,
             createdAt: o.createdAt,
-            lineCount: o.lines.length,
+            lineCount: o.lineCount,
           }))}
+          products={products}
           userEmail={email}
           firstName={user.firstName ?? ""}
           lastName={user.lastName ?? ""}

@@ -9,13 +9,11 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { label: "Shop", href: "/shop" },
   { label: "About", href: "/about" },
-  { label: "Journal", href: "/journal" },
 ];
 
 const mobileMenuItems = [
   { label: "Shop", href: "/shop" },
   { label: "About", href: "/about" },
-  { label: "Journal", href: "/journal" },
   { label: "Track Order", href: "/track-order" },
   { label: "Account", href: "/account" },
 ];

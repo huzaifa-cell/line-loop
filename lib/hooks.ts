@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore, useCallback } from "react";
+import { useSyncExternalStore, useCallback, useRef } from "react";
 
 /**
  * Returns false during SSR and the first client render, true after hydration.
@@ -38,10 +38,19 @@ export function useLocalStorage<T>(
     [key]
   );
 
+  const cachedString = useRef<string | null>(null);
+  const cachedValue = useRef<T>(initial);
+
   const getSnapshot = useCallback((): T => {
     try {
       const raw = window.localStorage.getItem(key);
-      return raw ? (JSON.parse(raw) as T) : initial;
+      if (raw === cachedString.current) {
+        return cachedValue.current;
+      }
+      const parsed = raw ? (JSON.parse(raw) as T) : initial;
+      cachedString.current = raw;
+      cachedValue.current = parsed;
+      return parsed;
     } catch {
       return initial;
     }

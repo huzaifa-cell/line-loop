@@ -7,10 +7,20 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
  */
 
 const isProtectedRoute = createRouteMatcher(["/account(.*)"]);
+const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
 
-export default clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
-    auth.protect();
+    await auth.protect();
+  }
+  if (isAdminRoute(req)) {
+    await auth.protect();
+    const { sessionClaims } = await auth();
+    // Assuming role is stored in publicMetadata
+    const role = (sessionClaims?.metadata as { role?: string })?.role;
+    if (role !== "admin" && role !== "staff") {
+      return Response.redirect(new URL("/", req.url));
+    }
   }
 });
 

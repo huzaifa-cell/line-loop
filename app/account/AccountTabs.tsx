@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { cn, formatPrice } from "@/lib/utils";
 import { useLocalStorage } from "@/lib/hooks";
-import { getAllProducts } from "@/lib/products";
 
 const TABS = ["ORDERS", "WISHLIST", "DETAILS"] as const;
 type Tab = (typeof TABS)[number];
@@ -18,15 +17,15 @@ interface OrderSummary {
   lineCount: number;
 }
 
-const ALL_PRODUCTS = getAllProducts();
-
 export default function AccountTabs({
   orders,
+  products,
   userEmail,
   firstName,
   lastName,
 }: {
   orders: OrderSummary[];
+  products: any[];
   userEmail: string;
   firstName: string;
   lastName: string;
@@ -35,7 +34,7 @@ export default function AccountTabs({
   const [wishlist] = useLocalStorage<string[]>("lineloop-wishlist", []);
 
   const wishlistProducts = wishlist
-    .map((slug) => ALL_PRODUCTS.find((p) => p.slug === slug))
+    .map((slug) => products.find((p) => p.slug === slug))
     .filter((p): p is NonNullable<typeof p> => p !== undefined);
 
   return (

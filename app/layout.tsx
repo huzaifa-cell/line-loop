@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Fraunces } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
-import { CartProvider } from "@/lib/cart";
-import AnnouncementBar from "@/components/AnnouncementBar";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
+import { CartProvider } from "@/lib/CartContext";
+import { CartProvider as NewCartProvider } from "@/lib/cart";
+import { TopNavBar } from "@/components/TopNavBar";
+import { Footer } from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import CookieConsent from "@/components/CookieConsent";
 import SearchOverlay from "@/components/SearchOverlay";
@@ -13,8 +13,10 @@ import SearchOverlay from "@/components/SearchOverlay";
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
+  adjustFontFallback: true,
+  preload: true,
 });
 
 const fraunces = Fraunces({
@@ -23,6 +25,8 @@ const fraunces = Fraunces({
   weight: "variable",
   axes: ["opsz"],
   display: "swap",
+  adjustFontFallback: true,
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -50,6 +54,14 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#1A1616",
+  colorScheme: "dark",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -58,18 +70,30 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
+      className={`${inter.variable} ${fraunces.variable} antialiased`}
+      data-scroll-behavior="smooth"
     >
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=block"
+        />
+      </head>
     <ClerkProvider>
-      <body className="min-h-full flex flex-col bg-warm-parchment text-ink-black">
+      <body className="min-h-screen flex flex-col bg-espresso text-ivory font-body-md overflow-x-hidden">
         <CartProvider>
-          <AnnouncementBar />
-          <Nav />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <CartDrawer />
-          <SearchOverlay />
-          <CookieConsent />
+          <NewCartProvider>
+            <TopNavBar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <CartDrawer />
+            <SearchOverlay />
+            <CookieConsent />
+          </NewCartProvider>
         </CartProvider>
       </body>
     </ClerkProvider>

@@ -3,14 +3,15 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { getAllProducts } from "@/lib/products";
+import { products as ALL_PRODUCTS } from "@/lib/mockData";
 import { formatPrice } from "@/lib/utils";
 
-const ALL_PRODUCTS = getAllProducts();
+
 
 export default function SearchOverlay() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [submittedQuery, setSubmittedQuery] = useState("");
 
   // Open via custom event so Nav can trigger it
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function SearchOverlay() {
       if (e.key === "Escape") {
         setIsOpen(false);
         setQuery("");
+        setSubmittedQuery("");
       }
     };
     window.addEventListener("keydown", onKey);
@@ -42,22 +44,23 @@ export default function SearchOverlay() {
   }, []);
 
   const results = useMemo(() => {
-    if (!query.trim()) return [];
-    const q = query.toLowerCase();
+    if (!submittedQuery.trim()) return [];
+    const q = submittedQuery.toLowerCase();
     return ALL_PRODUCTS.filter(
       (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q) ||
-        p.tags.some((t) => t.toLowerCase().includes(q)) ||
-        p.colours.some((c) => c.toLowerCase().includes(q)) ||
-        p.fabric.toLowerCase().includes(q) ||
-        p.craft.toLowerCase().includes(q)
+        (p.name && p.name.toLowerCase().includes(q)) ||
+        (p.category && p.category.toLowerCase().includes(q)) ||
+        (p.description && p.description.toLowerCase().includes(q)) ||
+        (p.fabric && p.fabric.toLowerCase().includes(q)) ||
+        (p.tag && p.tag.toLowerCase().includes(q)) ||
+        (p.colors && p.colors.some((c) => c.name.toLowerCase().includes(q)))
     ).slice(0, 8);
-  }, [query]);
+  }, [submittedQuery]);
 
   const close = useCallback(() => {
     setIsOpen(false);
     setQuery("");
+    setSubmittedQuery("");
   }, []);
 
   if (!isOpen) return null;
@@ -78,7 +81,13 @@ export default function SearchOverlay() {
 
       {/* Search input — bottom-border only */}
       <div className="px-6 pt-[var(--spacing-60)]">
-        <div className="mx-auto max-w-[640px]">
+        <form
+          className="mx-auto max-w-[640px]"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setSubmittedQuery(query);
+          }}
+        >
           <input
             type="search"
             autoFocus
@@ -88,21 +97,21 @@ export default function SearchOverlay() {
             className="w-full bg-transparent border-b border-ivory-mist/30 py-[var(--spacing-15)] text-2xl font-bold text-ivory-mist outline-none placeholder:text-ivory-mist/30 focus:border-[var(--color-brand-red)]"
             aria-label="Search products"
           />
-        </div>
+        </form>
       </div>
 
       {/* Results */}
       <div className="flex-1 overflow-y-auto px-6 pt-[var(--spacing-30)] pb-[var(--spacing-60)]">
         <div className="mx-auto max-w-[640px] divide-y divide-ivory-mist/10">
-          {query.trim() && results.length === 0 && (
+          {submittedQuery.trim() && results.length === 0 && (
             <p className="caption opacity-50 py-[var(--spacing-30)] text-center">
               No pieces found. Try a different search.
             </p>
           )}
           {results.map((p) => (
             <Link
-              key={p.slug}
-              href={`/product/${p.slug}`}
+              key={p.id}
+              href={`/shop/${p.id}`}
               onClick={close}
               className="flex items-center gap-[var(--spacing-20)] py-[var(--spacing-15)] hover:opacity-70 transition-opacity"
             >
