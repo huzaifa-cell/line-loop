@@ -21,17 +21,17 @@ export function TopNavBar() {
           Worldwide Express Shipping On All Orders Over $500
         </span>
       </div>
-      <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-mocha h-16 md:h-20 flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop">
+      <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-mocha min-h-[72px] md:min-h-[80px] py-2 md:py-3 flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop">
         <div className="flex items-center gap-4 md:gap-8">
           <Link href="/" className="cursor-pointer transition-all active:scale-95 flex items-center">
             <Image 
               src="/lineloop-logo.png" 
               alt="LINE&LOOP Logo" 
-              width={220} 
-              height={64} 
-              className="w-40 md:w-48 h-auto"
+              width={240} 
+              height={80} 
+              className="w-[180px] md:w-[220px] h-auto"
               priority
-              sizes="(max-width: 768px) 160px, 192px"
+              sizes="(max-width: 768px) 180px, 220px"
             />
           </Link>
           <nav className="hidden md:flex gap-8 items-center h-full">
