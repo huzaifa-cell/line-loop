@@ -21,7 +21,7 @@ export function TopNavBar() {
           Worldwide Express Shipping On All Orders Over $500
         </span>
       </div>
-      <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-mocha h-14 md:h-20 flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-unit">
+      <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-mocha h-16 md:h-20 flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-unit">
         <div className="flex items-center gap-4 md:gap-8">
           <Link href="/" className="cursor-pointer transition-all active:scale-95 flex items-center">
             <Image 
@@ -29,9 +29,9 @@ export function TopNavBar() {
               alt="LINE&LOOP Logo" 
               width={220} 
               height={64} 
-              className="h-10 md:h-16 w-auto rounded-sm"
+              className="h-12 md:h-16 w-auto rounded-sm"
               priority
-              sizes="(max-width: 768px) 140px, 220px"
+              sizes="(max-width: 768px) 180px, 220px"
               style={{ width: "auto" }}
             />
           </Link>
