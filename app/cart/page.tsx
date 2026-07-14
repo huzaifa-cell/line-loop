@@ -7,7 +7,7 @@ import { formatPrice } from "@/lib/utils";
 import { useIsClient } from "@/lib/hooks";
 import DashedCTA from "@/components/DashedCTA";
 import EmptyState from "@/components/EmptyState";
-import Breadcrumb from "@/components/Breadcrumb";
+
 
 export default function CartPage() {
   const { lines, subtotal, count, setQty, remove } = useCart();
@@ -19,10 +19,7 @@ export default function CartPage() {
     return (
       <section className="bg-warm-parchment py-[var(--spacing-60)]">
         <div className="mx-auto max-w-[var(--page-max-width)] px-6">
-          <Breadcrumb
-            items={[{ label: "Shop", href: "/shop" }, { label: "Bag" }]}
-            className="mb-[var(--spacing-30)]"
-          />
+
           <EmptyState
             heading="Your bag is empty"
             body="Every piece is made to order. Find something worth keeping."
@@ -37,10 +34,7 @@ export default function CartPage() {
   return (
     <section className="bg-warm-parchment py-[var(--spacing-60)]">
       <div className="mx-auto max-w-[var(--page-max-width)] px-6">
-        <Breadcrumb
-          items={[{ label: "Shop", href: "/shop" }, { label: "Bag" }]}
-          className="mb-[var(--spacing-30)]"
-        />
+
         <h1 className="text-[32px] font-bold leading-none mb-[var(--spacing-30)]">
           Your Bag ({count})
         </h1>
@@ -50,11 +44,11 @@ export default function CartPage() {
           <div className="divide-y divide-ink-black/15">
             {lines.map((line) => (
               <div
-                key={`${line.slug}-${line.size}-${line.colour}`}
+                key={`${line.id}-${line.size}-${line.colour}`}
                 className="flex gap-[var(--spacing-20)] py-[var(--spacing-20)]"
               >
                 <Link
-                  href={`/product/${line.slug}`}
+                  href={`/product/${line.id}`}
                   className="relative w-24 h-32 shrink-0 bg-ivory-mist"
                 >
                   <Image
@@ -67,7 +61,7 @@ export default function CartPage() {
                 </Link>
                 <div className="flex-1 min-w-0">
                   <Link
-                    href={`/product/${line.slug}`}
+                    href={`/product/${line.id}`}
                     className="caption font-bold link-underline"
                   >
                     {line.name}
@@ -82,7 +76,7 @@ export default function CartPage() {
                     <div className="flex items-center border border-ink-black">
                       <button
                         onClick={() =>
-                          setQty(line.slug, line.size, line.colour, line.qty - 1)
+                          setQty(line.id, line.size, line.colour, line.qty - 1)
                         }
                         className="caption w-7 h-7 hover:bg-ink-black hover:text-warm-parchment transition-colors"
                         aria-label="Decrease quantity"
@@ -92,7 +86,7 @@ export default function CartPage() {
                       <span className="caption w-7 text-center">{line.qty}</span>
                       <button
                         onClick={() =>
-                          setQty(line.slug, line.size, line.colour, line.qty + 1)
+                          setQty(line.id, line.size, line.colour, line.qty + 1)
                         }
                         className="caption w-7 h-7 hover:bg-ink-black hover:text-warm-parchment transition-colors"
                         aria-label="Increase quantity"
@@ -101,7 +95,7 @@ export default function CartPage() {
                       </button>
                     </div>
                     <button
-                      onClick={() => remove(line.slug, line.size, line.colour)}
+                      onClick={() => remove(line.id, line.size, line.colour)}
                       className="caption uppercase link-underline"
                     >
                       Remove
@@ -147,3 +141,4 @@ export default function CartPage() {
     </section>
   );
 }
+

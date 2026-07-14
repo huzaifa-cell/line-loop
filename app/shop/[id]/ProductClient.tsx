@@ -324,3 +324,4 @@ export default function ProductClient({ product, related }: ProductClientProps) 
     </>
   );
 }
+

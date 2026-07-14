@@ -8,10 +8,10 @@ import {
   useState,
   useCallback,
 } from "react";
-import type { Product } from "./products";
+import type { Product } from "./mockData";
 
 export interface CartLine {
-  slug: string;
+  id: string;
   name: string;
   price: number;
   image: string;
@@ -29,16 +29,16 @@ interface CartState {
   open: () => void;
   close: () => void;
   add: (product: Product, size: string, colour: string, qty?: number, variantId?: string) => void;
-  remove: (slug: string, size: string, colour: string) => void;
-  setQty: (slug: string, size: string, colour: string, qty: number) => void;
+  remove: (id: string, size: string, colour: string) => void;
+  setQty: (id: string, size: string, colour: string, qty: number) => void;
   clear: () => void;
 }
 
 const CartContext = createContext<CartState | null>(null);
 const STORAGE_KEY = "lineloop-cart";
 
-function lineKey(slug: string, size: string, colour: string) {
-  return `${slug}__${size}__${colour}`;
+function lineKey(id: string, size: string, colour: string) {
+  return `${id}__${size}__${colour}`;
 }
 
 // Lazy initialiser — reads localStorage only in the browser (no SSR access).
@@ -68,13 +68,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const add: CartState["add"] = useCallback(
     (product, size, colour, qty = 1, variantId) => {
       setLines((prev) => {
-        const k = lineKey(product.slug, size, colour);
+        const k = lineKey(product.id, size, colour);
         const existing = prev.find(
-          (l) => lineKey(l.slug, l.size, l.colour) === k
+          (l) => lineKey(l.id, l.size, l.colour) === k
         );
         if (existing) {
           return prev.map((l) =>
-            lineKey(l.slug, l.size, l.colour) === k
+            lineKey(l.id, l.size, l.colour) === k
               ? { ...l, qty: l.qty + qty }
               : l
           );
@@ -82,14 +82,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         return [
           ...prev,
           {
-            slug: product.slug,
+            id: product.id,
             name: product.name,
             price: product.price,
             image: product.image,
             size,
             colour,
             qty,
-            variantId: variantId ?? `${product.slug}-${size}-${colour}`,
+            variantId: variantId ?? `${product.id}-${size}-${colour}`,
           },
         ];
       });
@@ -98,21 +98,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
-  const remove: CartState["remove"] = useCallback((slug, size, colour) => {
+  const remove: CartState["remove"] = useCallback((id, size, colour) => {
     setLines((prev) =>
-      prev.filter((l) => lineKey(l.slug, l.size, l.colour) !== lineKey(slug, size, colour))
+      prev.filter((l) => lineKey(l.id, l.size, l.colour) !== lineKey(id, size, colour))
     );
   }, []);
 
   const setQty: CartState["setQty"] = useCallback(
-    (slug, size, colour, qty) => {
+    (id, size, colour, qty) => {
       if (qty < 1) {
-        remove(slug, size, colour);
+        remove(id, size, colour);
         return;
       }
       setLines((prev) =>
         prev.map((l) =>
-          lineKey(l.slug, l.size, l.colour) === lineKey(slug, size, colour)
+          lineKey(l.id, l.size, l.colour) === lineKey(id, size, colour)
             ? { ...l, qty }
             : l
         )
@@ -152,3 +152,4 @@ export function useCart() {
   if (!ctx) throw new Error("useCart must be used within CartProvider");
   return ctx;
 }
+

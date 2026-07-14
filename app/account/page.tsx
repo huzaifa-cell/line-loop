@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { getStorefrontOrdersByEmail, getStorefrontProducts } from "@/lib/storefront";
-import Breadcrumb from "@/components/Breadcrumb";
+
 import AccountTabs from "./AccountTabs";
 import EmptyState from "@/components/EmptyState";
 
@@ -25,10 +25,7 @@ export default async function AccountPage() {
   return (
     <section className="bg-warm-parchment py-[var(--spacing-30)]">
       <div className="mx-auto max-w-[var(--page-max-width)] px-6">
-        <Breadcrumb
-          items={[{ label: "Home", href: "/" }, { label: "Account" }]}
-          className="mb-[var(--spacing-30)]"
-        />
+
         <h1 className="text-[32px] font-bold leading-none mb-[var(--spacing-10)]">
           My Account
         </h1>

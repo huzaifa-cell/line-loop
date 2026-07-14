@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { getStorefrontOrderByNumberAndEmail } from "@/lib/storefront";
 import { formatPrice } from "@/lib/utils";
-import StitchDivider from "@/components/StitchDivider";
-import Breadcrumb from "@/components/Breadcrumb";
+
 import TrackForm from "./TrackForm";
 import EmptyState from "@/components/EmptyState";
 
@@ -31,10 +30,7 @@ export default async function TrackOrderPage({
   return (
     <section className="bg-warm-parchment py-[var(--spacing-60)]">
       <div className="mx-auto max-w-[640px] px-6">
-        <Breadcrumb
-          items={[{ label: "Home", href: "/" }, { label: "Track Order" }]}
-          className="mb-[var(--spacing-30)]"
-        />
+
         <h1 className="text-[32px] font-bold leading-none mb-[var(--spacing-30)]">
           Track Your Order
         </h1>
@@ -57,7 +53,7 @@ export default async function TrackOrderPage({
 
         {order && (
           <div className="mt-[var(--spacing-40)]">
-            <StitchDivider accent className="mb-[var(--spacing-30)]" />
+            <div className="stitch-line mb-[var(--spacing-30)] border-t border-[var(--color-brand-red)]" />
 
             <div className="mb-[var(--spacing-30)]">
               <p className="caption uppercase opacity-60">Order Number</p>
@@ -82,7 +78,7 @@ export default async function TrackOrderPage({
               <StatusTimeline currentStatus={order.status} />
             </div>
 
-            <StitchDivider className="my-[var(--spacing-20)]" />
+            <div className="stitch-line my-[var(--spacing-20)]" />
 
             {/* Order items */}
             <div className="mb-[var(--spacing-20)]">
@@ -106,7 +102,7 @@ export default async function TrackOrderPage({
               </div>
             </div>
 
-            <StitchDivider className="my-[var(--spacing-20)]" />
+            <div className="stitch-line my-[var(--spacing-20)]" />
 
             <div className="space-y-[var(--spacing-10)]">
               <div className="flex justify-between caption">
@@ -141,7 +137,7 @@ export default async function TrackOrderPage({
               </div>
             </div>
 
-            <StitchDivider className="my-[var(--spacing-20)]" />
+            <div className="stitch-line my-[var(--spacing-20)]" />
 
             {/* Shipping address */}
             <div>
