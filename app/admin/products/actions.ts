@@ -66,105 +66,112 @@ export async function deleteProduct(id: string) {
 }
 
 export async function saveProduct(formData: FormData) {
-  const { sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
-  if (role !== "admin" && role !== "staff") return { success: false, error: "Unauthorized" };
+  try {
+    const { sessionClaims } = await auth();
+    const role = (sessionClaims?.metadata as { role?: string })?.role;
+    if (role !== "admin" && role !== "staff") return { success: false, error: "Unauthorized" };
 
-  const productId = formData.get("productId") as string;
-  const title = formData.get("title") as string;
-  const description = formData.get("description") as string;
-  const basePrice = parseFloat(formData.get("basePrice") as string);
-  const comparePrice = formData.get("comparePrice") ? parseFloat(formData.get("comparePrice") as string) : null;
-  
-  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-
-  const supabase = await createSupabaseServerClient();
-  const adminClient = createSupabaseAdminClient();
-  
-  let finalProductId = productId;
-
-  if (productId === "new") {
-    const { data, error } = await supabase
-      .from('products')
-      .insert({
-        title,
-        description,
-        base_price: basePrice,
-        compare_at_price: comparePrice,
-        slug: `${slug}-${Math.random().toString(36).substring(2, 7)}`
-      })
-      .select('id')
-      .single();
-      
-    if (error) return { success: false, error: error.message };
-    finalProductId = data.id;
-  } else {
-    const { error } = await supabase
-      .from('products')
-      .update({
-        title,
-        description,
-        base_price: basePrice,
-        compare_at_price: comparePrice
-      })
-      .eq('id', productId);
-      
-    if (error) return { success: false, error: error.message };
-  }
-
-  const existingMediaRaw = formData.get("existingMedia") as string;
-  if (existingMediaRaw) {
-    const existingMedia = JSON.parse(existingMediaRaw) as { id: string, sort_order: number }[];
-    const keepIds = existingMedia.map(m => m.id);
+    const productId = formData.get("productId") as string;
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+    const basePrice = parseFloat(formData.get("basePrice") as string);
+    const comparePriceRaw = formData.get("comparePrice") as string;
+    const comparePrice = comparePriceRaw && comparePriceRaw !== "" && !isNaN(parseFloat(comparePriceRaw)) ? parseFloat(comparePriceRaw) : null;
     
-    if (keepIds.length > 0) {
-      await supabase.from('product_images').delete().eq('product_id', finalProductId).not('id', 'in', `(${keepIds.join(',')})`);
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+
+    // Use admin client for ALL operations to bypass RLS
+    const adminClient = createSupabaseAdminClient();
+    
+    let finalProductId = productId;
+
+    if (productId === "new") {
+      const { data, error } = await adminClient
+        .from('products')
+        .insert({
+          title,
+          description,
+          base_price: basePrice,
+          compare_at_price: comparePrice,
+          slug: `${slug}-${Math.random().toString(36).substring(2, 7)}`
+        })
+        .select('id')
+        .single();
+        
+      if (error) return { success: false, error: error.message };
+      finalProductId = data.id;
     } else {
-      await supabase.from('product_images').delete().eq('product_id', finalProductId);
+      const { error } = await adminClient
+        .from('products')
+        .update({
+          title,
+          description,
+          base_price: basePrice,
+          compare_at_price: comparePrice
+        })
+        .eq('id', productId);
+        
+      if (error) return { success: false, error: error.message };
     }
-    
-    for (const m of existingMedia) {
-      await supabase.from('product_images').update({ sort_order: m.sort_order }).eq('id', m.id);
-    }
-  }
 
-  const newFiles = formData.getAll("newFiles") as File[];
-  const newMediaOrderRaw = formData.get("newMediaOrder") as string;
-  const newMediaOrder = newMediaOrderRaw ? JSON.parse(newMediaOrderRaw) as { id: string, sort_order: number }[] : [];
-
-  for (const file of newFiles) {
-    const ext = file.name.split('.').pop();
-    const fileName = `${finalProductId}/${crypto.randomUUID()}.${ext}`;
-    
-    // Convert File to Buffer to prevent "fetch failed" serialization errors in Node.js
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    
-    const { error: uploadError } = await adminClient.storage
-      .from('product-images')
-      .upload(fileName, buffer, { 
-        upsert: true,
-        contentType: file.type 
-      });
+    // Handle existing media (deletions & reordering)
+    const existingMediaRaw = formData.get("existingMedia") as string;
+    if (existingMediaRaw) {
+      const existingMedia = JSON.parse(existingMediaRaw) as { id: string, sort_order: number }[];
+      const keepIds = existingMedia.map(m => m.id);
       
-    if (uploadError) {
-      console.error("Upload error:", uploadError);
-      continue;
+      if (keepIds.length > 0) {
+        await adminClient.from('product_images').delete().eq('product_id', finalProductId).not('id', 'in', `(${keepIds.join(',')})`);
+      } else {
+        await adminClient.from('product_images').delete().eq('product_id', finalProductId);
+      }
+      
+      for (const m of existingMedia) {
+        await adminClient.from('product_images').update({ sort_order: m.sort_order }).eq('id', m.id);
+      }
     }
-    
-    const orderData = newMediaOrder.find(m => m.id === file.name);
-    const sortOrder = orderData ? orderData.sort_order : 99;
-    
-    await supabase.from('product_images').insert({
-      product_id: finalProductId,
-      storage_path: fileName,
-      sort_order: sortOrder
-    });
-  }
 
-  revalidatePath("/admin/products");
-  revalidatePath(`/admin/products/${finalProductId}`);
-  revalidatePath("/shop");
-  
-  return { success: true, productId: finalProductId };
+    // Handle new file uploads
+    const newFiles = formData.getAll("newFiles") as File[];
+    const newMediaOrderRaw = formData.get("newMediaOrder") as string;
+    const newMediaOrder = newMediaOrderRaw ? JSON.parse(newMediaOrderRaw) as { id: string, sort_order: number }[] : [];
+
+    for (const file of newFiles) {
+      const ext = file.name.split('.').pop();
+      const fileName = `${finalProductId}/${crypto.randomUUID()}.${ext}`;
+      
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      
+      const { error: uploadError } = await adminClient.storage
+        .from('product-images')
+        .upload(fileName, buffer, { 
+          upsert: true,
+          contentType: file.type 
+        });
+        
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        continue;
+      }
+      
+      const orderData = newMediaOrder.find(m => m.id === file.name);
+      const sortOrder = orderData ? orderData.sort_order : 99;
+      
+      await adminClient.from('product_images').insert({
+        product_id: finalProductId,
+        storage_path: fileName,
+        sort_order: sortOrder
+      });
+    }
+
+    revalidatePath("/admin/products");
+    revalidatePath(`/admin/products/${finalProductId}`);
+    revalidatePath("/shop");
+    
+    return { success: true, productId: finalProductId };
+  } catch (err: any) {
+    console.error("saveProduct error:", err);
+    return { success: false, error: err.message || "An unexpected error occurred" };
+  }
 }
