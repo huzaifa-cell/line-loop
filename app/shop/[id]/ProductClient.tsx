@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useCart } from "@/lib/CartContext";
+import { useCart } from "@/lib/cart";
 
 function ProductAccordion({ title, children }: { title: string; children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -52,7 +52,7 @@ interface ProductClientProps {
 }
 
 export default function ProductClient({ product, related }: ProductClientProps) {
-  const { addItem } = useCart();
+  const { add } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState(0);
@@ -64,9 +64,7 @@ export default function ProductClient({ product, related }: ProductClientProps) 
 
   const handleAddToCart = () => {
     if (!selectedSize) return;
-    for (let i = 0; i < quantity; i++) {
-      addItem(product, selectedSize, colors[selectedColor].name);
-    }
+    add(product, selectedSize, colors[selectedColor].name, quantity);
   };
 
   return (

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useCart } from "@/lib/CartContext";
+import { useCart } from "@/lib/cart";
 import { useState } from "react";
 
 const navItems = [
@@ -11,7 +11,7 @@ const navItems = [
 ];
 
 export function TopNavBar() {
-  const { itemCount, openCart } = useCart();
+  const { count, open } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -51,11 +51,11 @@ export function TopNavBar() {
           >
             <span className="material-symbols-outlined">search</span>
           </button>
-          <button onClick={openCart} className="cursor-pointer transition-all active:scale-95 hover:text-brand-red relative">
+          <button onClick={open} className="cursor-pointer transition-all active:scale-95 hover:text-brand-red relative">
             <span className="material-symbols-outlined">shopping_bag</span>
-            {itemCount > 0 && (
+            {count > 0 && (
               <span className="absolute -top-1 -right-1 bg-brand-red text-[10px] w-4 h-4 flex items-center justify-center rounded-full text-white">
-                {itemCount}
+                {count}
               </span>
             )}
           </button>

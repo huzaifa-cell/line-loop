@@ -26,6 +26,8 @@ interface CartState {
   isOpen: boolean;
   count: number;
   subtotal: number;
+  shipping: number;
+  total: number;
   open: () => void;
   close: () => void;
   add: (product: Product, size: string, colour: string, qty?: number, variantId?: string) => void;
@@ -131,11 +133,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [lines]
   );
 
+  const shipping = subtotal >= 10000 ? 0 : 500;
+  const total = subtotal + shipping;
+
   const value: CartState = {
     lines,
     isOpen,
     count,
     subtotal,
+    shipping,
+    total,
     open,
     close,
     add,

@@ -2,8 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Fraunces } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
-import { CartProvider } from "@/lib/CartContext";
-import { CartProvider as NewCartProvider } from "@/lib/cart";
+import { CartProvider } from "@/lib/cart";
 import { TopNavBar } from "@/components/TopNavBar";
 import { Footer } from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
@@ -86,14 +85,12 @@ export default function RootLayout({
     <ClerkProvider>
       <body className="min-h-screen flex flex-col bg-espresso text-ivory font-body-md overflow-x-hidden">
         <CartProvider>
-          <NewCartProvider>
             <TopNavBar />
             <main className="flex-1">{children}</main>
             <Footer />
             <CartDrawer />
             <SearchOverlay />
             <CookieConsent />
-          </NewCartProvider>
         </CartProvider>
       </body>
     </ClerkProvider>

@@ -1,12 +1,12 @@
 "use client";
 
-import { useCart } from "@/lib/CartContext";
+import { useCart } from "@/lib/cart";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function CartDrawer() {
-  const { items, isOpen, closeCart, removeItem, updateQuantity, itemCount, subtotal, shipping, total } = useCart();
+  const { lines, isOpen, close, remove, setQty, count, subtotal, shipping, total } = useCart();
 
   return (
     <AnimatePresence>
@@ -18,7 +18,7 @@ export default function CartDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            onClick={closeCart}
+            onClick={close}
             className="fixed inset-0 bg-espresso/40 backdrop-blur-sm z-[100]"
           />
 
@@ -37,19 +37,19 @@ export default function CartDrawer() {
                   Your Bag
                 </h2>
                 <button
-                  onClick={closeCart}
+                  onClick={close}
                   className="text-espresso/70 hover:text-brand-red transition-colors cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[24px]">close</span>
                 </button>
               </div>
               <p className="font-label-caps text-[11px] text-espresso/70 uppercase tracking-widest mt-1">
-                {itemCount} {itemCount === 1 ? "Item" : "Items"}
+                {count} {count === 1 ? "Item" : "Items"}
               </p>
             </div>
 
             {/* Content */}
-            {items.length === 0 ? (
+            {lines.length === 0 ? (
               /* Empty State */
               <div className="flex-1 flex flex-col items-center justify-center px-4 md:px-8 text-center">
                 <span className="material-symbols-outlined text-[64px] text-espresso/30 mb-6">
@@ -63,7 +63,7 @@ export default function CartDrawer() {
                 </p>
                 <Link
                   href="/shop"
-                  onClick={closeCart}
+                  onClick={close}
                   className="bg-brand-red text-white px-8 py-3 font-label-caps text-label-caps uppercase tracking-[0.2em] rounded-md hover:bg-espresso hover:text-white transition-all duration-500"
                 >
                   Shop the Collection
@@ -73,9 +73,9 @@ export default function CartDrawer() {
               <>
                 {/* Items List */}
                 <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 space-y-6">
-                  {items.map((item) => (
+                  {lines.map((line) => (
                     <motion.div
-                      key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`}
+                      key={`${line.id}-${line.size}-${line.colour}`}
                       layout
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -85,8 +85,8 @@ export default function CartDrawer() {
                       {/* Thumbnail */}
                       <div className="relative w-20 h-28 shrink-0 overflow-hidden rounded-sm bg-beige/30">
                         <Image
-                          src={item.product.image}
-                          alt={item.product.name}
+                          src={line.image}
+                          alt={line.name}
                           fill
                           sizes="80px"
                           className="object-cover"
@@ -98,36 +98,36 @@ export default function CartDrawer() {
                         <div>
                           <div className="flex justify-between items-start gap-2">
                             <h4 className="font-label-caps text-[11px] text-espresso uppercase tracking-wider truncate">
-                              {item.product.name}
+                              {line.name}
                             </h4>
                             <button
-                              onClick={() => removeItem(item.product.id)}
+                              onClick={() => remove(line.id, line.size, line.colour)}
                               className="text-espresso/50 hover:text-brand-red transition-colors shrink-0 cursor-pointer"
                             >
                               <span className="material-symbols-outlined text-[18px]">delete</span>
                             </button>
                           </div>
                           <p className="font-label-caps text-[10px] text-espresso/60 uppercase tracking-wider mt-0.5">
-                            Size: {item.selectedSize} | Color: {item.selectedColor}
+                            Size: {line.size} | Color: {line.colour}
                           </p>
                           <p className="font-label-caps text-[12px] text-espresso font-medium mt-1">
-                            Rs. {item.product.price.toLocaleString()}
+                            Rs. {line.price.toLocaleString()}
                           </p>
                         </div>
 
                         {/* Quantity Stepper */}
                         <div className="flex items-center border border-espresso/20 rounded-sm w-fit mt-2">
                           <button
-                            onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                            onClick={() => setQty(line.id, line.size, line.colour, line.qty - 1)}
                             className="px-2.5 py-1 text-espresso/70 hover:text-brand-red transition-colors cursor-pointer"
                           >
                             <span className="material-symbols-outlined text-[16px]">remove</span>
                           </button>
                           <span className="px-3 py-1 font-body-md text-espresso text-sm min-w-[28px] text-center">
-                            {item.quantity}
+                            {line.qty}
                           </span>
                           <button
-                            onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                            onClick={() => setQty(line.id, line.size, line.colour, line.qty + 1)}
                             className="px-2.5 py-1 text-espresso/70 hover:text-brand-red transition-colors cursor-pointer"
                           >
                             <span className="material-symbols-outlined text-[16px]">add</span>
@@ -161,13 +161,13 @@ export default function CartDrawer() {
 
                   <Link
                     href="/checkout"
-                    onClick={closeCart}
+                    onClick={close}
                     className="block w-full bg-brand-red text-white py-4 font-label-caps text-label-caps uppercase tracking-[0.2em] rounded-md hover:bg-espresso hover:text-white transition-all duration-500 text-center shadow-lg shadow-brand-red/20"
                   >
                     Proceed to Checkout
                   </Link>
                   <button
-                    onClick={closeCart}
+                    onClick={close}
                     className="w-full mt-3 py-2 text-center font-label-caps text-[11px] text-espresso/70 underline underline-offset-4 decoration-espresso/20 hover:text-brand-red hover:decoration-brand-red transition-all cursor-pointer"
                   >
                     Continue Shopping

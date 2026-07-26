@@ -1,6 +1,6 @@
 "use client";
 
-import { useCart } from "@/lib/CartContext";
+import { useCart } from "@/lib/cart";
 import { AnimatedWrapper } from "@/components/AnimatedWrapper";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,12 +9,24 @@ import { motion } from "framer-motion";
 import { createStorefrontOrder } from "./actions";
 
 export default function CheckoutPage() {
-  const { items, subtotal, shipping, clearCart } = useCart();
+  const { lines, subtotal, shipping, clear } = useCart();
   const [shippingMethod, setShippingMethod] = useState<"standard" | "express">("standard");
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "bank" | "card">("cod");
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "bank">("cod");
   const [discountCode, setDiscountCode] = useState("");
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    email: "",
+    phone: "",
+    fullName: "",
+    address1: "",
+    address2: "",
+    city: "",
+    province: "",
+    postalCode: ""
+  });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const shippingCost = shippingMethod === "express" ? 500 : shipping;
   const grandTotal = subtotal + shippingCost;
@@ -50,7 +62,7 @@ export default function CheckoutPage() {
     );
   }
 
-  if (items.length === 0) {
+  if (lines.length === 0) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center text-center px-margin-mobile md:px-8">
         <span className="material-symbols-outlined text-[64px] text-espresso/30 mb-6">shopping_bag</span>
@@ -98,12 +110,16 @@ export default function CheckoutPage() {
               <input
                 type="email"
                 placeholder="EMAIL ADDRESS"
-                className="w-full bg-transparent border border-espresso/10 px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className={`w-full bg-transparent border px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm ${formErrors.email ? 'border-brand-red' : 'border-espresso/10'}`}
               />
               <input
                 type="tel"
                 placeholder="PHONE NUMBER (E.G. +92 300 1234567)"
-                className="w-full bg-transparent border border-espresso/10 px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className={`w-full bg-transparent border px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm ${formErrors.phone ? 'border-brand-red' : 'border-espresso/10'}`}
               />
             </div>
           </section>
@@ -112,12 +128,12 @@ export default function CheckoutPage() {
           <section>
             <h2 className="font-headline-sm text-headline-sm text-espresso uppercase tracking-[0.1em] mb-4 md:mb-6">Shipping Address</h2>
             <div className="space-y-4">
-              <input placeholder="FULL NAME" className="w-full bg-transparent border border-espresso/10 px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm" />
-              <input placeholder="ADDRESS LINE 1" className="w-full bg-transparent border border-espresso/10 px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm" />
-              <input placeholder="APARTMENT, SUITE, ETC. (OPTIONAL)" className="w-full bg-transparent border border-espresso/10 px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm" />
+              <input placeholder="FULL NAME" value={formData.fullName} onChange={(e) => setFormData({...formData, fullName: e.target.value})} className={`w-full bg-transparent border px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm ${formErrors.fullName ? 'border-brand-red' : 'border-espresso/10'}`} />
+              <input placeholder="ADDRESS LINE 1" value={formData.address1} onChange={(e) => setFormData({...formData, address1: e.target.value})} className={`w-full bg-transparent border px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm ${formErrors.address1 ? 'border-brand-red' : 'border-espresso/10'}`} />
+              <input placeholder="APARTMENT, SUITE, ETC. (OPTIONAL)" value={formData.address2} onChange={(e) => setFormData({...formData, address2: e.target.value})} className="w-full bg-transparent border border-espresso/10 px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm" />
               <div className="grid grid-cols-2 gap-4">
-                <select className="w-full bg-transparent border border-espresso/10 px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso/60 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm appearance-none">
-                  <option value="">City</option>
+                <select value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} className={`w-full bg-transparent border px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm appearance-none ${formData.city ? 'text-espresso' : 'text-espresso/60'} ${formErrors.city ? 'border-brand-red' : 'border-espresso/10'}`}>
+                  <option value="" disabled>City</option>
                   <option value="karachi">Karachi</option>
                   <option value="lahore">Lahore</option>
                   <option value="islamabad">Islamabad</option>
@@ -127,10 +143,10 @@ export default function CheckoutPage() {
                   <option value="quetta">Quetta</option>
                   <option value="multan">Multan</option>
                 </select>
-                <input placeholder="PROVINCE" className="w-full bg-transparent border border-espresso/10 px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm" />
+                <input placeholder="PROVINCE" value={formData.province} onChange={(e) => setFormData({...formData, province: e.target.value})} className={`w-full bg-transparent border px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm ${formErrors.province ? 'border-brand-red' : 'border-espresso/10'}`} />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <input placeholder="POSTAL CODE" className="w-full bg-transparent border border-espresso/10 px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm" />
+                <input placeholder="POSTAL CODE" value={formData.postalCode} onChange={(e) => setFormData({...formData, postalCode: e.target.value})} className={`w-full bg-transparent border px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm ${formErrors.postalCode ? 'border-brand-red' : 'border-espresso/10'}`} />
                 <input value="PAKISTAN" disabled className="w-full bg-espresso/5 border border-espresso/10 px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso/70 uppercase tracking-widest rounded-sm" />
               </div>
             </div>
@@ -203,35 +219,6 @@ export default function CheckoutPage() {
                 </div>
                 <span className="font-label-caps text-[12px] text-espresso uppercase tracking-widest">Bank Transfer</span>
               </label>
-              <div>
-                <label
-                  onClick={() => setPaymentMethod("card")}
-                  className={`flex items-center gap-4 p-4 md:p-5 border border-b-0 rounded-t-sm cursor-pointer transition-all ${
-                    paymentMethod === "card" ? "border-brand-red bg-brand-red/5" : "border-espresso/10 hover:border-espresso/30"
-                  }`}
-                >
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${paymentMethod === "card" ? "border-brand-red" : "border-espresso/40"}`}>
-                    {paymentMethod === "card" && <div className="w-2 h-2 rounded-full bg-brand-red" />}
-                  </div>
-                  <span className="font-label-caps text-[12px] text-espresso uppercase tracking-widest">Credit / Debit Card</span>
-                </label>
-                {paymentMethod === "card" && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden border border-brand-red rounded-b-sm"
-                  >
-                    <div className="p-4 md:p-5 space-y-4 bg-brand-red/5">
-                      <input placeholder="CARD NUMBER" className="w-full bg-transparent border border-espresso/10 px-4 md:px-5 py-3 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm" />
-                      <div className="grid grid-cols-2 gap-4">
-                        <input placeholder="EXPIRY (MM/YY)" className="w-full bg-transparent border border-espresso/10 px-4 md:px-5 py-3 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm" />
-                        <input placeholder="CVV" className="w-full bg-transparent border border-espresso/10 px-4 md:px-5 py-3 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm" />
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </div>
             </div>
           </section>
 
@@ -241,10 +228,31 @@ export default function CheckoutPage() {
             disabled={isSubmitting}
             onClick={async () => {
               setIsSubmitting(true);
+              setFormErrors({});
+              
+              const errors: Record<string, string> = {};
+              if (!formData.email) errors.email = "Required";
+              if (!formData.phone) errors.phone = "Required";
+              if (!formData.fullName) errors.fullName = "Required";
+              if (!formData.address1) errors.address1 = "Required";
+              if (!formData.city) errors.city = "Required";
+              if (!formData.province) errors.province = "Required";
+              if (!formData.postalCode) errors.postalCode = "Required";
+
+              if (Object.keys(errors).length > 0) {
+                setFormErrors(errors);
+                setIsSubmitting(false);
+                return;
+              }
+
               try {
-                // In a real app we'd validate the form inputs here
                 await createStorefrontOrder({
-                  items,
+                  items: lines.map(line => ({
+                    product: { id: line.id, name: line.name, price: line.price, image: line.image, slug: "", description: "", originalPrice: 0, category: "", status: "active", createdAt: "" },
+                    quantity: line.qty,
+                    selectedSize: line.size,
+                    selectedColor: line.colour
+                  })),
                   shippingMethod,
                   paymentMethod,
                   discountCode,
@@ -252,13 +260,18 @@ export default function CheckoutPage() {
                   shippingCost,
                   grandTotal,
                   shippingAddress: {
-                    fullName: "Guest Customer",
-                    email: "guest@example.com",
-                    city: "Karachi",
+                    fullName: formData.fullName,
+                    email: formData.email,
+                    phone: formData.phone,
+                    addressLine1: formData.address1,
+                    addressLine2: formData.address2,
+                    city: formData.city,
+                    province: formData.province,
+                    postalCode: formData.postalCode,
                     country: "Pakistan"
                   }
                 });
-                clearCart();
+                clear();
                 setOrderPlaced(true);
               } catch (err) {
                 console.error(err);
@@ -280,17 +293,17 @@ export default function CheckoutPage() {
 
             {/* Items */}
             <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
-              {items.map((item) => (
-                <div key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`} className="flex gap-4">
+              {lines.map((line) => (
+                <div key={`${line.id}-${line.size}-${line.colour}`} className="flex gap-4">
                   <div className="relative w-16 h-20 shrink-0 overflow-hidden rounded-sm bg-beige/30">
-                    <Image src={item.product.image} alt={item.product.name} fill sizes="64px" className="object-cover" />
+                    <Image src={line.image} alt={line.name} fill sizes="64px" className="object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-label-caps text-[11px] text-espresso uppercase tracking-wider truncate">{item.product.name}</h4>
+                    <h4 className="font-label-caps text-[11px] text-espresso uppercase tracking-wider truncate">{line.name}</h4>
                     <p className="font-label-caps text-[10px] text-espresso/60 uppercase tracking-wider mt-0.5">
-                      Size: {item.selectedSize} / {item.selectedColor}
+                      Size: {line.size} / {line.colour}
                     </p>
-                    <p className="font-label-caps text-[12px] text-espresso font-medium mt-1">Rs. {(item.product.price * item.quantity).toLocaleString()}</p>
+                    <p className="font-label-caps text-[12px] text-espresso font-medium mt-1">Rs. {(line.price * line.qty).toLocaleString()}</p>
                   </div>
                 </div>
               ))}
