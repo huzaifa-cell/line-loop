@@ -81,36 +81,40 @@ export default async function Home() {
 
       {/* Shop by Category */}
       <section className="grid grid-cols-1 md:grid-cols-2">
-        <AnimatedWrapper delay={0.1} className="relative group overflow-hidden h-[50vh] md:h-[70vh] flex items-center justify-center cursor-pointer">
-          <Image
-            src="https://images.unsplash.com/photo-1614098097306-c67b8020c04e?auto=format&fit=crop&q=80&w=1200"
-            alt="Kurtis & Tops category"
-            fill
-            sizes="(max-width: 768px) 100vw, 50vw"
-            quality={70}
-            className="object-cover transition-transform duration-1000 group-hover:scale-110"
-          />
-          <div className="absolute inset-0 bg-espresso/40 group-hover:bg-espresso/50 transition-colors duration-500"></div>
-          <div className="relative z-10 text-center px-4">
-            <h3 className="font-display-lg text-display-lg-mobile md:text-headline-md text-ivory tracking-widest mb-6 font-normal">Kurtis &amp; Tops</h3>
-            <button className="border border-ivory text-ivory px-8 py-3 font-button text-button uppercase hover:bg-ivory hover:text-espresso transition-all duration-500 rounded-md backdrop-blur-sm">Shop Category</button>
-          </div>
+        <AnimatedWrapper delay={0.1} className="relative group overflow-hidden h-[50vh] md:h-[70vh]">
+          <Link href="/shop" className="absolute inset-0 flex items-center justify-center">
+            <Image
+              src="https://images.unsplash.com/photo-1614098097306-c67b8020c04e?auto=format&fit=crop&q=80&w=1200"
+              alt="Kurtis & Tops category"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              quality={70}
+              className="object-cover transition-transform duration-1000 group-hover:scale-110 -z-10"
+            />
+            <div className="absolute inset-0 bg-espresso/40 group-hover:bg-espresso/50 transition-colors duration-500 -z-10"></div>
+            <div className="relative text-center px-4 z-10">
+              <h3 className="font-display-lg text-display-lg-mobile md:text-headline-md text-ivory tracking-widest mb-6 font-normal">Kurtis &amp; Tops</h3>
+              <span className="inline-block border border-ivory text-ivory px-8 py-3 font-button text-button uppercase group-hover:bg-ivory group-hover:text-espresso transition-all duration-500 rounded-md backdrop-blur-sm cursor-pointer">Shop Category</span>
+            </div>
+          </Link>
         </AnimatedWrapper>
         
-        <AnimatedWrapper delay={0.2} className="relative group overflow-hidden h-[50vh] md:h-[70vh] flex items-center justify-center cursor-pointer md:border-l border-mocha">
-          <Image
-            src="https://images.unsplash.com/photo-1631005436794-ccaa79de61ba?auto=format&fit=crop&q=80&w=1200"
-            alt="Dresses & Skirts category"
-            fill
-            sizes="(max-width: 768px) 100vw, 50vw"
-            quality={70}
-            className="object-cover transition-transform duration-1000 group-hover:scale-110"
-          />
-          <div className="absolute inset-0 bg-espresso/40 group-hover:bg-espresso/50 transition-colors duration-500"></div>
-          <div className="relative z-10 text-center px-4">
-            <h3 className="font-display-lg text-display-lg-mobile md:text-headline-md text-ivory tracking-widest mb-6 font-normal">Dresses &amp; Skirts</h3>
-            <button className="border border-ivory text-ivory px-8 py-3 font-button text-button uppercase hover:bg-ivory hover:text-espresso transition-all duration-500 rounded-md backdrop-blur-sm">Shop Category</button>
-          </div>
+        <AnimatedWrapper delay={0.2} className="relative group overflow-hidden h-[50vh] md:h-[70vh] md:border-l border-mocha">
+          <Link href="/shop" className="absolute inset-0 flex items-center justify-center">
+            <Image
+              src="https://images.unsplash.com/photo-1631005436794-ccaa79de61ba?auto=format&fit=crop&q=80&w=1200"
+              alt="Dresses & Skirts category"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              quality={70}
+              className="object-cover transition-transform duration-1000 group-hover:scale-110 -z-10"
+            />
+            <div className="absolute inset-0 bg-espresso/40 group-hover:bg-espresso/50 transition-colors duration-500 -z-10"></div>
+            <div className="relative text-center px-4 z-10">
+              <h3 className="font-display-lg text-display-lg-mobile md:text-headline-md text-ivory tracking-widest mb-6 font-normal">Dresses &amp; Skirts</h3>
+              <span className="inline-block border border-ivory text-ivory px-8 py-3 font-button text-button uppercase group-hover:bg-ivory group-hover:text-espresso transition-all duration-500 rounded-md backdrop-blur-sm cursor-pointer">Shop Category</span>
+            </div>
+          </Link>
         </AnimatedWrapper>
       </section>
 
@@ -136,9 +140,9 @@ export default async function Home() {
             <p className="font-body-lg text-body-lg text-beige font-light leading-relaxed">
               We reject the velocity of mass production. At LINE&LOOP, every garment is an investment of time, stitched by artisans who have inherited techniques passed down through generations. Our process is intentional, respecting the rhythm of the maker and the grace of the wearer.
             </p>
-            <button className="bg-ivory text-espresso px-8 md:px-10 py-4 font-button text-button uppercase rounded-lg hover:bg-brand-red hover:text-white transition-all duration-500 shadow-xl">
+            <Link href="/about" className="inline-block bg-ivory text-espresso px-8 md:px-10 py-4 font-button text-button uppercase rounded-lg hover:bg-brand-red hover:text-white transition-all duration-500 shadow-xl text-center">
               Discover Our Process
-            </button>
+            </Link>
           </AnimatedWrapper>
         </div>
       </section>
