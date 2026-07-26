@@ -136,9 +136,16 @@ export async function saveProduct(formData: FormData) {
     const ext = file.name.split('.').pop();
     const fileName = `${finalProductId}/${crypto.randomUUID()}.${ext}`;
     
+    // Convert File to Buffer to prevent "fetch failed" serialization errors in Node.js
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    
     const { error: uploadError } = await adminClient.storage
       .from('product-images')
-      .upload(fileName, file, { upsert: true });
+      .upload(fileName, buffer, { 
+        upsert: true,
+        contentType: file.type 
+      });
       
     if (uploadError) {
       console.error("Upload error:", uploadError);
