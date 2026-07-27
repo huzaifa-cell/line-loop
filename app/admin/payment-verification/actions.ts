@@ -45,7 +45,7 @@ export async function processBankTransfer(orderId: string, action: 'approve' | '
     .single();
 
   const paymentStatus = action === 'approve' ? 'bank_transfer_verified' : 'bank_transfer_rejected';
-  const orderStatus = action === 'approve' ? 'confirmed' : 'pending';
+  const orderStatus = action === 'approve' ? 'confirmed' : 'cancelled'; // If rejected, cancel the order
 
   const { error } = await supabase
     .from('orders')
@@ -71,21 +71,35 @@ export async function processBankTransfer(orderId: string, action: 'approve' | '
       metadata: { payment_status: paymentStatus }
     });
     
-  if (action === 'approve') {
-    // If approved, decrement the final stock via inventory log.
-    // Assuming the checkout process only put a hold.
-    // Fetch order items to log stock reduction
+  if (action === 'reject') {
+    // If rejected, RESTORE the inventory that was reserved at checkout
     const { data: items } = await supabase.from('order_items').select('*').eq('order_id', orderId);
     if (items) {
       for (const item of items) {
         if (item.variant_id) {
-          await supabase.from('inventory_log').insert({
-            variant_id: item.variant_id,
-            change_amount: -item.quantity,
-            reason: 'sale',
-            changed_by: profile?.id,
-            order_id: orderId
-          });
+          // Get current stock
+          const { data: variant } = await supabase
+            .from('product_variants')
+            .select('stock_quantity')
+            .eq('id', item.variant_id)
+            .single();
+
+          if (variant) {
+            // Restore stock
+            await supabase
+              .from('product_variants')
+              .update({ stock_quantity: variant.stock_quantity + item.quantity })
+              .eq('id', item.variant_id);
+
+            // Log restoration
+            await supabase.from('inventory_log').insert({
+              variant_id: item.variant_id,
+              change_amount: item.quantity,
+              reason: 'manual_adjustment',
+              changed_by: profile?.id,
+              order_id: orderId
+            });
+          }
         }
       }
     }

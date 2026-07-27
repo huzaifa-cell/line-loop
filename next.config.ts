@@ -13,8 +13,6 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "lunyvqiywzyyiixpwotb.supabase.co" },
     ],
   },
-  compress: true,
-  poweredByHeader: false,
   experimental: {
     serverActions: {
       bodySizeLimit: "50mb",

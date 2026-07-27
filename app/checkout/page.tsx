@@ -7,12 +7,18 @@ import Link from "next/link";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { createStorefrontOrder } from "./actions";
+import { validateDiscount } from "./discount-actions";
+import type { DiscountResult } from "@/lib/discount";
+import { useRouter } from "next/navigation";
 
 export default function CheckoutPage() {
+  const router = useRouter();
   const { lines, subtotal, shipping, clear } = useCart();
   const [shippingMethod, setShippingMethod] = useState<"standard" | "express">("standard");
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "bank">("cod");
   const [discountCode, setDiscountCode] = useState("");
+  const [discountResult, setDiscountResult] = useState<DiscountResult | null>(null);
+  const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -29,7 +35,21 @@ export default function CheckoutPage() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const shippingCost = shippingMethod === "express" ? 500 : shipping;
-  const grandTotal = subtotal + shippingCost;
+  const discountAmount = discountResult?.valid ? discountResult.discount : 0;
+  const grandTotal = subtotal + shippingCost - discountAmount;
+
+  const handleApplyDiscount = async () => {
+    if (!discountCode.trim()) return;
+    setIsApplyingDiscount(true);
+    try {
+      const result = await validateDiscount(discountCode, subtotal);
+      setDiscountResult(result);
+    } catch {
+      setDiscountResult({ valid: false, discount: 0, error: "Failed to validate code" });
+    } finally {
+      setIsApplyingDiscount(false);
+    }
+  };
 
   if (orderPlaced) {
     return (
@@ -219,6 +239,17 @@ export default function CheckoutPage() {
                 </div>
                 <span className="font-label-caps text-[12px] text-espresso uppercase tracking-widest">Bank Transfer</span>
               </label>
+              {paymentMethod === "bank" && (
+                <div className="p-4 bg-espresso/5 border border-espresso/10 rounded-sm">
+                  <p className="font-body-md text-[12px] text-espresso leading-relaxed">
+                    Please transfer the total amount to the following bank account. You will need to upload a screenshot of your payment on the next step.
+                    <br /><br />
+                    <strong>Bank Name:</strong> Meezan Bank<br />
+                    <strong>Account Title:</strong> LINE AND LOOP<br />
+                    <strong>Account Number:</strong> 01234567890123
+                  </p>
+                </div>
+              )}
             </div>
           </section>
 
@@ -246,7 +277,7 @@ export default function CheckoutPage() {
               }
 
               try {
-                await createStorefrontOrder({
+                const result = await createStorefrontOrder({
                   items: lines.map(line => ({
                     product: { id: line.id, name: line.name, price: line.price, image: line.image, slug: "", description: "", originalPrice: 0, category: "", status: "active", createdAt: "" },
                     quantity: line.qty,
@@ -255,7 +286,9 @@ export default function CheckoutPage() {
                   })),
                   shippingMethod,
                   paymentMethod,
-                  discountCode,
+                  discountCode: discountResult?.valid ? discountCode : "",
+                  discountAmount,
+                  discountId: discountResult?.discountId || null,
                   subtotal,
                   shippingCost,
                   grandTotal,
@@ -271,8 +304,14 @@ export default function CheckoutPage() {
                     country: "Pakistan"
                   }
                 });
+                
                 clear();
-                setOrderPlaced(true);
+                
+                if (paymentMethod === "bank" && result.success && result.orderNumber) {
+                  router.push(`/checkout/upload-proof?order=${result.orderNumber}`);
+                } else {
+                  setOrderPlaced(true);
+                }
               } catch (err) {
                 console.error(err);
                 alert("Failed to place order.");
@@ -314,14 +353,30 @@ export default function CheckoutPage() {
               <div className="flex gap-3">
                 <input
                   value={discountCode}
-                  onChange={(e) => setDiscountCode(e.target.value)}
+                  onChange={(e) => {
+                    setDiscountCode(e.target.value);
+                    if (discountResult) setDiscountResult(null);
+                  }}
                   placeholder="DISCOUNT CODE"
                   className="flex-1 bg-transparent border border-espresso/10 px-4 py-3 font-label-caps text-[11px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm"
                 />
-                <button className="px-4 md:px-6 py-3 font-label-caps text-[11px] text-brand-red border border-brand-red/30 rounded-sm uppercase tracking-widest hover:bg-brand-red hover:text-white transition-all cursor-pointer">
-                  Apply
+                <button
+                  onClick={handleApplyDiscount}
+                  disabled={isApplyingDiscount || !discountCode.trim()}
+                  className="px-4 md:px-6 py-3 font-label-caps text-[11px] text-brand-red border border-brand-red/30 rounded-sm uppercase tracking-widest hover:bg-brand-red hover:text-white transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {isApplyingDiscount ? "..." : "Apply"}
                 </button>
               </div>
+              {discountResult && (
+                <p className={`mt-2 font-label-caps text-[11px] tracking-widest ${
+                  discountResult.valid ? "text-green-600" : "text-brand-red"
+                }`}>
+                  {discountResult.valid
+                    ? `✓ ${discountResult.label} applied (–Rs ${discountResult.discount.toLocaleString()})`
+                    : discountResult.error}
+                </p>
+              )}
             </div>
 
             {/* Totals */}
@@ -336,6 +391,12 @@ export default function CheckoutPage() {
                   {shippingCost === 0 ? "FREE" : `Rs. ${shippingCost.toLocaleString()}`}
                 </span>
               </div>
+              {discountAmount > 0 && (
+                <div className="flex justify-between font-label-caps text-[11px] uppercase tracking-widest">
+                  <span className="text-green-600">Discount</span>
+                  <span className="text-green-600 font-medium">–Rs. {discountAmount.toLocaleString()}</span>
+                </div>
+              )}
             </div>
 
             {/* Grand Total */}

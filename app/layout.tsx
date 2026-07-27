@@ -3,11 +3,7 @@ import { Inter, Fraunces } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart";
-import { TopNavBar } from "@/components/TopNavBar";
-import { Footer } from "@/components/Footer";
-import CartDrawer from "@/components/CartDrawer";
-import CookieConsent from "@/components/CookieConsent";
-import SearchOverlay from "@/components/SearchOverlay";
+import { StorefrontShell } from "@/components/StorefrontShell";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -85,12 +81,7 @@ export default function RootLayout({
     <ClerkProvider>
       <body className="min-h-screen flex flex-col bg-espresso text-ivory font-body-md overflow-x-hidden">
         <CartProvider>
-            <TopNavBar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <CartDrawer />
-            <SearchOverlay />
-            <CookieConsent />
+          <StorefrontShell>{children}</StorefrontShell>
         </CartProvider>
       </body>
     </ClerkProvider>

@@ -1,14 +1,19 @@
 "use server";
 
 import { createSupabaseAdminClient } from "@/lib/supabase";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 export async function createStorefrontOrder(data: any) {
   const supabase = createSupabaseAdminClient();
 
   // 1. Generate an order number
-  const { count } = await supabase.from('orders').select('*', { count: 'exact', head: true });
-  const nextNumber = (count || 0) + 1;
-  const orderNumber = `LL-${new Date().getFullYear()}-${String(nextNumber).padStart(5, '0')}`;
+  // Format: LL-YYYY-MMDD-XXXX (where XXXX is random alphanumeric to avoid race conditions)
+  const date = new Date();
+  const year = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+  const orderNumber = `LL-${year}-${mm}${dd}-${randomSuffix}`;
 
   // 2. Insert the main order record
   const { data: order, error: orderError } = await supabase
@@ -95,6 +100,33 @@ export async function createStorefrontOrder(data: any) {
       status: 'pending',
       note: 'Order placed via storefront'
     });
+
+  // Increment discount usage if a discount was applied
+  if (data.discountId) {
+    const { data: disc } = await supabase
+      .from('discounts')
+      .select('times_used')
+      .eq('id', data.discountId)
+      .single();
+
+    if (disc) {
+      await supabase
+        .from('discounts')
+        .update({ times_used: (disc.times_used || 0) + 1 })
+        .eq('id', data.discountId);
+    }
+  }
+
+  // Send order confirmation email
+  if (data.shippingAddress?.email) {
+    await sendOrderConfirmationEmail(
+      data.shippingAddress.email,
+      orderNumber,
+      data.shippingAddress.fullName,
+      data.grandTotal,
+      data.paymentMethod
+    );
+  }
 
   return { success: true, orderId: order.id, orderNumber };
 }

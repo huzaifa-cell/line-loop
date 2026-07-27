@@ -263,7 +263,7 @@ create index idx_orders_payment_hold on orders(payment_hold_expires_at) where pa
 -- RLS POLICIES
 -- ============================================
 -- Utility function for admin/staff check
-create or replace function auth.is_admin_or_staff()
+create or replace function public.is_admin_or_staff()
 returns boolean as $$
   select exists (
     select 1 from profiles
@@ -275,44 +275,44 @@ $$ language sql security definer;
 -- PROFILES
 alter table profiles enable row level security;
 create policy "Users can read own profile" on profiles for select using (clerk_user_id = auth.jwt() ->> 'sub');
-create policy "Admin/staff can read all profiles" on profiles for select using (auth.is_admin_or_staff());
-create policy "Admin/staff can update profiles" on profiles for update using (auth.is_admin_or_staff());
+create policy "Admin/staff can read all profiles" on profiles for select using (public.is_admin_or_staff());
+create policy "Admin/staff can update profiles" on profiles for update using (public.is_admin_or_staff());
 -- Note: Service role (used by Clerk webhook) bypasses RLS for inserts/updates
 
 -- CATEGORIES
 alter table categories enable row level security;
 create policy "Public can read published categories" on categories for select using (is_published = true);
-create policy "Admin/staff can full access categories" on categories for all using (auth.is_admin_or_staff());
+create policy "Admin/staff can full access categories" on categories for all using (public.is_admin_or_staff());
 
 -- PRODUCTS
 alter table products enable row level security;
 create policy "Public can read published products" on products for select using (is_published = true);
-create policy "Admin/staff can full access products" on products for all using (auth.is_admin_or_staff());
+create policy "Admin/staff can full access products" on products for all using (public.is_admin_or_staff());
 
 -- PRODUCT IMAGES
 alter table product_images enable row level security;
 create policy "Public can read images of published products" on product_images for select using (
   exists (select 1 from products where products.id = product_images.product_id and products.is_published = true)
 );
-create policy "Admin/staff can full access product images" on product_images for all using (auth.is_admin_or_staff());
+create policy "Admin/staff can full access product images" on product_images for all using (public.is_admin_or_staff());
 
 -- PRODUCT VARIANTS
 alter table product_variants enable row level security;
 create policy "Public can read variants of published products" on product_variants for select using (
   exists (select 1 from products where products.id = product_variants.product_id and products.is_published = true)
 );
-create policy "Admin/staff can full access product variants" on product_variants for all using (auth.is_admin_or_staff());
+create policy "Admin/staff can full access product variants" on product_variants for all using (public.is_admin_or_staff());
 
 -- INVENTORY LOG
 alter table inventory_log enable row level security;
-create policy "Admin/staff can full access inventory log" on inventory_log for all using (auth.is_admin_or_staff());
+create policy "Admin/staff can full access inventory log" on inventory_log for all using (public.is_admin_or_staff());
 
 -- CUSTOMER ADDRESSES
 alter table customer_addresses enable row level security;
 create policy "Users can full access own addresses" on customer_addresses for all using (
   profile_id in (select id from profiles where clerk_user_id = auth.jwt() ->> 'sub')
 );
-create policy "Admin/staff can read all addresses" on customer_addresses for select using (auth.is_admin_or_staff());
+create policy "Admin/staff can read all addresses" on customer_addresses for select using (public.is_admin_or_staff());
 
 -- ORDERS & ORDER ITEMS
 alter table orders enable row level security;
@@ -320,29 +320,29 @@ create policy "Users can read own orders" on orders for select using (
   profile_id in (select id from profiles where clerk_user_id = auth.jwt() ->> 'sub')
 );
 -- Allow guest tracking logic securely via a server action with service role, not RLS.
-create policy "Admin/staff can full access orders" on orders for all using (auth.is_admin_or_staff());
+create policy "Admin/staff can full access orders" on orders for all using (public.is_admin_or_staff());
 
 alter table order_items enable row level security;
 create policy "Users can read own order items" on order_items for select using (
   exists (select 1 from orders where orders.id = order_items.order_id and orders.profile_id in (select id from profiles where clerk_user_id = auth.jwt() ->> 'sub'))
 );
-create policy "Admin/staff can full access order items" on order_items for all using (auth.is_admin_or_staff());
+create policy "Admin/staff can full access order items" on order_items for all using (public.is_admin_or_staff());
 
 alter table order_status_history enable row level security;
 create policy "Users can read own order history" on order_status_history for select using (
   exists (select 1 from orders where orders.id = order_status_history.order_id and orders.profile_id in (select id from profiles where clerk_user_id = auth.jwt() ->> 'sub'))
 );
-create policy "Admin/staff can full access order history" on order_status_history for all using (auth.is_admin_or_staff());
+create policy "Admin/staff can full access order history" on order_status_history for all using (public.is_admin_or_staff());
 
 -- DISCOUNTS
 alter table discounts enable row level security;
 create policy "Public can read active discounts" on discounts for select using (is_active = true and (starts_at is null or starts_at <= now()) and (expires_at is null or expires_at >= now()));
-create policy "Admin/staff can full access discounts" on discounts for all using (auth.is_admin_or_staff());
+create policy "Admin/staff can full access discounts" on discounts for all using (public.is_admin_or_staff());
 
 -- REVIEWS
 alter table reviews enable row level security;
 create policy "Public can read approved reviews" on reviews for select using (status = 'approved');
-create policy "Admin/staff can full access reviews" on reviews for all using (auth.is_admin_or_staff());
+create policy "Admin/staff can full access reviews" on reviews for all using (public.is_admin_or_staff());
 create policy "Users can read own reviews" on reviews for select using (
   profile_id in (select id from profiles where clerk_user_id = auth.jwt() ->> 'sub')
 );
@@ -350,20 +350,20 @@ create policy "Users can read own reviews" on reviews for select using (
 -- BANNERS
 alter table banners enable row level security;
 create policy "Public can read live banners" on banners for select using (is_live = true and (starts_at is null or starts_at <= now()) and (ends_at is null or ends_at >= now()));
-create policy "Admin/staff can full access banners" on banners for all using (auth.is_admin_or_staff());
+create policy "Admin/staff can full access banners" on banners for all using (public.is_admin_or_staff());
 
 -- SHIPPING & TAX SETTINGS
 alter table shipping_zones enable row level security;
 create policy "Public can read shipping zones" on shipping_zones for select using (true);
-create policy "Admin/staff can full access shipping zones" on shipping_zones for all using (auth.is_admin_or_staff());
+create policy "Admin/staff can full access shipping zones" on shipping_zones for all using (public.is_admin_or_staff());
 
 alter table tax_settings enable row level security;
 create policy "Public can read tax settings" on tax_settings for select using (true);
-create policy "Admin/staff can full access tax settings" on tax_settings for all using (auth.is_admin_or_staff());
+create policy "Admin/staff can full access tax settings" on tax_settings for all using (public.is_admin_or_staff());
 
 -- ACTIVITY LOG
 alter table activity_log enable row level security;
-create policy "Admin/staff can read activity log" on activity_log for select using (auth.is_admin_or_staff());
+create policy "Admin/staff can read activity log" on activity_log for select using (public.is_admin_or_staff());
 
 -- ============================================
 -- STORAGE BUCKETS (Note: Ensure supabase storage API is enabled)
@@ -375,12 +375,12 @@ insert into storage.buckets (id, name, public) values ('payment-screenshots', 'p
 
 -- Storage Policies: Product Images (Public Read)
 create policy "Public can read product images" on storage.objects for select using (bucket_id = 'product-images');
-create policy "Admin/staff can insert product images" on storage.objects for insert with check (bucket_id = 'product-images' and auth.is_admin_or_staff());
-create policy "Admin/staff can update product images" on storage.objects for update using (bucket_id = 'product-images' and auth.is_admin_or_staff());
-create policy "Admin/staff can delete product images" on storage.objects for delete using (bucket_id = 'product-images' and auth.is_admin_or_staff());
+create policy "Admin/staff can insert product images" on storage.objects for insert with check (bucket_id = 'product-images' and public.is_admin_or_staff());
+create policy "Admin/staff can update product images" on storage.objects for update using (bucket_id = 'product-images' and public.is_admin_or_staff());
+create policy "Admin/staff can delete product images" on storage.objects for delete using (bucket_id = 'product-images' and public.is_admin_or_staff());
 
 -- Storage Policies: Payment Screenshots (Private)
-create policy "Admin/staff can read payment screenshots" on storage.objects for select using (bucket_id = 'payment-screenshots' and auth.is_admin_or_staff());
+create policy "Admin/staff can read payment screenshots" on storage.objects for select using (bucket_id = 'payment-screenshots' and public.is_admin_or_staff());
 -- Note: A customer can upload but mapping it exactly to their auth ID in a generic bucket policy requires path matching.
 -- For simplicity, insertion can be done via a Service Role server action, or this policy:
 create policy "Authenticated users can upload payment screenshots" on storage.objects for insert with check (bucket_id = 'payment-screenshots' and auth.role() = 'authenticated');

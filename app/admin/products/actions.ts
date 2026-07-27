@@ -21,9 +21,11 @@ export async function getAdminProducts() {
     .order('created_at', { ascending: false });
 
   if (error) {
+    console.error("getAdminProducts error:", error);
     return [];
   }
   
+  console.log("getAdminProducts returned:", data?.length, "products");
   return data;
 }
 
@@ -67,7 +69,7 @@ export async function deleteProduct(id: string) {
 
 export async function saveProduct(formData: FormData) {
   try {
-    const { sessionClaims } = await auth();
+    const { sessionClaims, userId } = await auth();
     const role = (sessionClaims?.metadata as { role?: string })?.role;
     if (role !== "admin" && role !== "staff") return { success: false, error: "Unauthorized" };
 
@@ -78,22 +80,37 @@ export async function saveProduct(formData: FormData) {
     const comparePriceRaw = formData.get("comparePrice") as string;
     const comparePrice = comparePriceRaw && comparePriceRaw !== "" && !isNaN(parseFloat(comparePriceRaw)) ? parseFloat(comparePriceRaw) : null;
     
-    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    let slug = formData.get("slug") as string;
+    if (!slug) slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+
+    const categoryIdRaw = formData.get("categoryId") as string;
+    const categoryId = categoryIdRaw || null;
+    const isPublished = formData.get("isPublished") === "true";
+    const metaTitle = formData.get("metaTitle") as string || null;
+    const metaDescription = formData.get("metaDescription") as string || null;
 
     // Use admin client for ALL operations to bypass RLS
     const adminClient = createSupabaseAdminClient();
     
     let finalProductId = productId;
 
+    const productData = {
+      title,
+      description,
+      base_price: basePrice,
+      compare_at_price: comparePrice,
+      category_id: categoryId,
+      is_published: isPublished,
+      meta_title: metaTitle,
+      meta_description: metaDescription
+    };
+
     if (productId === "new") {
       const { data, error } = await adminClient
         .from('products')
         .insert({
-          title,
-          description,
-          base_price: basePrice,
-          compare_at_price: comparePrice,
-          slug: `${slug}-${Math.random().toString(36).substring(2, 7)}`
+          ...productData,
+          slug: `${slug}-${Math.random().toString(36).substring(2, 7)}` // simple uniqueness
         })
         .select('id')
         .single();
@@ -103,15 +120,41 @@ export async function saveProduct(formData: FormData) {
     } else {
       const { error } = await adminClient
         .from('products')
-        .update({
-          title,
-          description,
-          base_price: basePrice,
-          compare_at_price: comparePrice
-        })
+        .update({ ...productData, slug })
         .eq('id', productId);
         
       if (error) return { success: false, error: error.message };
+    }
+
+    // Handle Variants
+    const variantsRaw = formData.get("variants") as string;
+    if (variantsRaw) {
+      const variants = JSON.parse(variantsRaw) as any[];
+      const keepIds = variants.filter(v => !v.isNew).map(v => v.id);
+      
+      // Delete removed variants
+      if (keepIds.length > 0) {
+        await adminClient.from('product_variants').delete().eq('product_id', finalProductId).not('id', 'in', `(${keepIds.join(',')})`);
+      } else {
+        await adminClient.from('product_variants').delete().eq('product_id', finalProductId);
+      }
+      
+      // Upsert variants
+      for (const v of variants) {
+        const variantData = {
+          product_id: finalProductId,
+          sku: v.sku,
+          color: v.color || null,
+          size: v.size || null,
+          stock_quantity: v.stock_quantity
+        };
+        
+        if (v.isNew) {
+          await adminClient.from('product_variants').insert(variantData);
+        } else {
+          await adminClient.from('product_variants').update(variantData).eq('id', v.id);
+        }
+      }
     }
 
     // Handle existing media (deletions & reordering)
@@ -141,11 +184,10 @@ export async function saveProduct(formData: FormData) {
       const fileName = `${finalProductId}/${crypto.randomUUID()}.${ext}`;
       
       const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
       
       const { error: uploadError } = await adminClient.storage
         .from('product-images')
-        .upload(fileName, buffer, { 
+        .upload(fileName, arrayBuffer, { 
           upsert: true,
           contentType: file.type 
         });
@@ -162,6 +204,18 @@ export async function saveProduct(formData: FormData) {
         product_id: finalProductId,
         storage_path: fileName,
         sort_order: sortOrder
+      });
+    }
+
+    // Log Activity
+    const { data: profile } = await adminClient.from('profiles').select('id').eq('clerk_user_id', userId).single();
+    if (profile) {
+      await adminClient.from('activity_log').insert({
+        actor_id: profile.id,
+        action: productId === "new" ? 'product.create' : 'product.update',
+        entity_type: 'products',
+        entity_id: finalProductId,
+        metadata: { title }
       });
     }
 

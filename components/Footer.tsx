@@ -6,7 +6,7 @@ export function Footer() {
     <footer className="bg-espresso border-t border-mocha px-margin-mobile md:px-margin-desktop py-section-gap-mobile md:py-section-gap">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-gutter">
         {/* Brand Info */}
-        <div className="md:col-span-5 space-y-6 md:space-y-8">
+        <div className="md:col-span-8 space-y-6 md:space-y-8">
           <Image 
             src="/lineloop-logo.png" 
             alt="LINE&LOOP Logo" 
@@ -33,7 +33,7 @@ export function Footer() {
           </div>
         </div>
         {/* Links */}
-        <div className="md:col-span-3 grid grid-cols-2 md:grid-cols-1 gap-4 md:gap-4">
+        <div className="md:col-span-4 grid grid-cols-2 md:grid-cols-1 gap-4 md:gap-4">
           <h4 className="font-label-caps text-label-caps text-ivory uppercase tracking-widest mb-2 md:mb-4">Information</h4>
           <div className="flex flex-col gap-2 md:gap-0">
             <Link href="/shop" className="font-body-md text-beige hover:text-brand-red transition-colors">SHOP</Link>
@@ -42,16 +42,6 @@ export function Footer() {
             <Link href="#" className="font-body-md text-beige hover:text-brand-red transition-colors">PINTEREST</Link>
           </div>
         </div>
-        {/* Newsletter */}
-        <div className="md:col-span-4 space-y-4 md:space-y-6">
-          <h4 className="font-label-caps text-label-caps text-ivory uppercase tracking-widest mb-2 md:mb-4">Newsletter</h4>
-          <p className="font-body-md text-beige text-sm md:text-base">Join our journey and receive updates on new collections and artisanal stories.</p>
-          <form className="flex border-b border-mocha pb-2">
-            <input className="bg-transparent border-none focus:ring-0 focus:outline-none text-ivory w-full font-body-md text-sm md:text-base" placeholder="Email Address" type="email" />
-            <button className="text-ivory hover:text-brand-red transition-all" type="submit">
-              <span className="material-symbols-outlined">arrow_forward</span>
-            </button>
-          </form>
         </div>
       </div>
       <div className="mt-12 md:mt-24 pt-8 border-t border-mocha flex flex-col md:flex-row justify-between items-center gap-4">

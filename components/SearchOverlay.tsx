@@ -1,17 +1,24 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { products as ALL_PRODUCTS } from "@/lib/mockData";
 import { formatPrice } from "@/lib/utils";
 
-
+interface SearchResult {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  image: string;
+}
 
 export default function SearchOverlay() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [submittedQuery, setSubmittedQuery] = useState("");
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   // Open via custom event so Nav can trigger it
   useEffect(() => {
@@ -36,31 +43,42 @@ export default function SearchOverlay() {
       if (e.key === "Escape") {
         setIsOpen(false);
         setQuery("");
-        setSubmittedQuery("");
+        setResults([]);
+        setHasSearched(false);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const results = useMemo(() => {
-    if (!submittedQuery.trim()) return [];
-    const q = submittedQuery.toLowerCase();
-    return ALL_PRODUCTS.filter(
-      (p) =>
-        (p.name && p.name.toLowerCase().includes(q)) ||
-        (p.category && p.category.toLowerCase().includes(q)) ||
-        (p.description && p.description.toLowerCase().includes(q)) ||
-        (p.fabric && p.fabric.toLowerCase().includes(q)) ||
-        (p.tag && p.tag.toLowerCase().includes(q)) ||
-        (p.colors && p.colors.some((c) => c.name.toLowerCase().includes(q)))
-    ).slice(0, 8);
-  }, [submittedQuery]);
+  const handleSearch = useCallback(async (searchQuery: string) => {
+    if (!searchQuery.trim()) {
+      setResults([]);
+      setHasSearched(false);
+      return;
+    }
+
+    setIsSearching(true);
+    setHasSearched(true);
+
+    try {
+      const res = await fetch(
+        `/api/search?q=${encodeURIComponent(searchQuery.trim())}`
+      );
+      const data = await res.json();
+      setResults(data.results || []);
+    } catch {
+      setResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  }, []);
 
   const close = useCallback(() => {
     setIsOpen(false);
     setQuery("");
-    setSubmittedQuery("");
+    setResults([]);
+    setHasSearched(false);
   }, []);
 
   if (!isOpen) return null;
@@ -85,7 +103,7 @@ export default function SearchOverlay() {
           className="mx-auto max-w-[640px]"
           onSubmit={(e) => {
             e.preventDefault();
-            setSubmittedQuery(query);
+            handleSearch(query);
           }}
         >
           <input
@@ -93,7 +111,7 @@ export default function SearchOverlay() {
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by name, category, fabric, colour…"
+            placeholder="Search by name, category, description…"
             className="w-full bg-transparent border-b border-ivory-mist/30 py-[var(--spacing-15)] text-2xl font-bold text-ivory-mist outline-none placeholder:text-ivory-mist/30 focus:border-[var(--color-brand-red)]"
             aria-label="Search products"
           />
@@ -103,7 +121,12 @@ export default function SearchOverlay() {
       {/* Results */}
       <div className="flex-1 overflow-y-auto px-6 pt-[var(--spacing-30)] pb-[var(--spacing-60)]">
         <div className="mx-auto max-w-[640px] divide-y divide-ivory-mist/10">
-          {submittedQuery.trim() && results.length === 0 && (
+          {isSearching && (
+            <p className="caption opacity-50 py-[var(--spacing-30)] text-center">
+              Searching…
+            </p>
+          )}
+          {!isSearching && hasSearched && results.length === 0 && (
             <p className="caption opacity-50 py-[var(--spacing-30)] text-center">
               No pieces found. Try a different search.
             </p>
@@ -116,13 +139,15 @@ export default function SearchOverlay() {
               className="flex items-center gap-[var(--spacing-20)] py-[var(--spacing-15)] hover:opacity-70 transition-opacity"
             >
               <div className="relative w-14 h-16 shrink-0 bg-ivory-mist/10">
-                <Image
-                  src={p.image}
-                  alt={p.name}
-                  fill
-                  sizes="56px"
-                  className="object-cover"
-                />
+                {p.image && (
+                  <Image
+                    src={p.image}
+                    alt={p.name}
+                    fill
+                    sizes="56px"
+                    className="object-cover"
+                  />
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="caption uppercase opacity-60">{p.category}</p>

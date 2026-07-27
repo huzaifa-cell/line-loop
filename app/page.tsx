@@ -1,17 +1,33 @@
 import { AnimatedWrapper } from "@/components/AnimatedWrapper";
 import { getFeaturedProducts } from "@/lib/storefront";
+import { getLiveBanner } from "@/lib/banners";
 import Image from "next/image";
 import Link from "next/link";
 
 export default async function Home() {
-  const products = await getFeaturedProducts(4);
+  const [products, heroBanner] = await Promise.all([
+    getFeaturedProducts(4),
+    getLiveBanner("homepage_hero"),
+  ]);
+
+  // Use banner data if a live hero banner exists, otherwise fallback to defaults
+  const heroHeadline = heroBanner?.headline || "Handmade Garments,\nMade Slowly.";
+  const heroSubtext = heroBanner?.subtext || "Discover a curated collection of artisanal pieces designed for the feminine silhouette. Precision tailoring meets effortless luxury in every stitch.";
+  const heroCtaLabel = heroBanner?.cta_label || "Shop the Collection";
+  const heroCtaUrl = heroBanner?.cta_url || "/shop";
+  const heroImage = heroBanner?.storage_path
+    ? (heroBanner.storage_path.startsWith("http")
+        ? heroBanner.storage_path
+        : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${heroBanner.storage_path}`)
+    : "https://images.unsplash.com/photo-1597983073750-16f5ded1321f?auto=format&fit=crop&q=80&w=2560";
+
   return (
     <>
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex flex-col justify-center items-center text-center px-margin-mobile md:px-margin-desktop overflow-hidden bg-espresso">
         <div className="absolute inset-0 opacity-40 z-0">
           <Image
-            src="https://images.unsplash.com/photo-1597983073750-16f5ded1321f?auto=format&fit=crop&q=80&w=2560"
+            src={heroImage}
             alt=""
             fill
             priority
@@ -22,14 +38,16 @@ export default async function Home() {
         </div>
         <AnimatedWrapper className="relative z-10 max-w-5xl space-y-8 px-4" delay={0.2}>
           <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg text-ivory tracking-tight leading-tight">
-            Handmade Garments,<br/>Made Slowly.
+            {heroHeadline.split("\n").map((line, i) => (
+              <span key={i}>{line}{i < heroHeadline.split("\n").length - 1 && <br />}</span>
+            ))}
           </h1>
           <p className="font-body-lg text-body-lg text-beige max-w-2xl mx-auto font-light">
-            Discover a curated collection of artisanal pieces designed for the feminine silhouette. Precision tailoring meets effortless luxury in every stitch.
+            {heroSubtext}
           </p>
           <div className="pt-6">
-            <Link href="/shop" className="inline-block bg-brand-red text-white px-8 py-4 md:px-12 md:py-5 font-button text-button uppercase rounded-lg hover:bg-white hover:text-brand-red transition-all duration-500 shadow-lg shadow-brand-red/20">
-              Shop the Collection
+            <Link href={heroCtaUrl} className="inline-block bg-brand-red text-white px-8 py-4 md:px-12 md:py-5 font-button text-button uppercase rounded-lg hover:bg-white hover:text-brand-red transition-all duration-500 shadow-lg shadow-brand-red/20">
+              {heroCtaLabel}
             </Link>
           </div>
         </AnimatedWrapper>

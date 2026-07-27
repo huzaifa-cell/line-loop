@@ -7,6 +7,7 @@ export async function createSupabaseServerClient() {
   // To use RLS with Clerk, you must create a JWT template in the Clerk dashboard
   // named "supabase" that includes the `sub` claim.
   const supabaseToken = await getToken({ template: "supabase" });
+  console.log("Supabase Clerk Token exists:", !!supabaseToken);
   
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

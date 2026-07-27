@@ -18,8 +18,16 @@ function getSupabase() {
  * Helper to map Supabase relational data back into the existing UI `Product` shape.
  */
 function mapToUIProduct(row: any): Product {
-  const primaryImage = row.product_images?.find((img: any) => img.sort_order === 0)?.storage_path || row.product_images?.[0]?.storage_path || "";
-  const gallery = row.product_images?.sort((a: any, b: any) => a.sort_order - b.sort_order).map((img: any) => img.storage_path) || [];
+  const getImageUrl = (path: string) => {
+    if (!path) return "";
+    if (path.startsWith("http")) return path;
+    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${path}`;
+  };
+
+  const primaryImagePath = row.product_images?.find((img: any) => img.sort_order === 0)?.storage_path || row.product_images?.[0]?.storage_path || "";
+  const primaryImage = getImageUrl(primaryImagePath);
+  
+  const gallery = row.product_images?.sort((a: any, b: any) => a.sort_order - b.sort_order).map((img: any) => getImageUrl(img.storage_path)) || [];
   
   // Extract unique colors and sizes from variants
   const colorMap = new Map();

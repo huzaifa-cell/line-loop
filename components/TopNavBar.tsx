@@ -16,11 +16,6 @@ export function TopNavBar() {
 
   return (
     <>
-      <div className="w-full bg-surface-container-highest py-1.5 md:py-2 text-center">
-        <span className="font-label-caps text-[10px] md:text-label-caps text-on-surface tracking-widest uppercase">
-          Worldwide Express Shipping On All Orders Over $500
-        </span>
-      </div>
       <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-mocha min-h-[60px] md:min-h-[72px] py-1.5 md:py-2 flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop">
         <div className="flex items-center gap-4 md:gap-8">
           <Link href="/" className="cursor-pointer transition-all active:scale-95 flex items-center">

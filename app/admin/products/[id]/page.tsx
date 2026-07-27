@@ -12,10 +12,15 @@ export default async function ProductDetailPage({
   const supabase = await createSupabaseServerClient();
   let product = null;
   
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('*')
+    .order('name');
+  
   if (id !== "new") {
     const { data } = await supabase
       .from('products')
-      .select('*, product_images(*)')
+      .select('*, product_images(*), product_variants(*)')
       .eq('id', id)
       .single();
     product = data;
@@ -30,7 +35,7 @@ export default async function ProductDetailPage({
         </h1>
       </div>
       
-      <ProductForm productId={id} initialData={product} />
+      <ProductForm productId={id} initialData={product} categories={categories || []} />
     </div>
   );
 }
