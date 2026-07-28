@@ -17,7 +17,7 @@ export async function uploadPaymentProof(orderNumber: string, formData: FormData
     .from("orders")
     .select("id")
     .eq("order_number", orderNumber)
-    .eq("payment_method", "bank")
+    .eq("payment_method", "bank_transfer")
     .single();
 
   if (orderError || !order) {
