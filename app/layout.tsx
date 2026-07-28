@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart";
 import { StorefrontShell } from "@/components/StorefrontShell";
+import AnnouncementBar from "@/components/AnnouncementBar";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -81,7 +82,7 @@ export default function RootLayout({
     <ClerkProvider>
       <body className="min-h-screen flex flex-col bg-espresso text-ivory font-body-md overflow-x-hidden">
         <CartProvider>
-          <StorefrontShell>{children}</StorefrontShell>
+          <StorefrontShell announcementBar={<AnnouncementBar />}>{children}</StorefrontShell>
         </CartProvider>
       </body>
     </ClerkProvider>

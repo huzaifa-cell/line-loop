@@ -6,9 +6,9 @@ import { Footer } from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import SearchOverlay from "@/components/SearchOverlay";
 import CookieConsent from "@/components/CookieConsent";
-import AnnouncementBar from "@/components/AnnouncementBar";
+import React from "react";
 
-export function StorefrontShell({ children }: { children: React.ReactNode }) {
+export function StorefrontShell({ children, announcementBar }: { children: React.ReactNode, announcementBar?: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
 
@@ -18,7 +18,7 @@ export function StorefrontShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <AnnouncementBar />
+      {announcementBar}
       <TopNavBar />
       <main className="flex-1">{children}</main>
       <Footer />
