@@ -22,7 +22,7 @@ export async function createStorefrontOrder(data: any) {
       order_number: orderNumber,
       guest_email: data.shippingAddress.email,
       status: 'pending',
-      payment_method: data.paymentMethod,
+      payment_method: data.paymentMethod === 'bank' ? 'bank_transfer' : data.paymentMethod,
       payment_status: data.paymentMethod === 'cod' ? 'cod_pending' : (data.paymentMethod === 'bank' ? 'bank_transfer_under_review' : 'pending'),
       subtotal: data.subtotal,
       shipping_amount: data.shippingCost,

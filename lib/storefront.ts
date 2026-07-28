@@ -50,7 +50,13 @@ function mapToUIProduct(row: any): Product {
     image: primaryImage,
     gallery: gallery.length > 0 ? gallery : [primaryImage],
     colors: Array.from(colorMap.values()),
-    sizes: Array.from(sizes)
+    sizes: Array.from(sizes),
+    variants: row.product_variants ? row.product_variants.map((v: any) => ({
+      id: v.id,
+      color: v.color || "Default",
+      size: v.size,
+      stock: v.stock_quantity || 0
+    })) : []
   };
 }
 

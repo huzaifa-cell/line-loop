@@ -62,6 +62,14 @@ export default function ProductClient({ product, related }: ProductClientProps) 
   const colors = product.colors || [{ name: "Default", hex: "#131313" }];
   const sizes = product.sizes || ["S", "M", "L"];
 
+  const selectedVariant = product.variants?.find(
+    (v) => v.size === selectedSize && v.color === colors[selectedColor].name
+  );
+  
+  const isOutOfStock = selectedSize && product.variants && product.variants.length > 0
+    ? (selectedVariant ? selectedVariant.stock <= 0 : true)
+    : false;
+
   const handleAddToCart = () => {
     if (!selectedSize) return;
     add(product, selectedSize, colors[selectedColor].name, quantity);
@@ -256,9 +264,14 @@ export default function ProductClient({ product, related }: ProductClientProps) 
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={handleAddToCart}
-              className="w-full bg-brand-red text-white py-4 font-label-caps text-label-caps uppercase tracking-[0.2em] rounded-md hover:bg-white hover:text-brand-red transition-all duration-500 shadow-lg shadow-brand-red/20"
+              disabled={isOutOfStock}
+              className={`w-full py-4 font-label-caps text-label-caps uppercase tracking-[0.2em] rounded-md transition-all duration-500 shadow-lg ${
+                isOutOfStock 
+                  ? "bg-espresso/50 text-white cursor-not-allowed shadow-none" 
+                  : "bg-brand-red text-white hover:bg-white hover:text-brand-red shadow-brand-red/20"
+              }`}
             >
-              Add to Bag
+              {isOutOfStock ? "Sold Out" : "Add to Bag"}
             </motion.button>
             <button className="w-full border border-white/20 text-ivory py-4 font-label-caps text-label-caps uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-white/5 transition-all rounded-md">
               <span className="material-symbols-outlined text-[20px]">favorite</span>
