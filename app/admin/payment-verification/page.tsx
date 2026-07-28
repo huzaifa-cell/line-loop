@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getPendingBankTransfers, processBankTransfer } from "./actions";
+import ScreenshotViewer from "./ScreenshotViewer";
 
 export default async function PaymentVerificationPage() {
   const transfers = await getPendingBankTransfers();
@@ -48,13 +49,7 @@ export default async function PaymentVerificationPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="font-bold">{transfer.bank_transfer_reference}</div>
-                      <Link 
-                        href={`/api/admin/screenshots/${encodeURIComponent(transfer.bank_transfer_screenshot_path)}`}
-                        target="_blank"
-                        className="text-xs text-ink-black/60 hover:text-ink-black underline underline-offset-2"
-                      >
-                        View Screenshot
-                      </Link>
+                      <ScreenshotViewer path={transfer.bank_transfer_screenshot_path} />
                       {isDuplicate && (
                         <div className="mt-2 text-xs font-bold text-thread-red border border-thread-red px-2 py-1 uppercase inline-block">
                           Flag: Duplicate Image Upload

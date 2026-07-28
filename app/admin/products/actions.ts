@@ -150,9 +150,15 @@ export async function saveProduct(formData: FormData) {
         };
         
         if (v.isNew) {
-          await adminClient.from('product_variants').insert(variantData);
+          const { error: insertError } = await adminClient.from('product_variants').insert(variantData);
+          if (insertError) {
+            return { success: false, error: `Failed to save variant (SKU: ${v.sku}): ${insertError.message}` };
+          }
         } else {
-          await adminClient.from('product_variants').update(variantData).eq('id', v.id);
+          const { error: updateError } = await adminClient.from('product_variants').update(variantData).eq('id', v.id);
+          if (updateError) {
+            return { success: false, error: `Failed to update variant (SKU: ${v.sku}): ${updateError.message}` };
+          }
         }
       }
     }

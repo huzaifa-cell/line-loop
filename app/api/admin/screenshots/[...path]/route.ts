@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ path: string }> }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   const { sessionClaims } = await auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
@@ -14,7 +14,7 @@ export async function GET(
   }
 
   const { path } = await params;
-  const decodedPath = decodeURIComponent(path);
+  const decodedPath = decodeURIComponent(path.join("/"));
   
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.storage
