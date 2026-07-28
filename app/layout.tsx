@@ -26,7 +26,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://lineloop.example"),
+  metadataBase: new URL("https://lineandloop.shop"),
   title: {
     default: "LINE&LOOP — Handmade Ladies' Garments, Made Slowly",
     template: "%s — LINE&LOOP",

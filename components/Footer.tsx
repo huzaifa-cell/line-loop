@@ -46,8 +46,9 @@ export function Footer() {
       <div className="mt-12 md:mt-24 pt-8 border-t border-mocha flex flex-col md:flex-row justify-between items-center gap-4">
         <span className="font-body-md text-beige text-xs md:text-sm">© 2026 LINE&LOOP. HANDMADE GARMENTS, MADE SLOWLY.</span>
         <div className="flex gap-8">
-          <Link href="#" className="font-label-caps text-[10px] text-beige hover:text-ivory">PRIVACY</Link>
-          <Link href="#" className="font-label-caps text-[10px] text-beige hover:text-ivory">TERMS</Link>
+          <Link href="/privacy" className="font-label-caps text-[10px] text-beige hover:text-ivory">PRIVACY</Link>
+          <Link href="/terms" className="font-label-caps text-[10px] text-beige hover:text-ivory">TERMS</Link>
+          <Link href="/shipping-returns" className="font-label-caps text-[10px] text-beige hover:text-ivory">SHIPPING & RETURNS</Link>
         </div>
       </div>
     </footer>

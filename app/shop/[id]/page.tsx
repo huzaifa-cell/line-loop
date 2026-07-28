@@ -1,9 +1,38 @@
 import { getStorefrontProduct, getFeaturedProducts } from "@/lib/storefront";
 import { notFound } from "next/navigation";
 import ProductClient from "./ProductClient";
+import type { Metadata } from "next";
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const product = await getStorefrontProduct(id);
+
+  if (!product) {
+    return {
+      title: "Product Not Found",
+    };
+  }
+
+  return {
+    title: product.name,
+    description: product.description || `Buy ${product.name} at LINE&LOOP. Handmade garments, made slowly.`,
+    openGraph: {
+      title: product.name,
+      description: product.description || `Buy ${product.name} at LINE&LOOP. Handmade garments, made slowly.`,
+      images: [
+        {
+          url: product.image,
+          width: 800,
+          height: 1067,
+          alt: product.name,
+        }
+      ],
+    },
+  };
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
