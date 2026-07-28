@@ -10,7 +10,7 @@ export async function getOrderDetail(orderId: string) {
     .from('orders')
     .select(`
       *,
-      profiles ( email, full_name ),
+      profiles!orders_profile_id_fkey ( email, full_name ),
       order_items (
         id,
         product_title,

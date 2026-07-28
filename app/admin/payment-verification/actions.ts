@@ -18,7 +18,7 @@ export async function getPendingBankTransfers() {
       bank_transfer_screenshot_path,
       bank_transfer_screenshot_hash,
       payment_hold_expires_at,
-      profiles ( email )
+      profiles!orders_profile_id_fkey ( email )
     `)
     .eq('payment_method', 'bank_transfer')
     .eq('payment_status', 'bank_transfer_under_review')

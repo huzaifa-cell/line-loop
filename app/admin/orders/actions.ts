@@ -17,7 +17,7 @@ export async function getAdminOrders() {
       payment_status,
       total,
       created_at,
-      profiles ( email )
+      profiles!orders_profile_id_fkey ( email )
     `)
     .order('created_at', { ascending: false });
 
