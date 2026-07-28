@@ -42,7 +42,6 @@ export function Footer() {
             <Link href="#" className="font-body-md text-beige hover:text-brand-red transition-colors">PINTEREST</Link>
           </div>
         </div>
-        </div>
       </div>
       <div className="mt-12 md:mt-24 pt-8 border-t border-mocha flex flex-col md:flex-row justify-between items-center gap-4">
         <span className="font-body-md text-beige text-xs md:text-sm">© 2026 LINE&LOOP. HANDMADE GARMENTS, MADE SLOWLY.</span>
