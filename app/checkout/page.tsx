@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { createStorefrontOrder } from "./actions";
+import { uploadPaymentProof } from "./upload-proof/actions";
 import { validateDiscount } from "./discount-actions";
 import type { DiscountResult } from "@/lib/discount";
 import { useRouter } from "next/navigation";
@@ -21,6 +22,10 @@ export default function CheckoutPage() {
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
+  const [paymentProofPreview, setPaymentProofPreview] = useState<string | null>(null);
+  const [paymentProofError, setPaymentProofError] = useState("");
   
   const [formData, setFormData] = useState({
     email: "",
@@ -37,6 +42,40 @@ export default function CheckoutPage() {
   const shippingCost = shippingMethod === "express" ? 500 : shipping;
   const discountAmount = discountResult?.valid ? discountResult.discount : 0;
   const grandTotal = subtotal + shippingCost - discountAmount;
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files?.[0];
+    setPaymentProofError("");
+    
+    if (!selected) {
+      setPaymentProofFile(null);
+      setPaymentProofPreview(null);
+      return;
+    }
+
+    if (!selected.type.startsWith("image/") && selected.type !== "application/pdf") {
+      setPaymentProofError("Please upload an image or PDF file.");
+      setPaymentProofFile(null);
+      setPaymentProofPreview(null);
+      return;
+    }
+
+    if (selected.size > 5 * 1024 * 1024) {
+      setPaymentProofError("File is too large. Maximum size is 5MB.");
+      setPaymentProofFile(null);
+      setPaymentProofPreview(null);
+      return;
+    }
+
+    setPaymentProofFile(selected);
+    
+    if (selected.type.startsWith("image/")) {
+      const url = URL.createObjectURL(selected);
+      setPaymentProofPreview(url);
+    } else {
+      setPaymentProofPreview(null);
+    }
+  };
 
   const handleApplyDiscount = async () => {
     if (!discountCode.trim()) return;
@@ -240,14 +279,34 @@ export default function CheckoutPage() {
                 <span className="font-label-caps text-[12px] text-espresso uppercase tracking-widest">Bank Transfer</span>
               </label>
               {paymentMethod === "bank" && (
-                <div className="p-4 bg-espresso/5 border border-espresso/10 rounded-sm">
+                <div className="p-4 bg-espresso/5 border border-espresso/10 rounded-sm space-y-4">
                   <p className="font-body-md text-[12px] text-espresso leading-relaxed">
-                    Please transfer the total amount to the following bank account. You will need to upload a screenshot of your payment on the next step.
+                    Please transfer the total amount to the following bank account and upload a screenshot of your payment below.
                     <br /><br />
                     <strong>Bank Name:</strong> Meezan Bank<br />
                     <strong>Account Title:</strong> LINE AND LOOP<br />
                     <strong>Account Number:</strong> 01234567890123
                   </p>
+                  <div>
+                    <label className="block font-label-caps text-xs uppercase tracking-widest text-espresso/70 mb-2">
+                      Payment Screenshot (Required)
+                    </label>
+                    <input 
+                      type="file" 
+                      accept="image/*,application/pdf"
+                      onChange={handleFileChange}
+                      disabled={isSubmitting}
+                      className="w-full text-sm font-body-md text-espresso file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:text-xs file:font-label-caps file:uppercase file:tracking-widest file:bg-espresso/5 file:text-espresso hover:file:bg-espresso/10 cursor-pointer"
+                    />
+                    {paymentProofPreview && (
+                      <div className="mt-4 border border-espresso/10 rounded-sm p-2 bg-espresso/5">
+                        <img src={paymentProofPreview} alt="Receipt preview" className="max-h-40 mx-auto object-contain" />
+                      </div>
+                    )}
+                    {paymentProofError && (
+                      <p className="text-brand-red text-sm font-body-md mt-2">{paymentProofError}</p>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -272,6 +331,12 @@ export default function CheckoutPage() {
 
               if (Object.keys(errors).length > 0) {
                 setFormErrors(errors);
+                setIsSubmitting(false);
+                return;
+              }
+
+              if (paymentMethod === "bank" && !paymentProofFile) {
+                setPaymentProofError("Please upload a payment screenshot to proceed.");
                 setIsSubmitting(false);
                 return;
               }
@@ -305,13 +370,18 @@ export default function CheckoutPage() {
                   }
                 });
                 
-                clear();
-                
-                if (paymentMethod === "bank" && result.success && result.orderNumber) {
-                  router.push(`/checkout/upload-proof?order=${result.orderNumber}`);
-                } else {
-                  setOrderPlaced(true);
+                if (paymentMethod === "bank" && paymentProofFile) {
+                  const proofFormData = new FormData();
+                  proofFormData.append("file", paymentProofFile);
+                  const uploadRes = await uploadPaymentProof(result.orderNumber, proofFormData);
+                  if (!uploadRes.success) {
+                    console.error("Proof upload failed:", uploadRes.error);
+                    alert("Order created, but payment proof upload failed: " + uploadRes.error);
+                  }
                 }
+                
+                clear();
+                setOrderPlaced(true);
               } catch (err) {
                 console.error(err);
                 alert("Failed to place order.");
