@@ -5,7 +5,11 @@ import Link from "next/link";
 
 export default async function ShopPage() {
   const products = await getStorefrontProducts();
-  const isVideo = (url: string) => url?.match(/\.(mp4|webm|mov)$/i);
+  const isVideo = (url: string) => {
+    if (!url) return false;
+    const lower = url.toLowerCase();
+    return lower.includes('.mp4') || lower.includes('.webm') || lower.includes('.mov');
+  };
   return (
     <>
       {/* Shop Header Section */}

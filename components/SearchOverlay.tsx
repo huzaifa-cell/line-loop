@@ -74,6 +74,9 @@ export default function SearchOverlay() {
     }
   }, []);
 
+  const { add } = useCart();
+  const isVideo = (url: string) => url?.match(/\.(mp4|webm|mov)$/i);
+
   const close = useCallback(() => {
     setIsOpen(false);
     setQuery("");
@@ -140,13 +143,17 @@ export default function SearchOverlay() {
             >
               <div className="relative w-14 h-16 shrink-0 bg-ivory-mist/10">
                 {p.image && (
-                  <Image
-                    src={p.image}
-                    alt={p.name}
-                    fill
-                    sizes="56px"
-                    className="object-cover"
-                  />
+                  isVideo(p.image) ? (
+                    <video src={p.image} className="w-16 h-20 md:w-24 md:h-32 object-cover shrink-0" muted loop playsInline autoPlay />
+                  ) : (
+                    <Image
+                      src={p.image}
+                      alt={p.name}
+                      width={96}
+                      height={128}
+                      className="w-16 h-20 md:w-24 md:h-32 object-cover shrink-0"
+                    />
+                  )
                 )}
               </div>
               <div className="flex-1 min-w-0">

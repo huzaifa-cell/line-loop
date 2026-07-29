@@ -12,6 +12,12 @@ import { validateDiscount } from "./discount-actions";
 import type { DiscountResult } from "@/lib/discount";
 import { useRouter } from "next/navigation";
 
+const isVideo = (url: string) => {
+  if (!url) return false;
+  const lower = url.toLowerCase();
+  return lower.includes('.mp4') || lower.includes('.webm') || lower.includes('.mov');
+};
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { lines, subtotal, shipping, clear } = useCart();
@@ -405,7 +411,11 @@ export default function CheckoutPage() {
               {lines.map((line) => (
                 <div key={`${line.id}-${line.size}-${line.colour}`} className="flex gap-4">
                   <div className="relative w-16 h-20 shrink-0 overflow-hidden rounded-sm bg-beige/30">
-                    <Image src={line.image} alt={line.name} fill sizes="64px" className="object-cover" />
+                    {isVideo(line.image) ? (
+                      <video src={line.image} className="w-full h-full object-cover" muted loop playsInline autoPlay />
+                    ) : (
+                      <Image src={line.image} alt={line.name} fill sizes="64px" className="object-cover" />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-label-caps text-[11px] text-espresso uppercase tracking-wider truncate">{line.name}</h4>

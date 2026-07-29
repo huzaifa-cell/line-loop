@@ -9,7 +9,11 @@ export default async function Home() {
     getFeaturedProducts(4),
     getLiveBanner("homepage_hero"),
   ]);
-  const isVideo = (url: string) => url?.match(/\.(mp4|webm|mov)$/i);
+  const isVideo = (url: string) => {
+    if (!url) return false;
+    const lower = url.toLowerCase();
+    return lower.includes('.mp4') || lower.includes('.webm') || lower.includes('.mov');
+  };
 
   // Use banner data if a live hero banner exists, otherwise fallback to defaults
   const heroHeadline = heroBanner?.headline || "Handmade Garments,\nMade Slowly.";

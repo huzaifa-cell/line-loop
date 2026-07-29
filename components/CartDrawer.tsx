@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function CartDrawer() {
+  const isVideo = (url: string) => url?.match(/\.(mp4|webm|mov)$/i);
   const { lines, isOpen, close, remove, setQty, count, subtotal, shipping, total } = useCart();
 
   return (
@@ -84,13 +85,17 @@ export default function CartDrawer() {
                     >
                       {/* Thumbnail */}
                       <div className="relative w-20 h-28 shrink-0 overflow-hidden rounded-sm bg-beige/30">
-                        <Image
-                          src={line.image}
-                          alt={line.name}
-                          fill
-                          sizes="80px"
-                          className="object-cover"
-                        />
+                        {isVideo(line.image) ? (
+                          <video src={line.image} className="w-full h-full object-cover" muted loop playsInline autoPlay />
+                        ) : (
+                          <Image
+                            src={line.image}
+                            alt={line.name}
+                            fill
+                            sizes="80px"
+                            className="object-cover"
+                          />
+                        )}
                       </div>
 
                       {/* Info */}

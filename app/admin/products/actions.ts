@@ -227,7 +227,7 @@ export async function saveProduct(formData: FormData) {
 
     revalidatePath("/admin/products");
     revalidatePath(`/admin/products/${finalProductId}`);
-    revalidatePath("/shop");
+    revalidatePath("/", "layout");
     
     return { success: true, productId: finalProductId };
   } catch (err: any) {

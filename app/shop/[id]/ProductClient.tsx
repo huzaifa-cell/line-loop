@@ -59,7 +59,11 @@ export default function ProductClient({ product, related }: ProductClientProps) 
   const [quantity, setQuantity] = useState(1);
 
   const gallery = product.gallery || [product.image];
-  const isVideo = (url: string) => url.match(/\.(mp4|webm|mov)$/i);
+  const isVideo = (url: string) => {
+    if (!url) return false;
+    const lower = url.toLowerCase();
+    return lower.includes('.mp4') || lower.includes('.webm') || lower.includes('.mov');
+  };
   const colors = product.colors || [{ name: "Default", hex: "#131313" }];
   const sizes = product.sizes || ["S", "M", "L"];
 
@@ -110,7 +114,7 @@ export default function ProductClient({ product, related }: ProductClientProps) 
                 }`}
               >
                 {isVideo(img) ? (
-                  <video src={img} className="w-full h-full object-cover" muted loop playsInline />
+                  <video src={img} className="w-full h-full object-cover" muted loop playsInline autoPlay />
                 ) : (
                   <Image src={img} alt={`${product.name} view ${i + 1}`} width={80} height={80} className="w-full h-full object-cover" />
                 )}
