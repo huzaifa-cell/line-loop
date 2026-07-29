@@ -1,6 +1,6 @@
 "use server";
 
-import { createSupabaseServerClient } from "@/lib/supabase";
+import { createSupabaseAdminClient } from "@/lib/supabase";
 import crypto from "crypto";
 
 export async function uploadPaymentProof(orderNumber: string, formData: FormData) {
@@ -10,7 +10,7 @@ export async function uploadPaymentProof(orderNumber: string, formData: FormData
     return { success: false, error: "No file provided" };
   }
 
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
 
   // 1. Verify the order exists and is pending bank transfer
   const { data: order, error: orderError } = await supabase
