@@ -37,14 +37,13 @@ export default async function PaymentVerificationPage() {
               <th className="px-6 py-4 font-bold">Customer</th>
               <th className="px-6 py-4 font-bold">Amount Due</th>
               <th className="px-6 py-4 font-bold">Reference / Screenshot</th>
-              <th className="px-6 py-4 font-bold">Hold Expires</th>
               <th className="px-6 py-4 font-bold text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-ink-black/20">
             {transfers.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-ink-black/60">
+                <td colSpan={5} className="px-6 py-8 text-center text-ink-black/60">
                   Queue is empty.
                 </td>
               </tr>
@@ -58,7 +57,7 @@ export default async function PaymentVerificationPage() {
                     <td className="px-6 py-4 font-bold">{transfer.order_number}</td>
                     <td className="px-6 py-4">{customerEmail}</td>
                     <td className="px-6 py-4 font-mono font-bold text-base">
-                      Rs {transfer.bank_transfer_amount_due}
+                      Rs {transfer.bank_transfer_amount_due || transfer.total}
                     </td>
                       <td className="px-6 py-4">
                         <div className="font-bold">{transfer.bank_transfer_reference}</div>
@@ -72,11 +71,6 @@ export default async function PaymentVerificationPage() {
                           Flag: Duplicate Image Upload
                         </div>
                       )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-xs font-bold uppercase tracking-widest text-ink-black/60">
-                        {new Date(transfer.payment_hold_expires_at).toLocaleString()}
-                      </div>
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
                       <form className="inline" action={async () => {
