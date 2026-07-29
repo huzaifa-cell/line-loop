@@ -123,10 +123,10 @@ export default async function Home() {
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               quality={70}
-              className="object-cover transition-transform duration-1000 group-hover:scale-110 -z-10"
+              className="object-cover transition-transform duration-1000 group-hover:scale-110 z-0"
             />
-            <div className="absolute inset-0 bg-espresso/40 group-hover:bg-espresso/50 transition-colors duration-500 -z-10"></div>
-            <div className="relative text-center px-4 z-10">
+            <div className="absolute inset-0 bg-espresso/40 group-hover:bg-espresso/50 transition-colors duration-500 z-10"></div>
+            <div className="relative text-center px-4 z-20">
               <h3 className="font-display-lg text-display-lg-mobile md:text-headline-md text-ivory tracking-widest mb-6 font-normal">Kurtis &amp; Tops</h3>
               <span className="inline-block border border-ivory text-ivory px-8 py-3 font-button text-button uppercase group-hover:bg-ivory group-hover:text-espresso transition-all duration-500 rounded-md backdrop-blur-sm cursor-pointer">Shop Category</span>
             </div>
@@ -141,10 +141,10 @@ export default async function Home() {
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               quality={70}
-              className="object-cover transition-transform duration-1000 group-hover:scale-110 -z-10"
+              className="object-cover transition-transform duration-1000 group-hover:scale-110 z-0"
             />
-            <div className="absolute inset-0 bg-espresso/40 group-hover:bg-espresso/50 transition-colors duration-500 -z-10"></div>
-            <div className="relative text-center px-4 z-10">
+            <div className="absolute inset-0 bg-espresso/40 group-hover:bg-espresso/50 transition-colors duration-500 z-10"></div>
+            <div className="relative text-center px-4 z-20">
               <h3 className="font-display-lg text-display-lg-mobile md:text-headline-md text-ivory tracking-widest mb-6 font-normal">Dresses &amp; Skirts</h3>
               <span className="inline-block border border-ivory text-ivory px-8 py-3 font-button text-button uppercase group-hover:bg-ivory group-hover:text-espresso transition-all duration-500 rounded-md backdrop-blur-sm cursor-pointer">Shop Category</span>
             </div>

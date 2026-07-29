@@ -30,8 +30,8 @@ export default function About() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center max-w-7xl mx-auto">
           <AnimatedWrapper delay={0.1} className="relative aspect-[3/4] rounded-lg overflow-hidden shadow-xl">
             <Image 
-              src="https://images.unsplash.com/photo-1558769132-cb1fac08c04b?auto=format&fit=crop&q=80&w=1200"
-              alt="Tailor working on fabric"
+              src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&q=80&w=1200"
+              alt="Fabric textile detail"
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               quality={75}
