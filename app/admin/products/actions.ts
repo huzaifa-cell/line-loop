@@ -3,6 +3,30 @@
 import { createSupabaseServerClient, createSupabaseAdminClient } from "@/lib/supabase";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import crypto from "crypto";
+
+export async function getSignedUploadUrls(productId: string, fileNames: string[]) {
+  const adminClient = await createSupabaseAdminClient();
+  const results = [];
+  
+  for (const name of fileNames) {
+    const ext = name.includes('.') ? name.split('.').pop() : 'bin';
+    const filePath = `${productId}/${crypto.randomUUID()}.${ext}`;
+    
+    const { data, error } = await adminClient.storage
+      .from('product-images')
+      .createSignedUploadUrl(filePath);
+      
+    if (data) {
+      results.push({
+        originalName: name,
+        path: data.path,
+        token: data.token,
+      });
+    }
+  }
+  return results;
+}
 
 export async function getAdminProducts() {
   const supabase = await createSupabaseServerClient();
@@ -180,35 +204,20 @@ export async function saveProduct(formData: FormData) {
       }
     }
 
-    // Handle new file uploads
-    const newFiles = formData.getAll("newFiles") as File[];
+    // Handle newly uploaded files
+    const uploadedMediaRaw = formData.get("uploadedMedia") as string;
+    const uploadedMedia = uploadedMediaRaw ? JSON.parse(uploadedMediaRaw) as { originalName: string, path: string }[] : [];
     const newMediaOrderRaw = formData.get("newMediaOrder") as string;
     const newMediaOrder = newMediaOrderRaw ? JSON.parse(newMediaOrderRaw) as { id: string, sort_order: number }[] : [];
 
-    for (const file of newFiles) {
-      const ext = file.name.split('.').pop();
-      const fileName = `${finalProductId}/${crypto.randomUUID()}.${ext}`;
-      
-      const arrayBuffer = await file.arrayBuffer();
-      
-      const { error: uploadError } = await adminClient.storage
-        .from('product-images')
-        .upload(fileName, arrayBuffer, { 
-          upsert: true,
-          contentType: file.type 
-        });
-        
-      if (uploadError) {
-        console.error("Upload error:", uploadError);
-        continue;
-      }
-      
-      const orderData = newMediaOrder.find(m => m.id === file.name);
+    for (const media of uploadedMedia) {
+      const orderData = newMediaOrder.find(m => m.id === media.originalName);
       const sortOrder = orderData ? orderData.sort_order : 99;
       
       await adminClient.from('product_images').insert({
         product_id: finalProductId,
-        storage_path: fileName,
+        storage_path: media.path,
+        alt_text: title,
         sort_order: sortOrder
       });
     }

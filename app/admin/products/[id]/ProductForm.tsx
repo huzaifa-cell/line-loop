@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { saveProduct } from "../actions";
+import { saveProduct, getSignedUploadUrls } from "../actions";
+import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
 type MediaItem = {
@@ -141,15 +142,39 @@ export function ProductForm({ productId, initialData, categories }: { productId:
       formData.append("existingMedia", JSON.stringify(existingMedia));
       
       const newMediaOrder: { id: string, sort_order: number }[] = [];
+      const newFiles = media.filter(m => m.type === "new" && m.file);
+      const uploadedMedia: { originalName: string, path: string }[] = [];
       
-      media.filter(m => m.type === "new").forEach((m) => {
-        if (m.file) {
-          formData.append("newFiles", m.file);
-          newMediaOrder.push({ id: m.file.name, sort_order: m.sort_order }); // assuming filenames are unique enough in this upload batch
-        }
+      newFiles.forEach(m => {
+        newMediaOrder.push({ id: m.file!.name, sort_order: m.sort_order });
       });
-      
       formData.append("newMediaOrder", JSON.stringify(newMediaOrder));
+
+      if (newFiles.length > 0) {
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        
+        // Use "new" as temporary productId for signed URLs if it's a new product
+        // Note: The actual path won't matter much as long as it gets uploaded safely
+        const tempProductId = productId === "new" ? crypto.randomUUID() : productId;
+        const signedUrls = await getSignedUploadUrls(tempProductId, newFiles.map(m => m.file!.name));
+        
+        for (const m of newFiles) {
+          const signedUrlObj = signedUrls.find(s => s.originalName === m.file!.name);
+          if (signedUrlObj) {
+            const { error } = await supabase.storage.from("product-images").uploadToSignedUrl(
+              signedUrlObj.path,
+              signedUrlObj.token,
+              m.file!
+            );
+            if (error) throw new Error(`Failed to upload ${m.file!.name}: ${error.message}`);
+            uploadedMedia.push({ originalName: m.file!.name, path: signedUrlObj.path });
+          }
+        }
+      }
+      formData.append("uploadedMedia", JSON.stringify(uploadedMedia));
 
       const res = await saveProduct(formData);
       if (res.success) {
