@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from "@/lib/supabase";
+import { createSupabaseAdminClient } from "@/lib/supabase";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -16,7 +16,7 @@ export async function GET(
   const { path } = await params;
   const decodedPath = decodeURIComponent(path.join("/"));
   
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase.storage
     .from('payment-screenshots')
     .createSignedUrl(decodedPath, 60); // 60 seconds
