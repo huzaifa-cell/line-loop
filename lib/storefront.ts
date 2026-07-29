@@ -62,7 +62,7 @@ function mapToUIProduct(row: any): Product {
 
 export async function getStorefrontProducts(): Promise<Product[]> {
   const supabase = getSupabase();
-  if (!supabase) return [];
+  if (!supabase) throw new Error("Database configuration is missing.");
   const { data, error } = await supabase
     .from('products')
     .select(`
@@ -79,16 +79,18 @@ export async function getStorefrontProducts(): Promise<Product[]> {
     .eq('is_published', true)
     .order('created_at', { ascending: false });
 
-  if (error || !data) {
-    return products; // Fallback to mock data if table is missing or error occurs
+  if (error) {
+    console.error("Error fetching products:", error);
+    throw new Error("Failed to load products. Database unavailable.");
   }
+  if (!data) return [];
 
   return data.map(mapToUIProduct);
 }
 
 export async function getStorefrontProduct(idOrSlug: string): Promise<Product | null> {
   const supabase = getSupabase();
-  if (!supabase) return null;
+  if (!supabase) throw new Error("Database configuration is missing.");
   const { data, error } = await supabase
     .from('products')
     .select(`
@@ -106,15 +108,17 @@ export async function getStorefrontProduct(idOrSlug: string): Promise<Product | 
     .or(`id.eq.${idOrSlug},slug.eq.${idOrSlug}`)
     .single();
 
-  if (error || !data) {
-    return products.find(p => p.id === idOrSlug || p.name.toLowerCase().replace(/\s+/g, '-') === idOrSlug) || null;
+  if (error) {
+    console.error("Error fetching product:", error);
+    throw new Error("Failed to load product. Database unavailable.");
   }
+  if (!data) return null;
   return mapToUIProduct(data);
 }
 
 export async function getFeaturedProducts(limit = 4): Promise<Product[]> {
   const supabase = getSupabase();
-  if (!supabase) return [];
+  if (!supabase) throw new Error("Database configuration is missing.");
   const { data, error } = await supabase
     .from('products')
     .select(`
@@ -132,7 +136,11 @@ export async function getFeaturedProducts(limit = 4): Promise<Product[]> {
     .order('created_at', { ascending: false })
     .limit(limit);
 
-  if (error || !data) return products.slice(0, limit);
+  if (error) {
+    console.error("Error fetching featured products:", error);
+    throw new Error("Failed to load featured products. Database unavailable.");
+  }
+  if (!data) return [];
   return data.map(mapToUIProduct);
 }
 
