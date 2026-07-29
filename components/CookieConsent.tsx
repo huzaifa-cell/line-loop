@@ -31,7 +31,7 @@ export default function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-30 max-w-xs bg-ivory-mist border border-ink-black p-[var(--spacing-20)]">
+    <div className="fixed bottom-4 right-4 z-30 max-w-xs bg-ivory-mist text-ink-black border border-ink-black p-[var(--spacing-20)]">
       <p className="caption">
         We use cookies for a smoother visit.{" "}
         <span className="link-underline cursor-pointer">Learn more.</span>
