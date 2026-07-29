@@ -22,7 +22,8 @@ export async function GET(
     .createSignedUrl(decodedPath, 60); // 60 seconds
 
   if (error || !data) {
-    return new NextResponse("Image not found", { status: 404 });
+    console.error("Signed URL Error:", error, "Path:", decodedPath);
+    return new NextResponse("Image not found: " + (error?.message || "No data"), { status: 404 });
   }
 
   return NextResponse.redirect(data.signedUrl);

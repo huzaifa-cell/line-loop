@@ -47,9 +47,13 @@ export default async function PaymentVerificationPage() {
                     <td className="px-6 py-4 font-mono font-bold text-base">
                       Rs {transfer.bank_transfer_amount_due}
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="font-bold">{transfer.bank_transfer_reference}</div>
-                      <ScreenshotViewer path={transfer.bank_transfer_screenshot_path} />
+                      <td className="px-6 py-4">
+                        <div className="font-bold">{transfer.bank_transfer_reference}</div>
+                        {transfer.bank_transfer_screenshot_path ? (
+                          <ScreenshotViewer path={transfer.bank_transfer_screenshot_path} />
+                        ) : (
+                          <span className="text-xs text-thread-red/80 italic font-bold">No Screenshot Uploaded</span>
+                        )}
                       {isDuplicate && (
                         <div className="mt-2 text-xs font-bold text-thread-red border border-thread-red px-2 py-1 uppercase inline-block">
                           Flag: Duplicate Image Upload
