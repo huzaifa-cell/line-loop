@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 
-export default function ScreenshotViewer({ path }: { path: string }) {
+export default function ScreenshotViewer({ url }: { url: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -36,7 +36,7 @@ export default function ScreenshotViewer({ path }: { path: string }) {
             
             <div className="relative flex-1 overflow-auto bg-ivory-mist flex items-center justify-center p-4 border border-ink-black/20">
               <img 
-                src={`/api/admin/screenshots/${path}?t=${Date.now()}`}
+                src={url}
                 alt="Payment Screenshot"
                 className="max-w-full max-h-[75vh] object-contain"
               />
@@ -44,7 +44,7 @@ export default function ScreenshotViewer({ path }: { path: string }) {
             
             <div className="flex justify-end p-2 mt-2">
               <a 
-                href={`/api/admin/screenshots/${path}?t=${Date.now()}`}
+                href={url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs font-bold uppercase tracking-widest bg-ink-black text-ivory-mist px-4 py-2 hover:bg-ink-black/80 transition-colors"

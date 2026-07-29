@@ -1,9 +1,22 @@
 import Link from "next/link";
 import { getPendingBankTransfers, processBankTransfer } from "./actions";
 import ScreenshotViewer from "./ScreenshotViewer";
+import { createSupabaseAdminClient } from "@/lib/supabase";
 
 export default async function PaymentVerificationPage() {
-  const transfers = await getPendingBankTransfers();
+  const rawTransfers = await getPendingBankTransfers();
+  
+  const supabase = createSupabaseAdminClient();
+  const transfers = await Promise.all(rawTransfers.map(async (transfer: any) => {
+    let signedUrl = null;
+    if (transfer.bank_transfer_screenshot_path) {
+      const { data } = await supabase.storage
+        .from('payment-screenshots')
+        .createSignedUrl(transfer.bank_transfer_screenshot_path, 3600);
+      if (data) signedUrl = data.signedUrl;
+    }
+    return { ...transfer, signedUrl };
+  }));
   
   // Extract all hashes to find duplicates
   const hashes = transfers.map((t: any) => t.bank_transfer_screenshot_hash).filter(Boolean);
@@ -49,8 +62,8 @@ export default async function PaymentVerificationPage() {
                     </td>
                       <td className="px-6 py-4">
                         <div className="font-bold">{transfer.bank_transfer_reference}</div>
-                        {transfer.bank_transfer_screenshot_path ? (
-                          <ScreenshotViewer path={transfer.bank_transfer_screenshot_path} />
+                        {transfer.signedUrl ? (
+                          <ScreenshotViewer url={transfer.signedUrl} />
                         ) : (
                           <span className="text-xs text-thread-red/80 italic font-bold">No Screenshot Uploaded</span>
                         )}
