@@ -5,6 +5,7 @@ import Link from "next/link";
 
 export default async function ShopPage() {
   const products = await getStorefrontProducts();
+  const isVideo = (url: string) => url?.match(/\.(mp4|webm|mov)$/i);
   return (
     <>
       {/* Shop Header Section */}
@@ -47,15 +48,26 @@ export default async function ShopPage() {
             <AnimatedWrapper key={product.id} delay={0.1 * (index % 4)}>
               <Link href={`/shop/${product.id}`} className="group cursor-pointer block">
                 <div className="relative aspect-[3/4] overflow-hidden mb-3 md:mb-5 rounded-md shadow-sm">
-                  <Image 
-                    src={product.image} 
-                    alt={product.name}
-                    fill
-                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    quality={75}
-                    priority={index < 4}
-                    className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                  />
+                  {isVideo(product.image) ? (
+                    <video 
+                      src={product.image}
+                      className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                      muted
+                      loop
+                      playsInline
+                      autoPlay
+                    />
+                  ) : (
+                    <Image 
+                      src={product.image} 
+                      alt={product.name}
+                      fill
+                      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      quality={75}
+                      priority={index < 4}
+                      className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                    />
+                  )}
                   {product.tag && (
                     <span className="absolute top-3 left-3 md:top-4 md:left-4 bg-brand-red/90 backdrop-blur-sm text-white px-3 py-1 md:px-4 md:py-1.5 font-label-caps text-[10px] rounded-full tracking-widest">
                       {product.tag}

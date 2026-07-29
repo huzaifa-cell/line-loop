@@ -59,6 +59,7 @@ export default function ProductClient({ product, related }: ProductClientProps) 
   const [quantity, setQuantity] = useState(1);
 
   const gallery = product.gallery || [product.image];
+  const isVideo = (url: string) => url.match(/\.(mp4|webm|mov)$/i);
   const colors = product.colors || [{ name: "Default", hex: "#131313" }];
   const sizes = product.sizes || ["S", "M", "L"];
 
@@ -108,7 +109,11 @@ export default function ProductClient({ product, related }: ProductClientProps) 
                     : "border border-white/10 opacity-50 hover:opacity-80"
                 }`}
               >
-                <Image src={img} alt={`${product.name} view ${i + 1}`} width={80} height={80} className="w-full h-full object-cover" />
+                {isVideo(img) ? (
+                  <video src={img} className="w-full h-full object-cover" muted loop playsInline />
+                ) : (
+                  <Image src={img} alt={`${product.name} view ${i + 1}`} width={80} height={80} className="w-full h-full object-cover" />
+                )}
               </button>
             ))}
           </div>
@@ -124,15 +129,27 @@ export default function ProductClient({ product, related }: ProductClientProps) 
                 transition={{ duration: 0.4 }}
                 className="absolute inset-0"
               >
-                <Image
-                  src={gallery[selectedImage]}
-                  alt={product.name}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 60vw"
-                  quality={80}
-                  priority
-                  className="object-cover transition-transform duration-700 hover:scale-105"
-                />
+                {isVideo(gallery[selectedImage]) ? (
+                  <video
+                    src={gallery[selectedImage]}
+                    controls
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Image
+                    src={gallery[selectedImage]}
+                    alt={product.name}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 60vw"
+                    quality={80}
+                    priority
+                    className="object-cover transition-transform duration-700 hover:scale-105"
+                  />
+                )}
               </motion.div>
             </AnimatePresence>
             
