@@ -76,7 +76,8 @@ export default async function AdminDashboardPage() {
                 No recent orders found.
               </div>
             ) : (
-              <table className="w-full text-left text-sm">
+              <div className="overflow-x-auto w-full">
+                <table className="w-full text-left text-sm">
                 <thead className="bg-warm-parchment border-b border-ink-black text-xs uppercase tracking-widest">
                   <tr>
                     <th className="px-4 py-3 font-bold">Order</th>
@@ -107,6 +108,7 @@ export default async function AdminDashboardPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
         </div>

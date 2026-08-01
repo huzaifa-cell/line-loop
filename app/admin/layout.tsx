@@ -23,16 +23,16 @@ export default async function AdminLayout({
       <AdminSidebar userEmail={userEmail} role={role} />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden">
-        <header className="h-16 bg-warm-parchment border-b border-ink-black flex items-center px-8 justify-between shrink-0">
-          <div className="font-label-caps text-label-caps uppercase">Admin Panel</div>
+      <main className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
+        <header className="h-16 bg-warm-parchment border-b border-ink-black flex items-center pr-4 md:pr-8 pl-14 md:pl-8 justify-between shrink-0">
+          <div className="font-label-caps text-label-caps uppercase truncate">Admin Panel</div>
           <div className="flex gap-4">
             <Link href="/" target="_blank" className="text-sm underline underline-offset-4 decoration-ink-black/40 hover:decoration-ink-black">
               View Store
             </Link>
           </div>
         </header>
-        <div className="flex-1 overflow-auto p-8">
+        <div className="flex-1 overflow-auto p-4 md:p-8">
           {children}
         </div>
       </main>

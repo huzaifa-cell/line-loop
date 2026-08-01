@@ -199,7 +199,8 @@ export default function AdminCategories() {
         <div className="text-center py-10 opacity-50 text-sm">Loading...</div>
       ) : (
         <div className="bg-white border border-ink-black/10 rounded-md overflow-hidden">
-          <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left text-sm">
             <thead className="bg-ink-black text-ivory-mist text-[10px] uppercase tracking-widest">
               <tr>
                 <th className="p-4 font-normal">Name</th>
@@ -253,6 +254,7 @@ export default function AdminCategories() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

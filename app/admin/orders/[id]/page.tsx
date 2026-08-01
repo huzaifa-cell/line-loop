@@ -46,7 +46,8 @@ export default async function OrderDetailPage({
             <div className="px-6 py-3 bg-warm-parchment border-b border-ink-black">
               <h2 className="text-xs font-bold uppercase tracking-widest">Order Items</h2>
             </div>
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto w-full">
+              <table className="w-full text-sm">
               <thead className="border-b border-ink-black/10 text-xs uppercase tracking-widest text-ink-black/60">
                 <tr>
                   <th className="px-6 py-3 text-left font-bold">Product</th>
@@ -90,6 +91,7 @@ export default async function OrderDetailPage({
                 </tr>
               </tfoot>
             </table>
+            </div>
           </div>
 
           {/* Status History Timeline */}
