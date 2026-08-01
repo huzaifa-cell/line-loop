@@ -26,8 +26,53 @@ export default async function Home() {
         : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${heroBanner.storage_path}`)
     : "https://images.unsplash.com/photo-1597983073750-16f5ded1321f?auto=format&fit=crop&q=80&w=2560";
 
+  // JSON-LD structured data for Google
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://lineandloop.shop/#organization",
+        name: "LINE&LOOP",
+        url: "https://lineandloop.shop",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://lineandloop.shop/lineloop-logo.png",
+        },
+        description:
+          "LINE&LOOP makes handmade ladies' garments — kurtis, shalwar kameez, trousers and dupattas — cut, dyed and stitched by hand in Pakistan, in small batches.",
+        contactPoint: {
+          "@type": "ContactPoint",
+          contactType: "customer service",
+          availableLanguage: ["English", "Urdu"],
+        },
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://lineandloop.shop/#website",
+        url: "https://lineandloop.shop",
+        name: "LINE&LOOP",
+        publisher: { "@id": "https://lineandloop.shop/#organization" },
+        potentialAction: {
+          "@type": "SearchAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: "https://lineandloop.shop/shop?q={search_term_string}",
+          },
+          "query-input": "required name=search_term_string",
+        },
+      },
+    ],
+  };
+
   return (
     <>
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex flex-col justify-center items-center text-center px-margin-mobile md:px-margin-desktop overflow-hidden bg-espresso">
         <div className="absolute inset-0 opacity-40 z-0">

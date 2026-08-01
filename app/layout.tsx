@@ -41,13 +41,45 @@ export const metadata: Metadata = {
     "hand block print",
     "slow fashion",
     "artisan made",
+    "LINE&LOOP",
+    "lineandloop",
+    "line and loop",
+    "Pakistani fashion",
+    "hand stitched",
+    "women clothing Pakistan",
   ],
+  alternates: {
+    canonical: "https://lineandloop.shop",
+  },
   openGraph: {
     title: "LINE&LOOP — Handmade Ladies' Garments, Made Slowly",
     description:
       "Handmade ladies' garments — cut, dyed and stitched by hand in Pakistan. Made slowly, in small batches.",
     type: "website",
+    url: "https://lineandloop.shop",
+    siteName: "LINE&LOOP",
+    locale: "en_US",
+    images: [
+      {
+        url: "/lineloop-logo.png",
+        width: 1200,
+        height: 630,
+        alt: "LINE&LOOP — Handmade Ladies' Garments",
+      },
+    ],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "LINE&LOOP — Handmade Ladies' Garments, Made Slowly",
+    description:
+      "Handmade ladies' garments — cut, dyed and stitched by hand in Pakistan. Made slowly, in small batches.",
+    images: ["/lineloop-logo.png"],
+  },
+  // TODO: Replace with your actual Google Search Console verification code
+  // Get it from: https://search.google.com/search-console → Add Property → lineandloop.shop
+  // verification: {
+  //   google: "YOUR_GOOGLE_VERIFICATION_CODE",
+  // },
 };
 
 export const viewport: Viewport = {
