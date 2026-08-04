@@ -236,7 +236,7 @@ export async function getApprovedReviews(productId: string) {
       body,
       guest_name,
       created_at,
-      profiles (
+      profiles!reviews_profile_id_fkey (
         full_name,
         email
       )

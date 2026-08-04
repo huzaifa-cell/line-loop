@@ -2,6 +2,8 @@
 
 import { createSupabaseAdminClient } from "@/lib/supabase";
 import { auth } from "@clerk/nextjs/server";
+import crypto from "crypto";
+import { revalidatePath } from "next/cache";
 
 export async function submitReview(productId: string, formData: FormData) {
   const rating = Number(formData.get("rating"));
@@ -13,7 +15,37 @@ export async function submitReview(productId: string, formData: FormData) {
     return { error: "Please provide a valid rating between 1 and 5." };
   }
 
+  const mediaFiles = formData.getAll("media") as File[];
+  const uploadedPaths: string[] = [];
+
   const supabase = createSupabaseAdminClient();
+
+  // Upload media files if any
+  for (const file of mediaFiles) {
+    if (file.size > 0) {
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const ext = file.name.split(".").pop();
+      const fileName = `reviews/${crypto.randomUUID()}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("product-images")
+        .upload(fileName, buffer, {
+          contentType: file.type,
+          upsert: false,
+        });
+
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        // Continue with other files or fail? We'll continue but log it.
+      } else {
+        // Construct the full public URL for easier rendering
+        const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${fileName}`;
+        uploadedPaths.push(url);
+      }
+    }
+  }
+
   const { userId } = await auth();
 
   let profileId = null;
@@ -31,14 +63,20 @@ export async function submitReview(productId: string, formData: FormData) {
     }
   }
 
+  // Serialize the body to include media URLs
+  const serializedBody = JSON.stringify({
+    text: body,
+    media: uploadedPaths,
+  });
+
   const { error } = await supabase.from("reviews").insert({
     product_id: productId,
     profile_id: profileId,
     guest_name: profileId ? null : (guestName || "Anonymous"),
     rating,
     title,
-    body,
-    status: "pending",
+    body: serializedBody,
+    status: "approved", // Auto-approve
   });
 
   if (error) {
@@ -46,5 +84,6 @@ export async function submitReview(productId: string, formData: FormData) {
     return { error: "Failed to submit review. Please try again later." };
   }
 
+  revalidatePath(`/shop/${productId}`);
   return { success: true };
 }

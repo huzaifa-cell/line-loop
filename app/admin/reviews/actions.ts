@@ -18,7 +18,7 @@ export async function getReviews(statusFilter?: string) {
       guest_name,
       created_at,
       products ( id, title ),
-      profiles ( email, full_name )
+      profiles!reviews_profile_id_fkey ( email, full_name )
     `)
     .order('created_at', { ascending: false });
 
@@ -27,7 +27,10 @@ export async function getReviews(statusFilter?: string) {
   }
 
   const { data, error } = await query.limit(100);
-  if (error) return [];
+  if (error) {
+    console.error("Error in getReviews:", error);
+    return [];
+  }
   return data;
 }
 

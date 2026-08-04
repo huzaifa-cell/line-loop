@@ -56,28 +56,50 @@ export default async function AdminReviewsPage({
             No reviews found{statusFilter ? ` with status "${statusFilter}"` : ''}.
           </div>
         ) : (
-          reviews.map((review: any) => (
-            <div key={review.id} className="bg-ivory-mist border border-ink-black p-6">
-              <div className="flex justify-between items-start">
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-3">
-                    <StarRating rating={review.rating} />
-                    <span className={`border px-2 py-0.5 text-[10px] uppercase font-bold ${
-                      review.status === 'approved' ? 'border-green-800 text-green-800' :
-                      review.status === 'rejected' ? 'border-thread-red text-thread-red' :
-                      'border-amber-600 text-amber-600'
-                    }`}>
-                      {review.status}
-                    </span>
+          reviews.map((review: any) => {
+            let parsedBody = { text: review.body, media: [] as string[] };
+            try {
+              if (review.body && review.body.startsWith('{')) {
+                parsedBody = JSON.parse(review.body);
+              }
+            } catch (e) {
+              // fallback to plain text
+            }
+
+            return (
+              <div key={review.id} className="bg-ivory-mist border border-ink-black p-6">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2 flex-1">
+                    <div className="flex items-center gap-3">
+                      <StarRating rating={review.rating} />
+                      <span className={`border px-2 py-0.5 text-[10px] uppercase font-bold ${
+                        review.status === 'approved' ? 'border-green-800 text-green-800' :
+                        review.status === 'rejected' ? 'border-thread-red text-thread-red' :
+                        'border-amber-600 text-amber-600'
+                      }`}>
+                        {review.status}
+                      </span>
+                    </div>
+                    {review.title && <div className="font-bold">{review.title}</div>}
+                    {parsedBody.text && <p className="text-sm text-ink-black/80">{parsedBody.text}</p>}
+                    {parsedBody.media && parsedBody.media.length > 0 && (
+                      <div className="flex gap-2 mt-2">
+                        {parsedBody.media.map((url, i) => {
+                          const isVideo = url.toLowerCase().match(/\.(mp4|webm|mov)$/);
+                          return isVideo ? (
+                            <video key={i} src={url} controls className="h-20 w-20 object-cover border border-ink-black/20" />
+                          ) : (
+                            <img key={i} src={url} alt="Review media" className="h-20 w-20 object-cover border border-ink-black/20" />
+                          );
+                        })}
+                      </div>
+                    )}
+                    <div className="flex gap-4 text-xs text-ink-black/50 mt-2">
+                      <span>By: {review.profiles?.full_name || review.profiles?.email || review.guest_name || 'Anonymous'}</span>
+                      <span>Product: <span className="font-bold text-ink-black/70">{review.products?.title || '—'}</span></span>
+                      <span>{new Date(review.created_at).toLocaleDateString()}</span>
+                    </div>
                   </div>
-                  {review.title && <div className="font-bold">{review.title}</div>}
-                  {review.body && <p className="text-sm text-ink-black/80">{review.body}</p>}
-                  <div className="flex gap-4 text-xs text-ink-black/50">
-                    <span>By: {review.profiles?.full_name || review.profiles?.email || review.guest_name || 'Anonymous'}</span>
-                    <span>Product: <span className="font-bold text-ink-black/70">{review.products?.title || '—'}</span></span>
-                    <span>{new Date(review.created_at).toLocaleDateString()}</span>
-                  </div>
-                </div>
                 <div className="flex gap-2 ml-4 shrink-0">
                   {review.status === 'pending' && (
                     <>
@@ -120,7 +142,8 @@ export default async function AdminReviewsPage({
                 </div>
               </div>
             </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

@@ -33,6 +33,19 @@ function ReviewsSection({ productId, reviews }: { productId: string, reviews: an
   const [rating, setRating] = useState(5);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      setSelectedFiles((prev) => [...prev, ...filesArray]);
+      e.target.value = '';
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
 
   async function handleReviewSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -41,15 +54,20 @@ function ReviewsSection({ productId, reviews }: { productId: string, reviews: an
 
     const formData = new FormData(e.currentTarget);
     formData.append("rating", rating.toString());
+    
+    // We override the 'media' with our manually tracked selectedFiles
+    formData.delete('media');
+    selectedFiles.forEach((file) => formData.append('media', file));
 
     const result = await submitReview(productId, formData);
     
     if (result.error) {
       setMessage({ type: 'error', text: result.error });
     } else {
-      setMessage({ type: 'success', text: "Your review has been submitted and is pending moderation." });
+      setMessage({ type: 'success', text: "Your review has been submitted successfully." });
       (e.target as HTMLFormElement).reset();
       setRating(5);
+      setSelectedFiles([]);
     }
     setIsSubmitting(false);
   }
@@ -61,21 +79,44 @@ function ReviewsSection({ productId, reviews }: { productId: string, reviews: an
         {reviews.length === 0 ? (
           <p className="text-sm text-beige/60">No reviews yet. Be the first to review this product!</p>
         ) : (
-          reviews.map((review) => (
-            <div key={review.id} className="border-b border-white/10 pb-6">
-              <div className="flex items-center gap-3 mb-2">
-                <StarRating rating={review.rating} />
-                <span className="font-label-caps text-[10px] text-beige uppercase tracking-widest">
-                  {review.profiles?.full_name || review.guest_name || 'Anonymous'}
-                </span>
-                <span className="text-xs text-beige/50">
-                  {new Date(review.created_at).toLocaleDateString()}
-                </span>
+          reviews.map((review) => {
+            let parsedBody = { text: review.body, media: [] as string[] };
+            try {
+              if (review.body && review.body.startsWith('{')) {
+                parsedBody = JSON.parse(review.body);
+              }
+            } catch (e) {
+              // fallback to plain text
+            }
+
+            return (
+              <div key={review.id} className="border-b border-white/10 pb-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <StarRating rating={review.rating} />
+                  <span className="font-label-caps text-[10px] text-beige uppercase tracking-widest">
+                    {review.profiles?.full_name || review.guest_name || 'Anonymous'}
+                  </span>
+                  <span className="text-xs text-beige/50">
+                    {new Date(review.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+                {review.title && <h4 className="font-bold text-ivory mb-1">{review.title}</h4>}
+                {parsedBody.text && <p className="text-sm text-beige leading-relaxed">{parsedBody.text}</p>}
+                {parsedBody.media && parsedBody.media.length > 0 && (
+                  <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
+                    {parsedBody.media.map((url, i) => {
+                      const isVideo = url.toLowerCase().match(/\.(mp4|webm|mov)$/);
+                      return isVideo ? (
+                        <video key={i} src={url} controls className="h-24 w-24 object-cover rounded-sm shrink-0" />
+                      ) : (
+                        <img key={i} src={url} alt="Review media" className="h-24 w-24 object-cover rounded-sm shrink-0" />
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-              {review.title && <h4 className="font-bold text-ivory mb-1">{review.title}</h4>}
-              {review.body && <p className="text-sm text-beige leading-relaxed">{review.body}</p>}
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
@@ -105,6 +146,29 @@ function ReviewsSection({ productId, reviews }: { productId: string, reviews: an
           <div>
             <label htmlFor="body" className="block text-xs font-label-caps uppercase tracking-widest text-beige mb-2">Review</label>
             <textarea id="body" name="body" required rows={4} className="w-full bg-black/50 border border-white/10 px-4 py-2 text-ivory focus:border-ivory outline-none" />
+          </div>
+          <div>
+            <label htmlFor="media" className="block text-xs font-label-caps uppercase tracking-widest text-beige mb-2">Photos & Videos (Optional)</label>
+            <input type="file" id="media" name="media" accept="image/*,video/*" multiple onChange={handleFileChange} className="w-full text-xs text-beige file:mr-4 file:py-2 file:px-4 file:border-0 file:text-xs file:font-label-caps file:uppercase file:tracking-widest file:bg-white/10 file:text-ivory hover:file:bg-white/20" />
+            
+            {selectedFiles.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-3">
+                {selectedFiles.map((file, i) => (
+                  <div key={i} className="relative group">
+                    <div className="h-16 w-16 bg-black/50 border border-white/10 flex items-center justify-center overflow-hidden rounded-sm">
+                      {file.type.startsWith('image/') ? (
+                        <img src={URL.createObjectURL(file)} alt="preview" className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="text-[10px] text-beige uppercase font-label-caps p-1 text-center truncate">{file.name}</span>
+                      )}
+                    </div>
+                    <button type="button" onClick={() => removeFile(i)} className="absolute -top-2 -right-2 h-5 w-5 bg-thread-red text-white flex items-center justify-center rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <button type="submit" disabled={isSubmitting} className="bg-ivory text-espresso px-6 py-3 font-label-caps uppercase tracking-widest text-xs hover:bg-white transition-colors disabled:opacity-50">
             {isSubmitting ? 'Submitting...' : 'Submit Review'}
