@@ -15,7 +15,7 @@ export default function WishlistClient({ products }: { products: Product[] }) {
   }
 
   const wishlistProducts = items
-    .map((id) => products.find((p) => p.id === id || p.slug === id))
+    .map((id) => products.find((p) => p.id === id || (p as any).slug === id))
     .filter((p): p is NonNullable<typeof p> => p !== undefined);
 
   if (wishlistProducts.length === 0) {
@@ -43,7 +43,7 @@ export default function WishlistClient({ products }: { products: Product[] }) {
             />
           </div>
           <p className="caption mt-[var(--spacing-10)] truncate group-hover:text-brand-red transition-colors">{p.name}</p>
-          <p className="caption font-bold">Rs. {p.price.toLocaleString()}</p>
+          <p className="caption font-bold">{formatPrice(p.price)}</p>
         </Link>
       ))}
     </div>
