@@ -45,17 +45,30 @@ export async function createStorefrontOrder(data: any) {
       // Find the matching variant to decrement stock
       let query = supabase
         .from('product_variants')
-        .select('id, stock_quantity')
+        .select('id, stock_quantity, color')
         .eq('product_id', item.product.id)
         .eq('size', item.selectedSize);
 
-      if (item.selectedColor && item.selectedColor !== "Default") {
-        query = query.eq('color', item.selectedColor);
-      }
-      
-      const { data: variant, error: variantError } = await query.limit(1).maybeSingle();
+      const { data: variants, error: variantError } = await query;
       if (variantError) {
         console.error("Variant Query Error:", variantError, "for item:", item);
+      }
+
+      let variant = null;
+      if (variants && variants.length > 0) {
+        if (item.selectedColor && item.selectedColor !== "Default") {
+          variant = variants.find(v => {
+            if (v.color === item.selectedColor) return true;
+            try {
+              if (v.color?.startsWith('{')) {
+                return JSON.parse(v.color).name === item.selectedColor;
+              }
+            } catch(e) {}
+            return false;
+          });
+        } else {
+          variant = variants[0];
+        }
       }
 
       let variantId = null;

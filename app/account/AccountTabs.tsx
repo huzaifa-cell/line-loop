@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { cn, formatPrice } from "@/lib/utils";
-import { useLocalStorage } from "@/lib/hooks";
+import { useWishlist } from "@/lib/wishlist";
 
 const TABS = ["ORDERS", "WISHLIST", "DETAILS"] as const;
 type Tab = (typeof TABS)[number];
@@ -31,7 +31,7 @@ export default function AccountTabs({
   lastName: string;
 }) {
   const [tab, setTab] = useState<Tab>("ORDERS");
-  const [wishlist] = useLocalStorage<string[]>("lineloop-wishlist", []);
+  const { items: wishlist } = useWishlist();
 
   const wishlistProducts = wishlist
     .map((slug) => products.find((p) => p.slug === slug))

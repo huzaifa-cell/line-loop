@@ -26,7 +26,18 @@ export async function getInventoryItems() {
     return [];
   }
   
-  return data;
+  return data.map((item: any) => {
+    let colorName = item.color || "";
+    try {
+      if (item.color?.startsWith('{')) {
+        colorName = JSON.parse(item.color).name || colorName;
+      }
+    } catch(e) {}
+    return {
+      ...item,
+      color: colorName
+    };
+  });
 }
 
 export async function adjustInventory(variantId: string, changeAmount: number, reason: string) {

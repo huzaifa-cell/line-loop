@@ -35,7 +35,18 @@ function mapToUIProduct(row: any): Product {
   
   if (row.product_variants) {
     row.product_variants.forEach((v: any) => {
-      if (v.color) colorMap.set(v.color, { name: v.color, hex: '#000000' }); // Fallback hex, we could add hex to variants later if needed
+      if (v.color) {
+        let colorName = v.color;
+        let colorHex = '#131313';
+        try {
+          if (v.color.startsWith('{')) {
+            const parsed = JSON.parse(v.color);
+            colorName = parsed.name || v.color;
+            colorHex = parsed.hex || '#131313';
+          }
+        } catch (e) {}
+        colorMap.set(colorName, { name: colorName, hex: colorHex });
+      }
       if (v.size) sizes.add(v.size);
     });
   }
@@ -51,12 +62,20 @@ function mapToUIProduct(row: any): Product {
     gallery: gallery.length > 0 ? gallery : [primaryImage],
     colors: Array.from(colorMap.values()),
     sizes: Array.from(sizes),
-    variants: row.product_variants ? row.product_variants.map((v: any) => ({
-      id: v.id,
-      color: v.color || "Default",
-      size: v.size,
-      stock: v.stock_quantity || 0
-    })) : []
+    variants: row.product_variants ? row.product_variants.map((v: any) => {
+      let colorName = v.color || "Default";
+      try {
+        if (v.color?.startsWith('{')) {
+          colorName = JSON.parse(v.color).name || colorName;
+        }
+      } catch(e) {}
+      return {
+        id: v.id,
+        color: colorName,
+        size: v.size,
+        stock: v.stock_quantity || 0
+      };
+    }) : []
   };
 }
 

@@ -8,6 +8,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/cart";
 import { submitReview } from "./actions";
+import { WishlistButton } from "@/components/WishlistButton";
 
 function StarRating({ rating, setRating, interactive = false }: { rating: number, setRating?: (r: number) => void, interactive?: boolean }) {
   return (
@@ -467,10 +468,11 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
             >
               {isOutOfStock ? "Sold Out" : "Add to Bag"}
             </motion.button>
-            <button className="w-full border border-white/20 text-ivory py-4 font-label-caps text-label-caps uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-white/5 transition-all rounded-md">
-              <span className="material-symbols-outlined text-[20px]">favorite</span>
-              Add to Wishlist
-            </button>
+            <WishlistButton 
+              productId={product.id} 
+              showText={true}
+              className="w-full border border-white/20 text-ivory py-4 font-label-caps text-label-caps uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-white/5 transition-all rounded-md"
+            />
           </div>
 
           {/* Accordions */}

@@ -1,0 +1,6 @@
+- `[x]` Create `app/actions/wishlist.ts` for database operations.
+- `[x]` Create `lib/wishlist.tsx` for React Context state management (replacing Zustand).
+- `[x]` Create `components/WishlistButton.tsx`.
+- `[x]` Update `app/layout.tsx` to include `<WishlistProvider>`.
+- `[x]` Update `app/shop/[id]/ProductClient.tsx` to use the new `WishlistButton`.
+- `[x]` Update `app/account/AccountTabs.tsx` to use the `useWishlist` context instead of local storage directly.

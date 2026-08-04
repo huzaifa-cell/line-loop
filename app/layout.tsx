@@ -3,6 +3,7 @@ import { Inter, Fraunces } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart";
+import { WishlistProvider } from "@/lib/wishlist";
 import { StorefrontShell } from "@/components/StorefrontShell";
 import AnnouncementBar from "@/components/AnnouncementBar";
 
@@ -114,7 +115,9 @@ export default function RootLayout({
     <ClerkProvider>
       <body className="min-h-screen flex flex-col bg-espresso text-ivory font-body-md overflow-x-hidden">
         <CartProvider>
-          <StorefrontShell announcementBar={<AnnouncementBar />}>{children}</StorefrontShell>
+          <WishlistProvider>
+            <StorefrontShell announcementBar={<AnnouncementBar />}>{children}</StorefrontShell>
+          </WishlistProvider>
         </CartProvider>
       </body>
     </ClerkProvider>

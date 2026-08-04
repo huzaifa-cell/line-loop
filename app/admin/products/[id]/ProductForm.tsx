@@ -17,7 +17,8 @@ type MediaItem = {
 type VariantItem = {
   id: string;
   sku: string;
-  color: string;
+  colorName: string;
+  colorCode: string;
   size: string;
   stock_quantity: number;
   isNew: boolean;
@@ -39,21 +40,35 @@ export function ProductForm({ productId, initialData, categories }: { productId:
 
   // Variants
   const [variants, setVariants] = useState<VariantItem[]>(
-    (initialData?.product_variants || []).map((v: any) => ({
-      id: v.id,
-      sku: v.sku,
-      color: v.color || "",
-      size: v.size || "",
-      stock_quantity: v.stock_quantity,
-      isNew: false
-    }))
+    (initialData?.product_variants || []).map((v: any) => {
+      let colorName = v.color || "";
+      let colorCode = "#131313";
+      try {
+        if (v.color?.startsWith('{')) {
+          const parsed = JSON.parse(v.color);
+          colorName = parsed.name || "";
+          colorCode = parsed.hex || "#131313";
+        }
+      } catch (e) {}
+      
+      return {
+        id: v.id,
+        sku: v.sku,
+        colorName,
+        colorCode,
+        size: v.size || "",
+        stock_quantity: v.stock_quantity,
+        isNew: false
+      };
+    })
   );
 
   const addVariant = () => {
     setVariants([...variants, {
       id: Math.random().toString(36).substring(7),
       sku: "",
-      color: "",
+      colorName: "",
+      colorCode: "#131313",
       size: "",
       stock_quantity: 0,
       isNew: true
@@ -294,21 +309,25 @@ export function ProductForm({ productId, initialData, categories }: { productId:
         ) : (
           <div className="space-y-2">
             <div className="grid grid-cols-12 gap-2 text-[10px] font-bold uppercase tracking-widest text-ink-black/60 px-2">
-              <div className="col-span-3">SKU *</div>
-              <div className="col-span-3">Color</div>
-              <div className="col-span-3">Size</div>
+              <div className="col-span-2">SKU *</div>
+              <div className="col-span-3">Color Name</div>
+              <div className="col-span-2">Color Picker</div>
+              <div className="col-span-2">Size</div>
               <div className="col-span-2">Stock *</div>
               <div className="col-span-1 text-center">Delete</div>
             </div>
             {variants.map((variant, idx) => (
               <div key={variant.id} className="grid grid-cols-12 gap-2 items-center bg-ink-black/5 p-2">
-                <div className="col-span-3">
+                <div className="col-span-2">
                   <input required type="text" value={variant.sku} onChange={(e) => updateVariant(idx, 'sku', e.target.value)} placeholder="SKU-123" className="w-full bg-transparent border border-ink-black px-2 py-1 text-sm rounded-none focus:outline-none" />
                 </div>
                 <div className="col-span-3">
-                  <input type="text" value={variant.color} onChange={(e) => updateVariant(idx, 'color', e.target.value)} placeholder="Red" className="w-full bg-transparent border border-ink-black px-2 py-1 text-sm rounded-none focus:outline-none" />
+                  <input type="text" value={variant.colorName} onChange={(e) => updateVariant(idx, 'colorName', e.target.value)} placeholder="Red" className="w-full bg-transparent border border-ink-black px-2 py-1 text-sm rounded-none focus:outline-none" />
                 </div>
-                <div className="col-span-3">
+                <div className="col-span-2">
+                  <input type="color" value={variant.colorCode} onChange={(e) => updateVariant(idx, 'colorCode', e.target.value)} className="w-full h-8 bg-transparent border border-ink-black p-0 cursor-pointer rounded-none" />
+                </div>
+                <div className="col-span-2">
                   <input type="text" value={variant.size} onChange={(e) => updateVariant(idx, 'size', e.target.value)} placeholder="M" className="w-full bg-transparent border border-ink-black px-2 py-1 text-sm rounded-none focus:outline-none" />
                 </div>
                 <div className="col-span-2">

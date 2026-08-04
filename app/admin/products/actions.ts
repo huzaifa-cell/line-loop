@@ -45,7 +45,7 @@ export async function getAdminProducts() {
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error("getAdminProducts error:", error);
+    console.error("getAdminProducts error:", error.message, error.details, error);
     return [];
   }
   
@@ -173,7 +173,7 @@ export async function saveProduct(formData: FormData) {
         const variantData = {
           product_id: finalProductId,
           sku: v.sku,
-          color: v.color || null,
+          color: v.colorName ? JSON.stringify({ name: v.colorName, hex: v.colorCode || '#131313' }) : null,
           size: v.size || null,
           stock_quantity: v.stock_quantity
         };
