@@ -58,6 +58,7 @@ export async function POST(req: Request) {
     
     const email = evt.data.email_addresses[0]?.email_address || '';
     const fullName = [evt.data.first_name, evt.data.last_name].filter(Boolean).join(' ');
+    const role = (evt.data.public_metadata as { role?: string })?.role || 'customer';
     
     // Attempt to upsert the user into the profiles table
     const { error } = await supabase
@@ -66,6 +67,7 @@ export async function POST(req: Request) {
         clerk_user_id: id,
         email: email,
         full_name: fullName,
+        role: role,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'clerk_user_id' });
       
