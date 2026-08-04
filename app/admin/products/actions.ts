@@ -77,8 +77,13 @@ export async function deleteProduct(id: string) {
   const role = (sessionClaims?.metadata as { role?: string })?.role;
   if (role !== "admin" && role !== "staff") throw new Error("Unauthorized");
 
-  const supabase = await createSupabaseServerClient();
-  const { error } = await supabase
+  const adminClient = createSupabaseAdminClient();
+  
+  // Explicitly delete variants and images first to avoid foreign key constraint errors
+  await adminClient.from('product_variants').delete().eq('product_id', id);
+  await adminClient.from('product_images').delete().eq('product_id', id);
+
+  const { error } = await adminClient
     .from('products')
     .delete()
     .eq('id', id);
