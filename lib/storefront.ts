@@ -224,4 +224,28 @@ export async function getStorefrontOrderByNumberAndEmail(orderNumber: string, em
     }))
   };
 }
+export async function getApprovedReviews(productId: string) {
+  const supabase = getSupabase();
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('reviews')
+    .select(`
+      id,
+      rating,
+      title,
+      body,
+      guest_name,
+      created_at,
+      profiles (
+        full_name,
+        email
+      )
+    `)
+    .eq('product_id', productId)
+    .eq('status', 'approved')
+    .order('created_at', { ascending: false });
+
+  if (error || !data) return [];
+  return data;
+}
 

@@ -1,4 +1,4 @@
-import { getStorefrontProduct, getFeaturedProducts } from "@/lib/storefront";
+import { getStorefrontProduct, getFeaturedProducts, getApprovedReviews } from "@/lib/storefront";
 import { notFound } from "next/navigation";
 import ProductClient from "./ProductClient";
 import type { Metadata } from "next";
@@ -46,5 +46,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const related = await getFeaturedProducts(4);
   const filteredRelated = related.filter(p => p.id !== product.id).slice(0, 4);
 
-  return <ProductClient product={product} related={filteredRelated} />;
+  const reviews = await getApprovedReviews(product.id);
+
+  return <ProductClient product={product} related={filteredRelated} reviews={reviews} />;
 }

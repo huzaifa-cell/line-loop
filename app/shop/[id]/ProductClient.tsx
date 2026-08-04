@@ -7,6 +7,114 @@ import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/cart";
+import { submitReview } from "./actions";
+
+function StarRating({ rating, setRating, interactive = false }: { rating: number, setRating?: (r: number) => void, interactive?: boolean }) {
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type={interactive ? "button" : "button"}
+          onClick={() => interactive && setRating && setRating(star)}
+          disabled={!interactive}
+          className={`${interactive ? 'cursor-pointer hover:scale-110 transition-transform' : 'cursor-default'} ${
+            star <= rating ? 'text-amber-500' : 'text-white/20'
+          }`}
+        >
+          ★
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ReviewsSection({ productId, reviews }: { productId: string, reviews: any[] }) {
+  const [rating, setRating] = useState(5);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  async function handleReviewSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setMessage(null);
+
+    const formData = new FormData(e.currentTarget);
+    formData.append("rating", rating.toString());
+
+    const result = await submitReview(productId, formData);
+    
+    if (result.error) {
+      setMessage({ type: 'error', text: result.error });
+    } else {
+      setMessage({ type: 'success', text: "Your review has been submitted and is pending moderation." });
+      (e.target as HTMLFormElement).reset();
+      setRating(5);
+    }
+    setIsSubmitting(false);
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Existing Reviews */}
+      <div className="space-y-6">
+        {reviews.length === 0 ? (
+          <p className="text-sm text-beige/60">No reviews yet. Be the first to review this product!</p>
+        ) : (
+          reviews.map((review) => (
+            <div key={review.id} className="border-b border-white/10 pb-6">
+              <div className="flex items-center gap-3 mb-2">
+                <StarRating rating={review.rating} />
+                <span className="font-label-caps text-[10px] text-beige uppercase tracking-widest">
+                  {review.profiles?.full_name || review.guest_name || 'Anonymous'}
+                </span>
+                <span className="text-xs text-beige/50">
+                  {new Date(review.created_at).toLocaleDateString()}
+                </span>
+              </div>
+              {review.title && <h4 className="font-bold text-ivory mb-1">{review.title}</h4>}
+              {review.body && <p className="text-sm text-beige leading-relaxed">{review.body}</p>}
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Review Form */}
+      <div className="mt-8 bg-white/5 p-6 rounded-sm">
+        <h3 className="font-label-caps text-sm text-ivory uppercase tracking-widest mb-4">Write a Review</h3>
+        
+        {message && (
+          <div className={`p-4 mb-4 text-sm ${message.type === 'success' ? 'bg-green-500/20 text-green-200' : 'bg-brand-red/20 text-brand-red'}`}>
+            {message.text}
+          </div>
+        )}
+
+        <form onSubmit={handleReviewSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-label-caps uppercase tracking-widest text-beige mb-2">Rating</label>
+            <StarRating rating={rating} setRating={setRating} interactive />
+          </div>
+          <div>
+            <label htmlFor="name" className="block text-xs font-label-caps uppercase tracking-widest text-beige mb-2">Name</label>
+            <input type="text" id="name" name="name" required className="w-full bg-black/50 border border-white/10 px-4 py-2 text-ivory focus:border-ivory outline-none" />
+          </div>
+          <div>
+            <label htmlFor="title" className="block text-xs font-label-caps uppercase tracking-widest text-beige mb-2">Review Title (Optional)</label>
+            <input type="text" id="title" name="title" className="w-full bg-black/50 border border-white/10 px-4 py-2 text-ivory focus:border-ivory outline-none" />
+          </div>
+          <div>
+            <label htmlFor="body" className="block text-xs font-label-caps uppercase tracking-widest text-beige mb-2">Review</label>
+            <textarea id="body" name="body" required rows={4} className="w-full bg-black/50 border border-white/10 px-4 py-2 text-ivory focus:border-ivory outline-none" />
+          </div>
+          <button type="submit" disabled={isSubmitting} className="bg-ivory text-espresso px-6 py-3 font-label-caps uppercase tracking-widest text-xs hover:bg-white transition-colors disabled:opacity-50">
+            {isSubmitting ? 'Submitting...' : 'Submit Review'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 
 function ProductAccordion({ title, children }: { title: string; children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -49,9 +157,10 @@ function ProductAccordion({ title, children }: { title: string; children: React.
 interface ProductClientProps {
   product: Product;
   related: Product[];
+  reviews?: any[];
 }
 
-export default function ProductClient({ product, related }: ProductClientProps) {
+export default function ProductClient({ product, related, reviews = [] }: ProductClientProps) {
   const { add } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -313,6 +422,9 @@ export default function ProductClient({ product, related }: ProductClientProps) 
             </ProductAccordion>
             <ProductAccordion title="Shipping & Returns">
               Free nationwide shipping on orders over Rs. 10,000. Returns accepted within 7 days of delivery for unworn items with tags attached.
+            </ProductAccordion>
+            <ProductAccordion title="Reviews">
+              <ReviewsSection productId={product.id} reviews={reviews} />
             </ProductAccordion>
           </div>
         </AnimatedWrapper>
