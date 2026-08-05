@@ -11,7 +11,7 @@ export default async function AnnouncementBar() {
 
   const text =
     banner?.headline ||
-    "Complimentary hand-finished gift wrap on every order · Made to order in small batches in Pakistan";
+    "Complimentary hand-finished gift wrap on every order";
   const ctaLabel = banner?.cta_label;
   const ctaUrl = banner?.cta_url;
 

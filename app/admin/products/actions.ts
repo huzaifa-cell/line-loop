@@ -40,7 +40,8 @@ export async function getAdminProducts() {
       base_price,
       categories ( name ),
       product_variants ( stock_quantity ),
-      product_images ( storage_path )
+      product_images ( storage_path ),
+      size_guide_url
     `)
     .order('created_at', { ascending: false });
 
@@ -123,7 +124,7 @@ export async function saveProduct(formData: FormData) {
     
     let finalProductId = productId;
 
-    const productData = {
+    const productData: any = {
       title,
       description,
       base_price: basePrice,
@@ -133,6 +134,11 @@ export async function saveProduct(formData: FormData) {
       meta_title: metaTitle,
       meta_description: metaDescription
     };
+
+    const removeSizeGuide = formData.get("removeSizeGuide") === "true";
+    if (removeSizeGuide) {
+      productData.size_guide_url = null;
+    }
 
     if (productId === "new") {
       const { data, error } = await adminClient
@@ -225,6 +231,12 @@ export async function saveProduct(formData: FormData) {
         alt_text: title,
         sort_order: sortOrder
       });
+    }
+
+    const uploadedSizeGuideRaw = formData.get("uploadedSizeGuide") as string;
+    if (uploadedSizeGuideRaw) {
+      const uploadedSizeGuide = JSON.parse(uploadedSizeGuideRaw) as { originalName: string, path: string };
+      await adminClient.from('products').update({ size_guide_url: uploadedSizeGuide.path }).eq('id', finalProductId);
     }
 
     // Log Activity

@@ -231,6 +231,7 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
 
   const gallery = product.gallery || [product.image];
   const isVideo = (url: string) => {
@@ -413,9 +414,14 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
           <div className="mb-10">
             <div className="flex justify-between items-center mb-3">
               <span className="font-label-caps text-label-caps uppercase tracking-widest text-beige">Size</span>
-              <button className="font-label-caps text-[11px] text-ivory underline underline-offset-4 decoration-white/20 hover:decoration-white transition-all">
-                Size Guide
-              </button>
+              {product.size_guide_url && (
+                <button 
+                  onClick={() => setIsSizeGuideOpen(true)}
+                  className="font-label-caps text-[11px] text-ivory underline underline-offset-4 decoration-white/20 hover:decoration-white transition-all"
+                >
+                  Size Guide
+                </button>
+              )}
             </div>
             <div className="flex flex-wrap gap-3">
               {sizes.map((size) => (
@@ -531,6 +537,44 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
           ))}
         </div>
       </section>
+
+      {/* Size Guide Modal */}
+      <AnimatePresence>
+        {isSizeGuideOpen && product.size_guide_url && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setIsSizeGuideOpen(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-4xl w-full max-h-[90vh] bg-ivory rounded-md overflow-hidden shadow-2xl flex flex-col"
+            >
+              <div className="flex justify-between items-center p-4 border-b border-ink-black/10">
+                <h3 className="font-headline-sm text-espresso uppercase tracking-widest text-lg">Size Guide</h3>
+                <button 
+                  onClick={() => setIsSizeGuideOpen(false)}
+                  className="text-espresso hover:text-brand-red transition-colors material-symbols-outlined"
+                >
+                  close
+                </button>
+              </div>
+              <div className="p-4 overflow-auto flex-grow flex items-center justify-center bg-white">
+                <img 
+                  src={product.size_guide_url.startsWith('http') ? product.size_guide_url : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${product.size_guide_url}`} 
+                  alt="Size Guide" 
+                  className="max-w-full max-h-full object-contain"
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

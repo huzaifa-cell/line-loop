@@ -96,7 +96,15 @@ export function ProductForm({ productId, initialData, categories }: { productId:
     }))
   );
 
+  const [sizeGuide, setSizeGuide] = useState<{ type: "existing" | "new", url: string, file?: File } | null>(
+    initialData?.size_guide_url 
+      ? { type: "existing", url: initialData.size_guide_url.startsWith('http') ? initialData.size_guide_url : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${initialData.size_guide_url}` } 
+      : null
+  );
+  const [removeSizeGuide, setRemoveSizeGuide] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const sizeGuideInputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -110,6 +118,17 @@ export function ProductForm({ productId, initialData, categories }: { productId:
     }));
 
     setMedia([...media, ...newItems]);
+  };
+
+  const handleSizeGuideFile = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    setSizeGuide({
+      type: "new",
+      url: URL.createObjectURL(file),
+      file
+    });
+    setRemoveSizeGuide(false);
   };
 
   const moveMedia = (index: number, direction: -1 | 1) => {
@@ -165,7 +184,16 @@ export function ProductForm({ productId, initialData, categories }: { productId:
       });
       formData.append("newMediaOrder", JSON.stringify(newMediaOrder));
 
-      if (newFiles.length > 0) {
+      if (removeSizeGuide) {
+        formData.append("removeSizeGuide", "true");
+      }
+
+      const filesToGetSignedUrlsFor = newFiles.map(m => m.file!.name);
+      if (sizeGuide?.type === "new" && sizeGuide.file) {
+        filesToGetSignedUrlsFor.push(sizeGuide.file.name);
+      }
+
+      if (filesToGetSignedUrlsFor.length > 0) {
         const supabase = createClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
           process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -174,7 +202,7 @@ export function ProductForm({ productId, initialData, categories }: { productId:
         // Use "new" as temporary productId for signed URLs if it's a new product
         // Note: The actual path won't matter much as long as it gets uploaded safely
         const tempProductId = productId === "new" ? crypto.randomUUID() : productId;
-        const signedUrls = await getSignedUploadUrls(tempProductId, newFiles.map(m => m.file!.name));
+        const signedUrls = await getSignedUploadUrls(tempProductId, filesToGetSignedUrlsFor);
         
         for (const m of newFiles) {
           const signedUrlObj = signedUrls.find(s => s.originalName === m.file!.name);
@@ -186,6 +214,19 @@ export function ProductForm({ productId, initialData, categories }: { productId:
             );
             if (error) throw new Error(`Failed to upload ${m.file!.name}: ${error.message}`);
             uploadedMedia.push({ originalName: m.file!.name, path: signedUrlObj.path });
+          }
+        }
+
+        if (sizeGuide?.type === "new" && sizeGuide.file) {
+          const signedUrlObj = signedUrls.find(s => s.originalName === sizeGuide.file!.name);
+          if (signedUrlObj) {
+            const { error } = await supabase.storage.from("product-images").uploadToSignedUrl(
+              signedUrlObj.path,
+              signedUrlObj.token,
+              sizeGuide.file
+            );
+            if (error) throw new Error(`Failed to upload size guide: ${error.message}`);
+            formData.append("uploadedSizeGuide", JSON.stringify({ originalName: sizeGuide.file.name, path: signedUrlObj.path }));
           }
         }
       }
@@ -409,6 +450,46 @@ export function ProductForm({ productId, initialData, categories }: { productId:
             multiple 
             accept="image/*,video/*" 
             onChange={(e) => handleFiles(e.target.files)}
+          />
+        </label>
+      </div>
+      
+      {/* Size Guide */}
+      <div className="bg-ivory-mist border border-ink-black p-6">
+        <div className="border-b border-ink-black/20 pb-4 mb-6">
+          <h2 className="text-sm font-bold uppercase tracking-widest">Size Guide Image</h2>
+        </div>
+        
+        {sizeGuide ? (
+          <div className="relative aspect-[4/3] border border-ink-black/20 group overflow-hidden bg-ink-black/5 mb-6 max-w-sm">
+            <img src={sizeGuide.url} alt="Size Guide Preview" className="w-full h-full object-contain" />
+            <div className="absolute inset-0 bg-ink-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-start items-end p-2">
+              <button 
+                type="button" 
+                onClick={() => {
+                  setSizeGuide(null);
+                  setRemoveSizeGuide(true);
+                  if (sizeGuideInputRef.current) sizeGuideInputRef.current.value = '';
+                }} 
+                className="bg-thread-red text-white p-2 rounded-sm text-xs font-bold uppercase hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        <label className="border-2 border-dashed border-ink-black/20 p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-ink-black/5 block w-full max-w-sm">
+          <svg className="w-8 h-8 mb-4 text-ink-black/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+          </svg>
+          <span className="text-sm font-bold uppercase tracking-widest text-ink-black/70">{sizeGuide ? "Replace Size Guide" : "Upload Size Guide"}</span>
+          <input 
+            ref={sizeGuideInputRef}
+            type="file" 
+            className="hidden" 
+            accept="image/*" 
+            onChange={(e) => handleSizeGuideFile(e.target.files)}
           />
         </label>
       </div>

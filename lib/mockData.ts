@@ -12,6 +12,7 @@ export interface Product {
   sizes?: string[];
   gallery?: string[];
   variants?: { id: string; color: string; size: string; stock: number }[];
+  size_guide_url?: string;
 }
 
 export const products: Product[] = [
