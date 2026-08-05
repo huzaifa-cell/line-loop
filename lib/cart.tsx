@@ -133,7 +133,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [lines]
   );
 
-  const shipping = subtotal >= 10000 ? 0 : 500;
+  const shipping = lines.length > 0 ? 500 : 0;
   const total = subtotal + shipping;
 
   const value: CartState = {

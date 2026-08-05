@@ -18,10 +18,20 @@ const isVideo = (url: string) => {
   return lower.includes('.mp4') || lower.includes('.webm') || lower.includes('.mov');
 };
 
+const pakistanProvinces: Record<string, string[]> = {
+  "Punjab": ["Lahore", "Faisalabad", "Rawalpindi", "Multan", "Gujranwala", "Sialkot", "Bahawalpur", "Sargodha"],
+  "Sindh": ["Karachi", "Hyderabad", "Sukkur", "Larkana", "Nawabshah", "Mirpur Khas"],
+  "Khyber Pakhtunkhwa": ["Peshawar", "Mardan", "Mingora", "Kohat", "Abbottabad", "Swat"],
+  "Balochistan": ["Quetta", "Gwadar", "Khuzdar", "Chaman", "Turbat"],
+  "Islamabad Capital Territory": ["Islamabad"],
+  "Gilgit-Baltistan": ["Gilgit", "Skardu", "Hunza"],
+  "Azad Kashmir": ["Muzaffarabad", "Mirpur", "Rawalakot"]
+};
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { lines, subtotal, shipping, clear } = useCart();
-  const [shippingMethod, setShippingMethod] = useState<"standard" | "express">("standard");
+  const shippingMethod = "standard";
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "bank">("cod");
   const [discountCode, setDiscountCode] = useState("");
   const [discountResult, setDiscountResult] = useState<DiscountResult | null>(null);
@@ -45,7 +55,7 @@ export default function CheckoutPage() {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const shippingCost = shippingMethod === "express" ? 500 : shipping;
+  const shippingCost = shipping;
   const discountAmount = discountResult?.valid ? discountResult.discount : 0;
   const grandTotal = subtotal + shippingCost - discountAmount;
 
@@ -197,18 +207,18 @@ export default function CheckoutPage() {
               <input placeholder="ADDRESS LINE 1" value={formData.address1} onChange={(e) => setFormData({...formData, address1: e.target.value})} className={`w-full bg-transparent border px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm ${formErrors.address1 ? 'border-brand-red' : 'border-espresso/10'}`} />
               <input placeholder="APARTMENT, SUITE, ETC. (OPTIONAL)" value={formData.address2} onChange={(e) => setFormData({...formData, address2: e.target.value})} className="w-full bg-transparent border border-espresso/10 px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm" />
               <div className="grid grid-cols-2 gap-4">
-                <select value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} className={`w-full bg-transparent border px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm appearance-none ${formData.city ? 'text-espresso' : 'text-espresso/60'} ${formErrors.city ? 'border-brand-red' : 'border-espresso/10'}`}>
-                  <option value="" disabled>City</option>
-                  <option value="karachi">Karachi</option>
-                  <option value="lahore">Lahore</option>
-                  <option value="islamabad">Islamabad</option>
-                  <option value="rawalpindi">Rawalpindi</option>
-                  <option value="faisalabad">Faisalabad</option>
-                  <option value="peshawar">Peshawar</option>
-                  <option value="quetta">Quetta</option>
-                  <option value="multan">Multan</option>
+                <select value={formData.province} onChange={(e) => setFormData({...formData, province: e.target.value, city: ""})} className={`w-full bg-transparent border px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm appearance-none ${formData.province ? 'text-espresso' : 'text-espresso/60'} ${formErrors.province ? 'border-brand-red' : 'border-espresso/10'}`}>
+                  <option value="" disabled>PROVINCE</option>
+                  {Object.keys(pakistanProvinces).map(prov => (
+                    <option key={prov} value={prov}>{prov}</option>
+                  ))}
                 </select>
-                <input placeholder="PROVINCE" value={formData.province} onChange={(e) => setFormData({...formData, province: e.target.value})} className={`w-full bg-transparent border px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm ${formErrors.province ? 'border-brand-red' : 'border-espresso/10'}`} />
+                <select value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} disabled={!formData.province} className={`w-full bg-transparent border px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm appearance-none ${formData.city ? 'text-espresso' : 'text-espresso/60'} ${formErrors.city ? 'border-brand-red' : 'border-espresso/10'} disabled:opacity-50 disabled:cursor-not-allowed`}>
+                  <option value="" disabled>CITY</option>
+                  {formData.province && pakistanProvinces[formData.province]?.map(city => (
+                    <option key={city} value={city}>{city}</option>
+                  ))}
+                </select>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <input placeholder="POSTAL CODE" value={formData.postalCode} onChange={(e) => setFormData({...formData, postalCode: e.target.value})} className={`w-full bg-transparent border px-4 md:px-5 py-3 md:py-4 font-label-caps text-[12px] text-espresso placeholder:text-espresso/40 uppercase tracking-widest focus:border-brand-red focus:ring-0 transition-colors rounded-sm ${formErrors.postalCode ? 'border-brand-red' : 'border-espresso/10'}`} />
@@ -222,38 +232,20 @@ export default function CheckoutPage() {
             <h2 className="font-headline-sm text-headline-sm text-espresso uppercase tracking-[0.1em] mb-4 md:mb-6">Shipping Method</h2>
             <div className="space-y-3">
               <label
-                onClick={() => setShippingMethod("standard")}
-                className={`flex items-center justify-between p-4 md:p-5 border rounded-sm cursor-pointer transition-all ${
-                  shippingMethod === "standard" ? "border-brand-red bg-brand-red/5" : "border-espresso/10 hover:border-espresso/30"
-                }`}
+                className="flex items-center justify-between p-4 md:p-5 border border-brand-red bg-brand-red/5 rounded-sm cursor-default transition-all"
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${shippingMethod === "standard" ? "border-brand-red" : "border-espresso/40"}`}>
-                    {shippingMethod === "standard" && <div className="w-2 h-2 rounded-full bg-brand-red" />}
+                  <div className="w-4 h-4 rounded-full border-2 border-brand-red flex items-center justify-center">
+                    <div className="w-2 h-2 rounded-full bg-brand-red" />
                   </div>
                   <div>
                     <span className="font-label-caps text-[12px] text-espresso uppercase tracking-widest block">Standard Delivery</span>
                     <span className="font-label-caps text-[10px] text-espresso/60 uppercase tracking-wider">3-5 Business Days</span>
                   </div>
                 </div>
-                <span className="font-label-caps text-[12px] text-espresso uppercase tracking-widest">Free</span>
-              </label>
-              <label
-                onClick={() => setShippingMethod("express")}
-                className={`flex items-center justify-between p-4 md:p-5 border rounded-sm cursor-pointer transition-all ${
-                  shippingMethod === "express" ? "border-brand-red bg-brand-red/5" : "border-espresso/10 hover:border-espresso/30"
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${shippingMethod === "express" ? "border-brand-red" : "border-espresso/40"}`}>
-                    {shippingMethod === "express" && <div className="w-2 h-2 rounded-full bg-brand-red" />}
-                  </div>
-                  <div>
-                    <span className="font-label-caps text-[12px] text-espresso uppercase tracking-widest block">Express Delivery</span>
-                    <span className="font-label-caps text-[10px] text-espresso/60 uppercase tracking-wider">1-2 Business Days</span>
-                  </div>
-                </div>
-                <span className="font-label-caps text-[12px] text-espresso uppercase tracking-widest">Rs. 500</span>
+                <span className="font-label-caps text-[12px] text-espresso uppercase tracking-widest">
+                  Rs. 500
+                </span>
               </label>
             </div>
           </section>
@@ -410,7 +402,7 @@ export default function CheckoutPage() {
             <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
               {lines.map((line) => (
                 <div key={`${line.id}-${line.size}-${line.colour}`} className="flex gap-4">
-                  <div className="relative w-16 h-20 shrink-0 overflow-hidden rounded-sm bg-beige/30">
+                  <div className="relative w-20 h-20 shrink-0 overflow-hidden rounded-sm bg-beige/30">
                     {isVideo(line.image) ? (
                       <video src={line.image} className="w-full h-full object-cover" muted loop playsInline autoPlay />
                     ) : (

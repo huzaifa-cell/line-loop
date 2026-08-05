@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const navItems = [
   { label: "Shop", href: "/shop" },
@@ -15,6 +15,11 @@ export function TopNavBar() {
   const { count, open } = useCart();
   const { items: wishlistItems } = useWishlist();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <>
@@ -50,7 +55,7 @@ export function TopNavBar() {
           </button>
           <Link href="/wishlist" className="cursor-pointer transition-all active:scale-95 hover:text-brand-red relative" aria-label="Open wishlist">
             <span className="material-symbols-outlined">favorite</span>
-            {wishlistItems.length > 0 && (
+            {mounted && wishlistItems.length > 0 && (
               <span className="absolute -top-1 -right-1 bg-brand-red text-[10px] w-4 h-4 flex items-center justify-center rounded-full text-white">
                 {wishlistItems.length}
               </span>
@@ -58,7 +63,7 @@ export function TopNavBar() {
           </Link>
           <button onClick={open} className="cursor-pointer transition-all active:scale-95 hover:text-brand-red relative">
             <span className="material-symbols-outlined">shopping_bag</span>
-            {count > 0 && (
+            {mounted && count > 0 && (
               <span className="absolute -top-1 -right-1 bg-brand-red text-[10px] w-4 h-4 flex items-center justify-center rounded-full text-white">
                 {count}
               </span>

@@ -84,7 +84,7 @@ export default function CartDrawer() {
                       className="flex gap-4"
                     >
                       {/* Thumbnail */}
-                      <div className="relative w-20 h-28 shrink-0 overflow-hidden rounded-sm bg-beige/30">
+                      <div className="relative w-24 h-24 shrink-0 overflow-hidden rounded-sm bg-beige/30">
                         {isVideo(line.image) ? (
                           <video src={line.image} className="w-full h-full object-cover" muted loop playsInline autoPlay />
                         ) : (
