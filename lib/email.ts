@@ -50,14 +50,19 @@ export async function sendOrderConfirmationEmail(
   `;
 
   try {
-    const data = await resend.emails.send({
-      from: "LINE & LOOP <orders@lineloop.com>",
+    const response = await resend.emails.send({
+      from: "LINE & LOOP <orders@lineandloop.shop>",
       to,
       subject,
       html,
     });
 
-    return { success: true, data };
+    if (response.error) {
+      console.error("Resend API Error (Customer Email):", response.error);
+      return { success: false, error: response.error };
+    }
+
+    return { success: true, data: response.data };
   } catch (error) {
     console.error("Failed to send email:", error);
     return { success: false, error };
@@ -93,14 +98,19 @@ export async function sendNewOrderAdminNotification(
   `;
 
   try {
-    const data = await resend.emails.send({
-      from: "LINE & LOOP <orders@lineloop.com>",
+    const response = await resend.emails.send({
+      from: "LINE & LOOP <orders@lineandloop.shop>",
       to: adminEmails,
       subject,
       html,
     });
 
-    return { success: true, data };
+    if (response.error) {
+      console.error("Resend API Error (Admin Email):", response.error);
+      return { success: false, error: response.error };
+    }
+
+    return { success: true, data: response.data };
   } catch (error) {
     console.error("Failed to send admin email:", error);
     return { success: false, error };
