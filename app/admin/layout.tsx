@@ -8,14 +8,14 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
+  const user = await currentUser();
+  const role = user?.publicMetadata?.role as string | undefined;
   
   if (role !== "admin" && role !== "staff") {
     redirect("/");
   }
 
-  const user = await currentUser();
+
   const userEmail = user?.emailAddresses[0]?.emailAddress;
 
   return (

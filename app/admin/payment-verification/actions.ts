@@ -3,6 +3,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 export async function getPendingBankTransfers() {
   const supabase = await createSupabaseServerClient();
@@ -47,6 +48,12 @@ export async function processBankTransfer(orderId: string, action: 'approve' | '
   const paymentStatus = action === 'approve' ? 'bank_transfer_verified' : 'bank_transfer_rejected';
   const orderStatus = action === 'approve' ? 'confirmed' : 'cancelled'; // If rejected, cancel the order
 
+  const { data: order } = await supabase
+    .from('orders')
+    .select('order_number, guest_email, total, payment_method, shipping_address')
+    .eq('id', orderId)
+    .single();
+
   const { error } = await supabase
     .from('orders')
     .update({ 
@@ -59,6 +66,18 @@ export async function processBankTransfer(orderId: string, action: 'approve' | '
     .eq('id', orderId);
 
   if (error) throw new Error(error.message);
+  
+  if (action === 'approve' && order?.guest_email) {
+    const customerName = (order.shipping_address as any)?.fullName || "Customer";
+    sendOrderConfirmationEmail(
+      order.guest_email,
+      order.order_number,
+      customerName,
+      order.total,
+      order.payment_method,
+      true
+    ).catch(console.error);
+  }
   
   // Log activity
   await supabase

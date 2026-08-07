@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
 import EmptyState from "@/components/EmptyState";
-import { Product } from "@/lib/mockData";
+import { Product } from "@/lib/types";
 
 export default function WishlistClient({ products }: { products: Product[] }) {
   const { items, isLoaded } = useWishlist();

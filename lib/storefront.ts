@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { Product, products } from "./mockData";
+import { Product } from "./types";
 
 /**
  * Creates an anonymous Supabase client for reading public storefront data.
@@ -51,6 +51,10 @@ function mapToUIProduct(row: any): Product {
     });
   }
 
+  const totalStock = Array.isArray(row.product_variants) 
+    ? row.product_variants.reduce((acc: number, v: any) => acc + (v.stock_quantity || 0), 0)
+    : 0;
+
   return {
     id: row.id,
     name: row.title,
@@ -62,6 +66,7 @@ function mapToUIProduct(row: any): Product {
     gallery: gallery.length > 0 ? gallery : [primaryImage],
     colors: Array.from(colorMap.values()),
     sizes: Array.from(sizes),
+    totalStock,
     variants: row.product_variants ? row.product_variants.map((v: any) => {
       let colorName = v.color || "Default";
       try {
@@ -93,7 +98,7 @@ export async function getStorefrontProducts(): Promise<Product[]> {
       compare_at_price,
       categories ( name ),
       product_images ( storage_path, sort_order ),
-      product_variants ( color, size )
+      product_variants ( color, size, stock_quantity )
     `)
     .eq('is_published', true)
     .order('created_at', { ascending: false });
@@ -149,7 +154,7 @@ export async function getFeaturedProducts(limit = 4): Promise<Product[]> {
       compare_at_price,
       categories ( name ),
       product_images ( storage_path, sort_order ),
-      product_variants ( color, size )
+      product_variants ( color, size, stock_quantity )
     `)
     .eq('is_published', true)
     .order('created_at', { ascending: false })

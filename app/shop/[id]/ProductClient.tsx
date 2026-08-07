@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatedWrapper } from "@/components/AnimatedWrapper";
-import { Product } from "@/lib/mockData";
+import { Product } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -246,9 +246,11 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
     (v) => v.size === selectedSize && v.color === colors[selectedColor].name
   );
   
-  const isOutOfStock = selectedSize && product.variants && product.variants.length > 0
-    ? (selectedVariant ? selectedVariant.stock <= 0 : true)
-    : false;
+  const isOutOfStock = product.totalStock === 0 
+    ? true 
+    : (selectedSize && product.variants && product.variants.length > 0
+        ? (selectedVariant ? selectedVariant.stock <= 0 : true)
+        : false);
 
   const handleAddToCart = () => {
     if (!selectedSize) return;
@@ -331,6 +333,14 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
                 )}
               </motion.div>
             </AnimatePresence>
+            
+            {product.totalStock === 0 && (
+              <div className="absolute inset-0 bg-white/40 flex items-center justify-center z-10 backdrop-blur-[2px]">
+                <span className="bg-espresso/90 text-white px-6 py-3 font-label-caps text-label-caps uppercase tracking-[0.2em] shadow-lg rounded-sm">
+                  Sold Out
+                </span>
+              </div>
+            )}
             
             {gallery.length > 1 && (
               <>

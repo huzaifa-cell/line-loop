@@ -1,13 +1,13 @@
 "use client";
 
-import { useCart } from "@/lib/cart";
+import { useCart, FREE_SHIPPING_THRESHOLD } from "@/lib/cart";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function CartDrawer() {
   const isVideo = (url: string) => url?.match(/\.(mp4|webm|mov)$/i);
-  const { lines, isOpen, close, remove, setQty, count, subtotal, shipping, total } = useCart();
+  const { lines, isOpen, close, remove, setQty, count, subtotal, shipping, total, freeShippingRemaining } = useCart();
 
   return (
     <AnimatePresence>
@@ -145,6 +145,29 @@ export default function CartDrawer() {
 
                 {/* Order Summary & CTA */}
                 <div className="px-4 md:px-8 py-4 md:py-6 border-t border-espresso/10 bg-white">
+                  {/* Free shipping progress */}
+                  {lines.length > 0 && (
+                    <div className="mb-4 pb-4 border-b border-espresso/10">
+                      {freeShippingRemaining > 0 ? (
+                        <>
+                          <p className="font-label-caps text-[10px] text-espresso/70 uppercase tracking-widest mb-2">
+                            Rs. {freeShippingRemaining.toLocaleString()} away from free shipping
+                          </p>
+                          <div className="w-full h-1.5 bg-espresso/10 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-brand-red rounded-full transition-all duration-500"
+                              style={{ width: `${Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100)}%` }}
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        <p className="font-label-caps text-[10px] text-green-600 uppercase tracking-widest flex items-center gap-1.5">
+                          <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                          You qualify for free shipping!
+                        </p>
+                      )}
+                    </div>
+                  )}
                   <div className="space-y-2 mb-4">
                     <div className="flex justify-between font-label-caps text-[11px] uppercase tracking-widest">
                       <span className="text-espresso/70">Subtotal</span>

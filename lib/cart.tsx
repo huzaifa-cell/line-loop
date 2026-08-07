@@ -8,7 +8,7 @@ import {
   useState,
   useCallback,
 } from "react";
-import type { Product } from "./mockData";
+import type { Product } from "./types";
 
 export interface CartLine {
   id: string;
@@ -21,6 +21,10 @@ export interface CartLine {
   variantId: string;
 }
 
+/** Orders above this amount get free shipping */
+export const FREE_SHIPPING_THRESHOLD = 5000;
+const SHIPPING_COST = 500;
+
 interface CartState {
   lines: CartLine[];
   isOpen: boolean;
@@ -28,6 +32,7 @@ interface CartState {
   subtotal: number;
   shipping: number;
   total: number;
+  freeShippingRemaining: number;
   open: () => void;
   close: () => void;
   add: (product: Product, size: string, colour: string, qty?: number, variantId?: string) => void;
@@ -133,7 +138,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [lines]
   );
 
-  const shipping = lines.length > 0 ? 500 : 0;
+  const shipping = lines.length > 0 && subtotal < FREE_SHIPPING_THRESHOLD ? SHIPPING_COST : 0;
+  const freeShippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const total = subtotal + shipping;
 
   const value: CartState = {
@@ -143,6 +149,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     subtotal,
     shipping,
     total,
+    freeShippingRemaining,
     open,
     close,
     add,

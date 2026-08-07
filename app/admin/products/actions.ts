@@ -50,7 +50,7 @@ export async function getAdminProducts() {
     return [];
   }
   
-  console.log("getAdminProducts returned:", data?.length, "products");
+
   return data;
 }
 

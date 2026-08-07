@@ -1,5 +1,5 @@
 import { createSupabaseAdminClient } from "@/lib/supabase";
-import { products } from "@/lib/mockData";
+import { products } from "@/lib/seedData";
 import { NextResponse } from "next/server";
 
 export async function GET() {

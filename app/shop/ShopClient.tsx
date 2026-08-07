@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { AnimatedWrapper } from "@/components/AnimatedWrapper";
-import { Product } from "@/lib/mockData";
+import { Product } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -190,10 +190,17 @@ export default function ShopClient({ products }: { products: Product[] }) {
                         className="object-cover transition-transform duration-1000 group-hover:scale-105"
                       />
                     )}
-                    {product.tag && (
+                    {product.tag && product.totalStock !== 0 && (
                       <span className="absolute top-3 left-3 md:top-4 md:left-4 bg-brand-red/90 backdrop-blur-sm text-white px-3 py-1 md:px-4 md:py-1.5 font-label-caps text-[10px] rounded-full tracking-widest">
                         {product.tag}
                       </span>
+                    )}
+                    {product.totalStock === 0 && (
+                      <div className="absolute inset-0 bg-white/40 flex items-center justify-center z-10 backdrop-blur-[2px]">
+                        <span className="bg-espresso/90 text-white px-4 py-2 font-label-caps text-label-caps uppercase tracking-[0.2em] shadow-lg rounded-sm">
+                          Sold Out
+                        </span>
+                      </div>
                     )}
                     {/* Quick Add Hover Effect */}
                     <div className="absolute inset-x-0 bottom-0 p-3 md:p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">

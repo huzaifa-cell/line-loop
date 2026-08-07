@@ -11,6 +11,7 @@ import { uploadPaymentProof } from "./upload-proof/actions";
 import { validateDiscount } from "./discount-actions";
 import type { DiscountResult } from "@/lib/discount";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/Toast";
 
 const isVideo = (url: string) => {
   if (!url) return false;
@@ -30,6 +31,7 @@ const pakistanProvinces: Record<string, string[]> = {
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const { lines, subtotal, shipping, clear } = useCart();
   const shippingMethod = "standard";
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "bank">("cod");
@@ -319,16 +321,31 @@ export default function CheckoutPage() {
               setFormErrors({});
               
               const errors: Record<string, string> = {};
-              if (!formData.email) errors.email = "Required";
-              if (!formData.phone) errors.phone = "Required";
-              if (!formData.fullName) errors.fullName = "Required";
-              if (!formData.address1) errors.address1 = "Required";
-              if (!formData.city) errors.city = "Required";
-              if (!formData.province) errors.province = "Required";
-              if (!formData.postalCode) errors.postalCode = "Required";
+              
+              // Email validation
+              if (!formData.email) {
+                errors.email = "Email is required";
+              } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+                errors.email = "Please enter a valid email address";
+              }
+              
+              // Phone validation — Pakistani format
+              const cleanPhone = formData.phone.replace(/[\s\-()]/g, "");
+              if (!cleanPhone) {
+                errors.phone = "Phone number is required";
+              } else if (!/^(\+92|0)?3\d{9}$/.test(cleanPhone)) {
+                errors.phone = "Enter a valid Pakistani number (e.g. 03001234567)";
+              }
+              
+              if (!formData.fullName || formData.fullName.length < 2) errors.fullName = "Full name is required";
+              if (!formData.address1 || formData.address1.length < 3) errors.address1 = "Address is required";
+              if (!formData.city) errors.city = "City is required";
+              if (!formData.province) errors.province = "Province is required";
+              if (!formData.postalCode || formData.postalCode.length < 4) errors.postalCode = "Valid postal code is required";
 
               if (Object.keys(errors).length > 0) {
                 setFormErrors(errors);
+                toast("Please fix the highlighted fields before continuing.", "error");
                 setIsSubmitting(false);
                 return;
               }
@@ -374,15 +391,15 @@ export default function CheckoutPage() {
                   const uploadRes = await uploadPaymentProof(result.orderNumber, proofFormData);
                   if (!uploadRes.success) {
                     console.error("Proof upload failed:", uploadRes.error);
-                    alert("Order created, but payment proof upload failed: " + uploadRes.error);
+                    toast("Order created, but payment proof upload failed. Please contact support.", "error");
                   }
                 }
                 
                 clear();
                 setOrderPlaced(true);
               } catch (err) {
-                console.error(err);
-                alert("Failed to place order.");
+                const message = err instanceof Error ? err.message : "Failed to place order. Please try again.";
+                toast(message, "error");
               } finally {
                 setIsSubmitting(false);
               }
@@ -502,11 +519,11 @@ export default function CheckoutPage() {
       <footer className="border-t border-espresso/10 py-4 md:py-6 px-margin-mobile md:px-margin-desktop flex flex-col sm:flex-row justify-between items-center gap-4">
         <span className="font-headline-sm text-headline-sm text-espresso uppercase tracking-tighter">LINE&LOOP</span>
         <div className="flex gap-4 md:gap-6 font-label-caps text-[10px] text-espresso/70 uppercase tracking-widest">
-          <a href="#" className="hover:text-brand-red transition-colors">Privacy Policy</a>
-          <a href="#" className="hover:text-brand-red transition-colors">Terms of Service</a>
-          <a href="#" className="hover:text-brand-red transition-colors">Shipping & Returns</a>
+          <Link href="/privacy" className="hover:text-brand-red transition-colors">Privacy Policy</Link>
+          <Link href="/terms" className="hover:text-brand-red transition-colors">Terms of Service</Link>
+          <Link href="/shipping-returns" className="hover:text-brand-red transition-colors">Shipping & Returns</Link>
         </div>
-        <span className="font-label-caps text-[10px] text-espresso/60 uppercase tracking-widest">© 2024 LINE&LOOP. ALL RIGHTS RESERVED.</span>
+        <span className="font-label-caps text-[10px] text-espresso/60 uppercase tracking-widest">© 2026 LINE&LOOP. ALL RIGHTS RESERVED.</span>
       </footer>
     </div>
   );

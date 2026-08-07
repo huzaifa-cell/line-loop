@@ -7,7 +7,8 @@ export async function sendOrderConfirmationEmail(
   orderNumber: string,
   customerName: string,
   totalAmount: number,
-  paymentMethod: string
+  paymentMethod: string,
+  isVerified: boolean = false
 ) {
   if (!process.env.RESEND_API_KEY) {
     console.warn("RESEND_API_KEY is not set. Skipping order confirmation email.");
@@ -16,9 +17,14 @@ export async function sendOrderConfirmationEmail(
 
   const subject = `Order Confirmation - LINE & LOOP #${orderNumber}`;
   
-  const paymentText = paymentMethod === "bank" 
-    ? "Payment Method: Bank Transfer. Your order is pending until proof of payment is received and verified."
-    : "Payment Method: Cash on Delivery. You will pay for your order upon delivery.";
+  let paymentText = "";
+  if (paymentMethod === "bank") {
+    paymentText = isVerified 
+      ? "Payment Method: Bank Transfer. Your payment has been verified successfully and your order is confirmed!"
+      : "Payment Method: Bank Transfer. Your order is pending until proof of payment is received and verified.";
+  } else {
+    paymentText = "Payment Method: Cash on Delivery. You will pay for your order upon delivery.";
+  }
 
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #2B2118;">
@@ -54,6 +60,48 @@ export async function sendOrderConfirmationEmail(
     return { success: true, data };
   } catch (error) {
     console.error("Failed to send email:", error);
+    return { success: false, error };
+  }
+}
+
+export async function sendNewOrderAdminNotification(
+  orderNumber: string,
+  customerName: string,
+  totalAmount: number,
+  paymentMethod: string
+) {
+  if (!process.env.RESEND_API_KEY) {
+    return { success: false, error: "API key not configured" };
+  }
+
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@lineloop.com";
+  const subject = `[Admin] New Order Received #${orderNumber}`;
+  
+  const paymentText = paymentMethod === "bank" ? "Bank Transfer (Needs Verification)" : "Cash on Delivery";
+
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #2B2118;">
+      <h2>New Order Received: #${orderNumber}</h2>
+      <ul>
+        <li><strong>Customer:</strong> ${customerName}</li>
+        <li><strong>Total:</strong> Rs. ${totalAmount.toLocaleString()}</li>
+        <li><strong>Payment:</strong> ${paymentText}</li>
+      </ul>
+      <p>Please check the admin dashboard for full details.</p>
+    </div>
+  `;
+
+  try {
+    const data = await resend.emails.send({
+      from: "LINE & LOOP <orders@lineloop.com>",
+      to: adminEmail,
+      subject,
+      html,
+    });
+
+    return { success: true, data };
+  } catch (error) {
+    console.error("Failed to send admin email:", error);
     return { success: false, error };
   }
 }
