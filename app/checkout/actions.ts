@@ -252,25 +252,31 @@ export async function createStorefrontOrder(rawData: unknown) {
       }
     }
 
-    // Send admin notification
-    sendNewOrderAdminNotification(
-      orderNumber,
-      data.shippingAddress.fullName || "Customer",
-      data.grandTotal,
-      data.paymentMethod
-    ).catch((err) => console.error("Admin email failed:", err));
-
-    // Send order confirmation email to customer ONLY IF COD
-    if (data.paymentMethod === "cod" && data.shippingAddress?.email) {
-      sendOrderConfirmationEmail(
-        data.shippingAddress.email,
+    // Prepare email promises (using allSettled to ensure failure of one doesn't break the other)
+    const emailPromises = [
+      sendNewOrderAdminNotification(
         orderNumber,
-        data.shippingAddress.fullName,
+        data.shippingAddress.fullName || "Customer",
         data.grandTotal,
-        data.paymentMethod,
-        false
-      ).catch((err) => console.error("Email send failed:", err));
+        data.paymentMethod
+      ),
+    ];
+
+    if (data.paymentMethod === "cod" && data.shippingAddress?.email) {
+      emailPromises.push(
+        sendOrderConfirmationEmail(
+          data.shippingAddress.email,
+          orderNumber,
+          data.shippingAddress.fullName,
+          data.grandTotal,
+          data.paymentMethod,
+          false
+        )
+      );
     }
+
+    // Await emails to prevent the serverless function from terminating prematurely
+    await Promise.allSettled(emailPromises);
 
     return { success: true, orderId: order.id, orderNumber };
   } catch (e: unknown) {
