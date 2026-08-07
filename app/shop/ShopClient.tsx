@@ -16,9 +16,16 @@ export default function ShopClient({ products }: { products: Product[] }) {
   const itemsPerPage = 8; // Adjust based on grid layout, 8 looks good
 
   // Derive filter options dynamically
-  const categories = useMemo(() => Array.from(new Set(products.map(p => p.category).filter(Boolean))), [products]) as string[];
-  const sizes = useMemo(() => Array.from(new Set(products.flatMap(p => p.sizes || []).filter(Boolean))), [products]) as string[];
-  const colors = useMemo(() => Array.from(new Set(products.flatMap(p => (p.colors || []).map(c => c.name)).filter(Boolean))), [products]) as string[];
+  const categories = useMemo(() => Array.from(new Set(products.map(p => p.category?.trim()).filter(Boolean))), [products]) as string[];
+  const sizes = useMemo(() => Array.from(new Set(products.flatMap(p => p.sizes || []).map(s => s.trim()).filter(Boolean))), [products]) as string[];
+  const colors = useMemo(() => {
+    const rawColors = products.flatMap(p => (p.colors || []).map(c => c.name)).filter(Boolean);
+    const normalizedColors = rawColors.map(c => {
+      const trimmed = c.trim();
+      return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+    });
+    return Array.from(new Set(normalizedColors));
+  }, [products]) as string[];
 
   // Dropdown states
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -42,13 +49,17 @@ export default function ShopClient({ products }: { products: Product[] }) {
     let result = products;
 
     if (categoryFilter) {
-      result = result.filter(p => p.category === categoryFilter);
+      result = result.filter(p => p.category?.trim() === categoryFilter);
     }
     if (sizeFilter) {
-      result = result.filter(p => p.sizes?.includes(sizeFilter));
+      result = result.filter(p => p.sizes?.some(s => s.trim() === sizeFilter));
     }
     if (colorFilter) {
-      result = result.filter(p => p.colors?.some(c => c.name === colorFilter));
+      result = result.filter(p => p.colors?.some(c => {
+        const trimmed = c.name.trim();
+        const normalized = trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+        return normalized === colorFilter;
+      }));
     }
 
     if (sortBy === 'price_asc') {
@@ -96,7 +107,7 @@ export default function ShopClient({ products }: { products: Product[] }) {
               {categoryFilter ? `CATEGORY: ${categoryFilter.toUpperCase()}` : 'CATEGORY'} <span className="material-symbols-outlined text-[16px]">expand_more</span>
             </button>
             {openDropdown === 'category' && (
-              <div className="absolute top-full left-0 mt-4 w-48 bg-espresso border border-mocha rounded shadow-lg z-50 py-2">
+              <div className="absolute top-full left-0 mt-4 w-48 bg-espresso border border-mocha rounded shadow-lg z-50 py-2 max-h-60 overflow-y-auto">
                 <button onClick={() => { setCategoryFilter(""); setOpenDropdown(null); }} className={`w-full text-left px-4 py-2 text-sm transition-colors ${!categoryFilter ? 'text-ivory bg-mocha/50' : 'text-beige hover:bg-mocha hover:text-ivory'}`}>All Categories</button>
                 {categories.map(c => (
                   <button key={c} onClick={() => { setCategoryFilter(c); setOpenDropdown(null); }} className={`w-full text-left px-4 py-2 text-sm transition-colors ${categoryFilter === c ? 'text-ivory bg-mocha/50' : 'text-beige hover:bg-mocha hover:text-ivory'}`}>{c}</button>
@@ -114,7 +125,7 @@ export default function ShopClient({ products }: { products: Product[] }) {
               {sizeFilter ? `SIZE: ${sizeFilter}` : 'SIZE'} <span className="material-symbols-outlined text-[16px]">expand_more</span>
             </button>
             {openDropdown === 'size' && (
-              <div className="absolute top-full left-0 mt-4 w-48 bg-espresso border border-mocha rounded shadow-lg z-50 py-2">
+              <div className="absolute top-full left-0 mt-4 w-48 bg-espresso border border-mocha rounded shadow-lg z-50 py-2 max-h-60 overflow-y-auto">
                 <button onClick={() => { setSizeFilter(""); setOpenDropdown(null); }} className={`w-full text-left px-4 py-2 text-sm transition-colors ${!sizeFilter ? 'text-ivory bg-mocha/50' : 'text-beige hover:bg-mocha hover:text-ivory'}`}>All Sizes</button>
                 {sizes.map(s => (
                   <button key={s} onClick={() => { setSizeFilter(s); setOpenDropdown(null); }} className={`w-full text-left px-4 py-2 text-sm transition-colors ${sizeFilter === s ? 'text-ivory bg-mocha/50' : 'text-beige hover:bg-mocha hover:text-ivory'}`}>{s}</button>
@@ -132,7 +143,7 @@ export default function ShopClient({ products }: { products: Product[] }) {
               {colorFilter ? `COLOR: ${colorFilter.toUpperCase()}` : 'COLOR'} <span className="material-symbols-outlined text-[16px]">expand_more</span>
             </button>
             {openDropdown === 'color' && (
-              <div className="absolute top-full left-0 mt-4 w-48 bg-espresso border border-mocha rounded shadow-lg z-50 py-2">
+              <div className="absolute top-full left-0 mt-4 w-48 bg-espresso border border-mocha rounded shadow-lg z-50 py-2 max-h-60 overflow-y-auto">
                 <button onClick={() => { setColorFilter(""); setOpenDropdown(null); }} className={`w-full text-left px-4 py-2 text-sm transition-colors ${!colorFilter ? 'text-ivory bg-mocha/50' : 'text-beige hover:bg-mocha hover:text-ivory'}`}>All Colors</button>
                 {colors.map(c => (
                   <button key={c} onClick={() => { setColorFilter(c); setOpenDropdown(null); }} className={`w-full text-left px-4 py-2 text-sm transition-colors ${colorFilter === c ? 'text-ivory bg-mocha/50' : 'text-beige hover:bg-mocha hover:text-ivory'}`}>{c}</button>
