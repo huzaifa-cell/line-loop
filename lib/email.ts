@@ -74,7 +74,8 @@ export async function sendNewOrderAdminNotification(
     return { success: false, error: "API key not configured" };
   }
 
-  const adminEmail = process.env.ADMIN_EMAIL || "admin@lineloop.com";
+  const adminEmailEnv = process.env.ADMIN_EMAIL || "admin@lineloop.com";
+  const adminEmails = adminEmailEnv.split(",").map((email) => email.trim());
   const subject = `[Admin] New Order Received #${orderNumber}`;
   
   const paymentText = paymentMethod === "bank" ? "Bank Transfer (Needs Verification)" : "Cash on Delivery";
@@ -94,7 +95,7 @@ export async function sendNewOrderAdminNotification(
   try {
     const data = await resend.emails.send({
       from: "LINE & LOOP <orders@lineloop.com>",
-      to: adminEmail,
+      to: adminEmails,
       subject,
       html,
     });
