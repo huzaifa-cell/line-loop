@@ -185,9 +185,9 @@ export default function CheckoutPage() {
       </header>
 
       {/* Main Content */}
-      <main className="grid grid-cols-1 lg:grid-cols-10 gap-0 lg:gap-16 px-margin-mobile md:px-margin-desktop py-8 md:py-12 max-w-7xl mx-auto">
-        {/* Left Column - Form (60%) */}
-        <AnimatedWrapper delay={0.1} className="lg:col-span-6 space-y-8 md:space-y-12">
+      <main className="flex flex-col gap-8 md:gap-12 px-margin-mobile md:px-margin-desktop py-8 md:py-12 max-w-3xl mx-auto">
+        {/* Form Sections */}
+        <AnimatedWrapper delay={0.1} className="space-y-8 md:space-y-12">
           {/* Contact */}
           <section>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 md:mb-6">
@@ -325,107 +325,11 @@ export default function CheckoutPage() {
             </div>
           </section>
 
-          {/* Place Order Button */}
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            disabled={isSubmitting}
-            onClick={async () => {
-              setIsSubmitting(true);
-              setFormErrors({});
-              
-              const errors: Record<string, string> = {};
-              
-              // Email validation
-              if (!formData.email) {
-                errors.email = "Email is required";
-              } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-                errors.email = "Please enter a valid email address";
-              }
-              
-              // Phone validation — Pakistani format
-              const cleanPhone = formData.phone.replace(/[\s\-()]/g, "");
-              if (!cleanPhone) {
-                errors.phone = "Phone number is required";
-              } else if (!/^(\+92|0)?3\d{9}$/.test(cleanPhone)) {
-                errors.phone = "Enter a valid Pakistani number (e.g. 03001234567)";
-              }
-              
-              if (!formData.fullName || formData.fullName.length < 2) errors.fullName = "Full name is required";
-              if (!formData.address1 || formData.address1.length < 3) errors.address1 = "Address is required";
-              if (!formData.city) errors.city = "City is required";
-              if (!formData.province) errors.province = "Province is required";
-              if (!formData.postalCode || formData.postalCode.length < 4) errors.postalCode = "Valid postal code is required";
-
-              if (Object.keys(errors).length > 0) {
-                setFormErrors(errors);
-                toast("Please fix the highlighted fields before continuing.", "error");
-                setIsSubmitting(false);
-                return;
-              }
-
-              if (paymentMethod === "bank" && !paymentProofFile) {
-                setPaymentProofError("Please upload a payment screenshot to proceed.");
-                setIsSubmitting(false);
-                return;
-              }
-
-              try {
-                const result = await createStorefrontOrder({
-                  items: lines.map(line => ({
-                    product: { id: line.id, name: line.name, price: line.price, image: line.image, slug: "", description: "", originalPrice: 0, category: "", status: "active", createdAt: "" },
-                    quantity: line.qty,
-                    selectedSize: line.size,
-                    selectedColor: line.colour
-                  })),
-                  shippingMethod,
-                  paymentMethod,
-                  discountCode: discountResult?.valid ? discountCode : "",
-                  discountAmount,
-                  discountId: discountResult?.discountId || null,
-                  subtotal,
-                  shippingCost,
-                  grandTotal,
-                  shippingAddress: {
-                    fullName: formData.fullName,
-                    email: formData.email,
-                    phone: formData.phone,
-                    addressLine1: formData.address1,
-                    addressLine2: formData.address2,
-                    city: formData.city,
-                    province: formData.province,
-                    postalCode: formData.postalCode,
-                    country: "Pakistan"
-                  }
-                });
-                
-                if (paymentMethod === "bank" && paymentProofFile) {
-                  const proofFormData = new FormData();
-                  proofFormData.append("file", paymentProofFile);
-                  const uploadRes = await uploadPaymentProof(result.orderNumber, proofFormData);
-                  if (!uploadRes.success) {
-                    console.error("Proof upload failed:", uploadRes.error);
-                    toast("Order created, but payment proof upload failed. Please contact support.", "error");
-                  }
-                }
-                
-                clear();
-                setOrderPlaced(true);
-              } catch (err) {
-                const message = err instanceof Error ? err.message : "Failed to place order. Please try again.";
-                toast(message, "error");
-              } finally {
-                setIsSubmitting(false);
-              }
-            }}
-            className="w-full bg-brand-red text-white py-4 md:py-5 font-label-caps text-label-caps uppercase tracking-[0.2em] rounded-md hover:bg-espresso hover:text-white transition-all duration-500 shadow-lg shadow-brand-red/20 cursor-pointer disabled:opacity-50"
-          >
-            {isSubmitting ? "Processing..." : "Place Order"}
-          </motion.button>
         </AnimatedWrapper>
 
-        {/* Right Column - Order Summary (40%) */}
-        <AnimatedWrapper delay={0.3} className="lg:col-span-4 mt-8 lg:mt-0">
-          <div className="lg:sticky lg:top-8 border border-espresso/10 rounded-md p-6 md:p-8 bg-espresso/5">
+        {/* Order Summary */}
+        <AnimatedWrapper delay={0.2}>
+          <div className="border border-espresso/10 rounded-md p-6 md:p-8 bg-espresso/5">
             <h2 className="font-headline-sm text-headline-sm text-espresso uppercase tracking-[0.1em] mb-6 md:mb-8">Order Summary</h2>
 
             {/* Items */}
@@ -525,6 +429,105 @@ export default function CheckoutPage() {
               </div>
             </div>
           </div>
+        </AnimatedWrapper>
+
+        {/* Place Order Button */}
+        <AnimatedWrapper delay={0.3}>
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            disabled={isSubmitting}
+            onClick={async () => {
+              setIsSubmitting(true);
+              setFormErrors({});
+              
+              const errors: Record<string, string> = {};
+              
+              // Email validation
+              if (!formData.email) {
+                errors.email = "Email is required";
+              } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+                errors.email = "Please enter a valid email address";
+              }
+              
+              // Phone validation — Pakistani format
+              const cleanPhone = formData.phone.replace(/[\s\-()]/g, "");
+              if (!cleanPhone) {
+                errors.phone = "Phone number is required";
+              } else if (!/^(\+92|0)?3\d{9}$/.test(cleanPhone)) {
+                errors.phone = "Enter a valid Pakistani number (e.g. 03001234567)";
+              }
+              
+              if (!formData.fullName || formData.fullName.length < 2) errors.fullName = "Full name is required";
+              if (!formData.address1 || formData.address1.length < 3) errors.address1 = "Address is required";
+              if (!formData.city) errors.city = "City is required";
+              if (!formData.province) errors.province = "Province is required";
+              if (!formData.postalCode || formData.postalCode.length < 4) errors.postalCode = "Valid postal code is required";
+
+              if (Object.keys(errors).length > 0) {
+                setFormErrors(errors);
+                toast("Please fix the highlighted fields before continuing.", "error");
+                setIsSubmitting(false);
+                return;
+              }
+
+              if (paymentMethod === "bank" && !paymentProofFile) {
+                setPaymentProofError("Please upload a payment screenshot to proceed.");
+                setIsSubmitting(false);
+                return;
+              }
+
+              try {
+                const result = await createStorefrontOrder({
+                  items: lines.map(line => ({
+                    product: { id: line.id, name: line.name, price: line.price, image: line.image, slug: "", description: "", originalPrice: 0, category: "", status: "active", createdAt: "" },
+                    quantity: line.qty,
+                    selectedSize: line.size,
+                    selectedColor: line.colour
+                  })),
+                  shippingMethod,
+                  paymentMethod,
+                  discountCode: discountResult?.valid ? discountCode : "",
+                  discountAmount,
+                  discountId: discountResult?.discountId || null,
+                  subtotal,
+                  shippingCost,
+                  grandTotal,
+                  shippingAddress: {
+                    fullName: formData.fullName,
+                    email: formData.email,
+                    phone: formData.phone,
+                    addressLine1: formData.address1,
+                    addressLine2: formData.address2,
+                    city: formData.city,
+                    province: formData.province,
+                    postalCode: formData.postalCode,
+                    country: "Pakistan"
+                  }
+                });
+                
+                if (paymentMethod === "bank" && paymentProofFile) {
+                  const proofFormData = new FormData();
+                  proofFormData.append("file", paymentProofFile);
+                  const uploadRes = await uploadPaymentProof(result.orderNumber, proofFormData);
+                  if (!uploadRes.success) {
+                    console.error("Proof upload failed:", uploadRes.error);
+                    toast("Order created, but payment proof upload failed. Please contact support.", "error");
+                  }
+                }
+                
+                clear();
+                setOrderPlaced(true);
+              } catch (err) {
+                const message = err instanceof Error ? err.message : "Failed to place order. Please try again.";
+                toast(message, "error");
+              } finally {
+                setIsSubmitting(false);
+              }
+            }}
+            className="w-full bg-brand-red text-white py-4 md:py-5 font-label-caps text-label-caps uppercase tracking-[0.2em] rounded-md hover:bg-espresso hover:text-white transition-all duration-500 shadow-lg shadow-brand-red/20 cursor-pointer disabled:opacity-50"
+          >
+            {isSubmitting ? "Processing..." : "Place Order"}
+          </motion.button>
         </AnimatedWrapper>
       </main>
 
