@@ -28,7 +28,7 @@ export async function getPendingBankTransfers() {
   if (error) {
     return [];
   }
-  
+
   return data;
 }
 
@@ -38,7 +38,7 @@ export async function processBankTransfer(orderId: string, action: 'approve' | '
   if (role !== "admin" && role !== "staff") throw new Error("Unauthorized");
 
   const supabase = await createSupabaseServerClient();
-  
+
   const { data: profile } = await supabase
     .from('profiles')
     .select('id')
@@ -56,8 +56,8 @@ export async function processBankTransfer(orderId: string, action: 'approve' | '
 
   const { error } = await supabase
     .from('orders')
-    .update({ 
-      payment_status: paymentStatus, 
+    .update({
+      payment_status: paymentStatus,
       status: orderStatus,
       verified_by: profile?.id,
       verified_at: new Date().toISOString(),
@@ -66,7 +66,7 @@ export async function processBankTransfer(orderId: string, action: 'approve' | '
     .eq('id', orderId);
 
   if (error) throw new Error(error.message);
-  
+
   if (action === 'approve' && order?.guest_email) {
     const customerName = (order.shipping_address as any)?.fullName || "Customer";
     sendOrderConfirmationEmail(
@@ -78,7 +78,7 @@ export async function processBankTransfer(orderId: string, action: 'approve' | '
       true
     ).catch(console.error);
   }
-  
+
   // Log activity
   await supabase
     .from('activity_log')
@@ -89,7 +89,7 @@ export async function processBankTransfer(orderId: string, action: 'approve' | '
       entity_id: orderId,
       metadata: { payment_status: paymentStatus }
     });
-    
+
   if (action === 'reject') {
     // If rejected, RESTORE the inventory that was reserved at checkout
     const { data: items } = await supabase.from('order_items').select('*').eq('order_id', orderId);

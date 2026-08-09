@@ -24,7 +24,7 @@ export async function getAdminOrders() {
   if (error) {
     return [];
   }
-  
+
   return data;
 }
 
@@ -34,14 +34,14 @@ export async function updateOrderStatus(orderId: string, newStatus: string) {
   if (role !== "admin" && role !== "staff") throw new Error("Unauthorized");
 
   const supabase = await createSupabaseServerClient();
-  
+
   const { error } = await supabase
     .from('orders')
     .update({ status: newStatus, updated_at: new Date().toISOString() })
     .eq('id', orderId);
 
   if (error) throw new Error(error.message);
-  
+
   // Log status change
   const { data: profile } = await supabase
     .from('profiles')
@@ -56,7 +56,7 @@ export async function updateOrderStatus(orderId: string, newStatus: string) {
       status: newStatus,
       changed_by: profile?.id
     });
-    
+
   await supabase
     .from('activity_log')
     .insert({

@@ -4,7 +4,8 @@ import { useCart } from "@/lib/cart";
 import { AnimatedWrapper } from "@/components/AnimatedWrapper";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
 import { motion } from "framer-motion";
 import { createStorefrontOrder } from "./actions";
 import { uploadPaymentProof } from "./upload-proof/actions";
@@ -56,6 +57,18 @@ export default function CheckoutPage() {
     postalCode: ""
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const { isLoaded, isSignedIn, user } = useUser();
+
+  useEffect(() => {
+    if (isLoaded && isSignedIn && user) {
+      setFormData(prev => ({
+        ...prev,
+        email: prev.email || user.primaryEmailAddress?.emailAddress || "",
+        fullName: prev.fullName || user.fullName || "",
+      }));
+    }
+  }, [isLoaded, isSignedIn, user]);
 
   const shippingCost = shipping;
   const discountAmount = discountResult?.valid ? discountResult.discount : 0;

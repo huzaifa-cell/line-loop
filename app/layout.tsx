@@ -77,10 +77,6 @@ export const metadata: Metadata = {
       "Handmade ladies' garments — cut, dyed and stitched by hand in Pakistan. Made slowly, in small batches.",
     images: ["/lineloop-logo.png"],
   },
-  // Get your verification code from: https://search.google.com/search-console
-  verification: {
-    google: "YOUR_GOOGLE_VERIFICATION_CODE", // Replace this with your actual code
-  },
 };
 
 export const viewport: Viewport = {
