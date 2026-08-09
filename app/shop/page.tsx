@@ -14,11 +14,12 @@ export default async function ShopPage() {
   
   const headline = categoryBanner?.headline || "THE COLLECTION";
   const subtext = categoryBanner?.subtext || "Artisanal garments crafted slowly. Designed for the modern feminine silhouette. Each piece is a testament to heritage and meticulous design.";
-  const hasImage = !!categoryBanner?.storage_path;
-  const imageUrl = hasImage
-    ? (categoryBanner.storage_path.startsWith("http")
-        ? categoryBanner.storage_path
-        : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${categoryBanner.storage_path}`)
+  const storagePath = categoryBanner?.storage_path;
+  const hasImage = !!storagePath;
+  const imageUrl = storagePath
+    ? (storagePath.startsWith("http")
+        ? storagePath
+        : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${storagePath}`)
     : "";
 
   return (
