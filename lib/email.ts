@@ -80,7 +80,7 @@ export async function sendNewOrderAdminNotification(
   }
 
   const adminEmailEnv = process.env.ADMIN_EMAIL || "admin@lineloop.com";
-  const adminEmails = adminEmailEnv.split(",").map((email) => email.trim());
+  const adminEmails = adminEmailEnv.replace(/["']/g, "").split(",").map((email) => email.trim()).filter(Boolean);
   const subject = `[Admin] New Order Received #${orderNumber}`;
   
   const paymentText = paymentMethod === "bank" ? "Bank Transfer (Needs Verification)" : "Cash on Delivery";
@@ -97,22 +97,28 @@ export async function sendNewOrderAdminNotification(
     </div>
   `;
 
-  try {
-    const response = await resend.emails.send({
-      from: "LINE & LOOP <orders@lineandloop.shop>",
-      to: adminEmails,
-      subject,
-      html,
-    });
+  const results = await Promise.all(
+    adminEmails.map(async (email) => {
+      try {
+        const response = await resend.emails.send({
+          from: "LINE & LOOP <orders@lineandloop.shop>",
+          to: email,
+          subject,
+          html,
+        });
+        
+        if (response.error) {
+          console.error(`Resend API Error (Admin Email to ${email}):`, response.error);
+          return { email, success: false, error: response.error };
+        }
+        return { email, success: true, data: response.data };
+      } catch (error) {
+        console.error(`Failed to send admin email to ${email}:`, error);
+        return { email, success: false, error };
+      }
+    })
+  );
 
-    if (response.error) {
-      console.error("Resend API Error (Admin Email):", response.error);
-      return { success: false, error: response.error };
-    }
-
-    return { success: true, data: response.data };
-  } catch (error) {
-    console.error("Failed to send admin email:", error);
-    return { success: false, error };
-  }
+  const someFailed = results.some(r => !r.success);
+  return { success: !someFailed, results };
 }

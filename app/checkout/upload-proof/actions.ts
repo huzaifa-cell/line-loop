@@ -24,21 +24,11 @@ export async function uploadPaymentProof(orderNumber: string, formData: FormData
     return { success: false, error: "Invalid order number or payment method" };
   }
 
-  // 2. Generate hash for duplicate detection
+  // 2. We still generate the buffer for uploading, and optionally save the hash (though we won't block duplicates anymore).
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
   const hash = crypto.createHash("sha256").update(buffer).digest("hex");
 
-  // Check if hash already exists
-  const { data: existingHash } = await supabase
-    .from("orders")
-    .select("id")
-    .eq("bank_transfer_screenshot_hash", hash)
-    .single();
-
-  if (existingHash) {
-    return { success: false, error: "This screenshot has already been used for another order" };
-  }
 
   // 3. Upload to Supabase Storage
   const ext = file.name.split(".").pop();

@@ -30,7 +30,7 @@ function StarRating({ rating, setRating, interactive = false }: { rating: number
   );
 }
 
-function ReviewsSection({ productId, reviews }: { productId: string, reviews: any[] }) {
+function ReviewsSection({ productId, reviews, onMediaClick }: { productId: string, reviews: any[], onMediaClick: (media: { url: string, isVideo: boolean }) => void }) {
   const [rating, setRating] = useState(5);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -106,11 +106,16 @@ function ReviewsSection({ productId, reviews }: { productId: string, reviews: an
                 {parsedBody.media && parsedBody.media.length > 0 && (
                   <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
                     {parsedBody.media.map((url, i) => {
-                      const isVideo = url.toLowerCase().match(/\.(mp4|webm|mov)$/);
+                      const isVideo = !!url.toLowerCase().match(/\.(mp4|webm|mov)$/);
                       return isVideo ? (
-                        <video key={i} src={url} controls className="h-24 w-24 object-cover rounded-sm shrink-0" />
+                        <div key={i} className="relative cursor-pointer shrink-0 h-24 w-24 group" onClick={() => onMediaClick({ url, isVideo })}>
+                          <video src={url} className="h-full w-full object-cover rounded-sm" />
+                          <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="material-symbols-outlined text-white">play_circle</span>
+                          </div>
+                        </div>
                       ) : (
-                        <img key={i} src={url} alt="Review media" className="h-24 w-24 object-cover rounded-sm shrink-0" />
+                        <img key={i} src={url} alt="Review media" className="h-24 w-24 object-cover rounded-sm shrink-0 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => onMediaClick({ url, isVideo })} />
                       );
                     })}
                   </div>
@@ -232,6 +237,7 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
   const [selectedColor, setSelectedColor] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+  const [selectedMedia, setSelectedMedia] = useState<{ url: string, isVideo: boolean } | null>(null);
 
   const gallery = product.gallery || [product.image];
   const isVideo = (url: string) => {
@@ -519,7 +525,7 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
               Free nationwide shipping on orders over Rs. 10,000. Returns accepted within 7 days of delivery for unworn items with tags attached.
             </ProductAccordion>
             <ProductAccordion title="Reviews">
-              <ReviewsSection productId={product.id} reviews={reviews} />
+              <ReviewsSection productId={product.id} reviews={reviews} onMediaClick={setSelectedMedia} />
             </ProductAccordion>
           </div>
         </AnimatedWrapper>
@@ -587,12 +593,49 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
                   close
                 </button>
               </div>
-              <div className="p-4 overflow-auto flex-grow flex items-center justify-center bg-white">
+              <div className="p-4 overflow-auto flex-grow bg-white">
                 <img 
                   src={product.size_guide_url.startsWith('http') ? product.size_guide_url : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${product.size_guide_url}`} 
                   alt="Size Guide" 
-                  className="max-w-full max-h-full object-contain"
+                  className="w-full h-auto block mx-auto"
                 />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Review Media Modal */}
+      <AnimatePresence>
+        {selectedMedia && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
+            onClick={() => setSelectedMedia(null)}
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-5xl w-full max-h-[90vh] bg-black/50 rounded-md overflow-hidden flex flex-col"
+            >
+              <div className="absolute top-4 right-4 z-10">
+                <button 
+                  onClick={() => setSelectedMedia(null)}
+                  className="w-10 h-10 bg-black/50 hover:bg-black/80 text-white rounded-full flex items-center justify-center backdrop-blur-sm transition-colors"
+                >
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+              <div className="overflow-auto flex-grow flex items-center justify-center p-4">
+                {selectedMedia.isVideo ? (
+                  <video src={selectedMedia.url} controls autoPlay className="max-w-full max-h-[85vh] object-contain rounded-md shadow-2xl" />
+                ) : (
+                  <img src={selectedMedia.url} alt="Review full size" className="max-w-full max-h-[85vh] object-contain rounded-md shadow-2xl" />
+                )}
               </div>
             </motion.div>
           </motion.div>

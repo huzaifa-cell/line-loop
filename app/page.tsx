@@ -5,9 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default async function Home() {
-  const [products, heroBanner] = await Promise.all([
+  const [products, heroBanner, cat1Banner, cat2Banner, craftBanner] = await Promise.all([
     getFeaturedProducts(4),
     getLiveBanner("homepage_hero"),
+    getLiveBanner("homepage_category_1"),
+    getLiveBanner("homepage_category_2"),
+    getLiveBanner("homepage_craft"),
   ]);
   const isVideo = (url: string) => {
     if (!url) return false;
@@ -25,6 +28,12 @@ export default async function Home() {
         ? heroBanner.storage_path
         : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${heroBanner.storage_path}`)
     : "https://images.unsplash.com/photo-1597983073750-16f5ded1321f?auto=format&fit=crop&q=80&w=2560";
+
+  const getImageUrl = (path?: string | null, fallback = "") => {
+    if (!path) return fallback;
+    if (path.startsWith("http")) return path;
+    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${path}`;
+  };
 
   // JSON-LD structured data for Google
   const jsonLd = {
@@ -168,10 +177,10 @@ export default async function Home() {
       {/* Shop by Category */}
       <section className="grid grid-cols-1 md:grid-cols-2">
         <AnimatedWrapper delay={0.1} className="relative group overflow-hidden h-[50vh] md:h-[70vh]">
-          <Link href="/shop" className="absolute inset-0 flex items-center justify-center">
+          <Link href={cat1Banner?.cta_url || "/shop"} className="absolute inset-0 flex items-center justify-center">
             <Image
-              src="https://images.unsplash.com/photo-1614098097306-c67b8020c04e?auto=format&fit=crop&q=80&w=1200"
-              alt="Kurtis & Tops category"
+              src={getImageUrl(cat1Banner?.storage_path, "https://images.unsplash.com/photo-1614098097306-c67b8020c04e?auto=format&fit=crop&q=80&w=1200")}
+              alt={cat1Banner?.headline || "Kurtis & Tops category"}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               quality={70}
@@ -179,17 +188,17 @@ export default async function Home() {
             />
             <div className="absolute inset-0 bg-espresso/40 group-hover:bg-espresso/50 transition-colors duration-500 z-10"></div>
             <div className="relative text-center px-4 z-20">
-              <h3 className="font-display-lg text-display-lg-mobile md:text-headline-md text-ivory tracking-widest mb-6 font-normal">Kurtis &amp; Tops</h3>
-              <span className="inline-block border border-ivory text-ivory px-8 py-3 font-button text-button uppercase group-hover:bg-ivory group-hover:text-espresso transition-all duration-500 rounded-md backdrop-blur-sm cursor-pointer">Shop Category</span>
+              <h3 className="font-display-lg text-display-lg-mobile md:text-headline-md text-ivory tracking-widest mb-6 font-normal">{cat1Banner?.headline || "Kurtis & Tops"}</h3>
+              <span className="inline-block border border-ivory text-ivory px-8 py-3 font-button text-button uppercase group-hover:bg-ivory group-hover:text-espresso transition-all duration-500 rounded-md backdrop-blur-sm cursor-pointer">{cat1Banner?.cta_label || "Shop Category"}</span>
             </div>
           </Link>
         </AnimatedWrapper>
         
         <AnimatedWrapper delay={0.2} className="relative group overflow-hidden h-[50vh] md:h-[70vh] md:border-l border-mocha">
-          <Link href="/shop" className="absolute inset-0 flex items-center justify-center">
+          <Link href={cat2Banner?.cta_url || "/shop"} className="absolute inset-0 flex items-center justify-center">
             <Image
-              src="https://images.unsplash.com/photo-1631005436794-ccaa79de61ba?auto=format&fit=crop&q=80&w=1200"
-              alt="Dresses & Skirts category"
+              src={getImageUrl(cat2Banner?.storage_path, "https://images.unsplash.com/photo-1631005436794-ccaa79de61ba?auto=format&fit=crop&q=80&w=1200")}
+              alt={cat2Banner?.headline || "Dresses & Skirts category"}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               quality={70}
@@ -197,8 +206,8 @@ export default async function Home() {
             />
             <div className="absolute inset-0 bg-espresso/40 group-hover:bg-espresso/50 transition-colors duration-500 z-10"></div>
             <div className="relative text-center px-4 z-20">
-              <h3 className="font-display-lg text-display-lg-mobile md:text-headline-md text-ivory tracking-widest mb-6 font-normal">Dresses &amp; Skirts</h3>
-              <span className="inline-block border border-ivory text-ivory px-8 py-3 font-button text-button uppercase group-hover:bg-ivory group-hover:text-espresso transition-all duration-500 rounded-md backdrop-blur-sm cursor-pointer">Shop Category</span>
+              <h3 className="font-display-lg text-display-lg-mobile md:text-headline-md text-ivory tracking-widest mb-6 font-normal">{cat2Banner?.headline || "Dresses & Skirts"}</h3>
+              <span className="inline-block border border-ivory text-ivory px-8 py-3 font-button text-button uppercase group-hover:bg-ivory group-hover:text-espresso transition-all duration-500 rounded-md backdrop-blur-sm cursor-pointer">{cat2Banner?.cta_label || "Shop Category"}</span>
             </div>
           </Link>
         </AnimatedWrapper>
@@ -209,8 +218,8 @@ export default async function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter items-center max-w-7xl mx-auto">
           <AnimatedWrapper delay={0.2} className="relative aspect-[4/5] rounded-lg overflow-hidden shadow-2xl">
             <Image 
-              src="https://images.unsplash.com/photo-1631005436794-ccaa79de61ba?auto=format&fit=crop&q=80&w=1200"
-              alt="Artisan hands stitching"
+              src={getImageUrl(craftBanner?.storage_path, "https://images.unsplash.com/photo-1631005436794-ccaa79de61ba?auto=format&fit=crop&q=80&w=1200")}
+              alt="Artisan craft"
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               quality={75}
@@ -219,15 +228,15 @@ export default async function Home() {
           </AnimatedWrapper>
           
           <AnimatedWrapper delay={0.4} className="space-y-8 md:pl-12">
-            <span className="font-label-caps text-label-caps text-brand-red uppercase tracking-[0.2em]">Our Heritage</span>
+            <span className="font-label-caps text-label-caps text-brand-red uppercase tracking-[0.2em]">{craftBanner?.subtext || "Our Heritage"}</span>
             <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-ivory tracking-tight leading-tight font-normal">
-              Artisanal mastery, preserved in every thread.
+              {craftBanner?.headline || "Artisanal mastery, preserved in every thread."}
             </h2>
             <p className="font-body-lg text-body-lg text-beige font-light leading-relaxed">
               We reject the velocity of mass production. At LINE&LOOP, every garment is an investment of time, stitched by artisans who have inherited techniques passed down through generations. Our process is intentional, respecting the rhythm of the maker and the grace of the wearer.
             </p>
-            <Link href="/about" className="inline-block bg-ivory text-espresso px-8 md:px-10 py-4 font-button text-button uppercase rounded-lg hover:bg-brand-red hover:text-white transition-all duration-500 shadow-xl text-center">
-              Discover Our Process
+            <Link href={craftBanner?.cta_url || "/about"} className="inline-block bg-ivory text-espresso px-8 md:px-10 py-4 font-button text-button uppercase rounded-lg hover:bg-brand-red hover:text-white transition-all duration-500 shadow-xl text-center">
+              {craftBanner?.cta_label || "Discover Our Process"}
             </Link>
           </AnimatedWrapper>
         </div>

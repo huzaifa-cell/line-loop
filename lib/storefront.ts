@@ -66,6 +66,7 @@ function mapToUIProduct(row: any): Product {
     gallery: gallery.length > 0 ? gallery : [primaryImage],
     colors: Array.from(colorMap.values()),
     sizes: Array.from(sizes),
+    size_guide_url: row.size_guide_url,
     totalStock,
     variants: row.product_variants ? row.product_variants.map((v: any) => {
       let colorName = v.color || "Default";
@@ -96,6 +97,7 @@ export async function getStorefrontProducts(): Promise<Product[]> {
       description,
       base_price,
       compare_at_price,
+      size_guide_url,
       categories ( name ),
       product_images ( storage_path, sort_order ),
       product_variants ( color, size, stock_quantity )
@@ -124,6 +126,7 @@ export async function getStorefrontProduct(idOrSlug: string): Promise<Product | 
       description,
       base_price,
       compare_at_price,
+      size_guide_url,
       categories ( name ),
       product_images ( storage_path, sort_order ),
       product_variants ( id, color, size, stock_quantity )
@@ -152,6 +155,7 @@ export async function getFeaturedProducts(limit = 4): Promise<Product[]> {
       description,
       base_price,
       compare_at_price,
+      size_guide_url,
       categories ( name ),
       product_images ( storage_path, sort_order ),
       product_variants ( color, size, stock_quantity )

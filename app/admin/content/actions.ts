@@ -3,6 +3,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import crypto from "crypto";
 
 export async function getBanners() {
   const supabase = await createSupabaseServerClient();
@@ -32,6 +33,28 @@ export async function saveBanner(formData: FormData) {
   const startsAt = formData.get("startsAt") as string || null;
   const endsAt = formData.get("endsAt") as string || null;
 
+  const imageFile = formData.get("image") as File | null;
+  let storagePath = formData.get("existingStoragePath") as string | null;
+
+  if (imageFile && imageFile.size > 0) {
+    const arrayBuffer = await imageFile.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const ext = imageFile.name.split(".").pop() || "jpg";
+    const fileName = `banners/${crypto.randomUUID()}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("product-images")
+      .upload(fileName, buffer, {
+        contentType: imageFile.type,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      return { success: false, error: "Failed to upload image: " + uploadError.message };
+    }
+    storagePath = fileName;
+  }
+
   const bannerData = {
     placement,
     headline,
@@ -41,6 +64,7 @@ export async function saveBanner(formData: FormData) {
     is_live: isLive,
     starts_at: startsAt || null,
     ends_at: endsAt || null,
+    storage_path: storagePath,
     updated_at: new Date().toISOString(),
   };
 

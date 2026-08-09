@@ -8,6 +8,9 @@ const PLACEMENTS = [
   { value: 'homepage_hero', label: 'Homepage Hero' },
   { value: 'announcement_bar', label: 'Announcement Bar' },
   { value: 'category_banner', label: 'Category Banner' },
+  { value: 'homepage_category_1', label: 'Homepage Category Left' },
+  { value: 'homepage_category_2', label: 'Homepage Category Right' },
+  { value: 'homepage_craft', label: 'Homepage The Craft Section' },
 ];
 
 export function BannerForm({ banner, onClose }: { banner?: any; onClose: () => void }) {
@@ -88,6 +91,16 @@ export function BannerForm({ banner, onClose }: { banner?: any; onClose: () => v
             <label className="block text-xs font-bold uppercase tracking-widest mb-1">Ends At</label>
             <input name="endsAt" type="datetime-local" defaultValue={banner?.ends_at?.slice(0, 16) || ''} className="w-full bg-transparent border border-ink-black px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink-black rounded-none" />
           </div>
+        </div>
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-widest mb-1">Background Image</label>
+          {banner?.storage_path && (
+            <div className="mb-2 text-xs text-ink-black/70">
+              Current image: <a href={banner.storage_path.startsWith('http') ? banner.storage_path : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${banner.storage_path}`} target="_blank" rel="noreferrer" className="underline font-bold text-ink-black">View Image</a>
+            </div>
+          )}
+          <input type="hidden" name="existingStoragePath" value={banner?.storage_path || ''} />
+          <input name="image" type="file" accept="image/*" className="w-full bg-transparent border border-ink-black px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ink-black rounded-none" />
         </div>
         <div className="flex justify-end">
           <button type="submit" disabled={loading} className="bg-ink-black text-ivory-mist px-6 py-2 text-xs uppercase tracking-widest font-bold hover:bg-ink-black/80 transition-colors disabled:opacity-50">
