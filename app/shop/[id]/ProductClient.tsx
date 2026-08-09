@@ -275,32 +275,11 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
       </nav>
 
       {/* Product Hero — Split Layout */}
-      <section className="px-margin-mobile md:px-margin-desktop grid grid-cols-1 lg:grid-cols-10 gap-6 md:gap-12 mb-12 md:mb-24">
-        {/* Left: Gallery (60%) */}
-        <div className="lg:col-span-6 flex flex-col lg:flex-row gap-4">
-          {/* Thumbnails */}
-          <div className="order-2 lg:order-1 flex lg:flex-col gap-3 overflow-x-auto lg:w-20 shrink-0 pb-2 lg:pb-0">
-            {gallery.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => setSelectedImage(i)}
-                className={`w-20 h-20 shrink-0 cursor-pointer overflow-hidden transition-all duration-300 rounded-sm ${
-                  selectedImage === i
-                    ? "border-2 border-ivory opacity-100"
-                    : "border border-white/10 opacity-50 hover:opacity-80"
-                }`}
-              >
-                {isVideo(img) ? (
-                  <video src={img} className="w-full h-full object-cover" muted loop playsInline autoPlay />
-                ) : (
-                  <Image src={img} alt={`${product.name} view ${i + 1}`} width={80} height={80} className="w-full h-full object-cover" />
-                )}
-              </button>
-            ))}
-          </div>
-
+      <section className="px-margin-mobile md:px-margin-desktop grid grid-cols-1 lg:grid-cols-[1fr_10fr_8fr] gap-6 md:gap-12 mb-12 md:mb-24 lg:items-start">
+        {/* Left: Gallery (~50% width, ~5% offset on left) */}
+        <div className="lg:col-start-2 flex flex-col gap-4">
           {/* Main Image */}
-          <AnimatedWrapper delay={0.1} className="order-1 lg:order-2 flex-grow aspect-[3/4] overflow-hidden relative rounded-md group">
+          <AnimatedWrapper delay={0.1} className="w-full aspect-[3/4] overflow-hidden relative rounded-md group bg-black/5">
             <AnimatePresence mode="wait">
               <motion.div
                 key={selectedImage}
@@ -308,7 +287,18 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.4 }}
-                className="absolute inset-0"
+                className={`absolute inset-0 ${gallery.length > 1 ? "cursor-grab active:cursor-grabbing" : ""}`}
+                drag={gallery.length > 1 ? "x" : false}
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.2}
+                onDragEnd={(e, { offset, velocity }) => {
+                  const swipe = Math.abs(offset.x) * velocity.x;
+                  if (swipe < -5000) {
+                    setSelectedImage((prev) => (prev === gallery.length - 1 ? 0 : prev + 1));
+                  } else if (swipe > 5000) {
+                    setSelectedImage((prev) => (prev === 0 ? gallery.length - 1 : prev - 1));
+                  }
+                }}
               >
                 {isVideo(gallery[selectedImage]) ? (
                   <video
@@ -367,10 +357,33 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
               </>
             )}
           </AnimatedWrapper>
+          
+          {/* Thumbnails */}
+          {gallery.length > 0 && (
+            <div className="flex overflow-x-auto gap-3 mt-2 pb-2">
+              {gallery.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedImage(i)}
+                  className={`relative h-20 w-20 md:h-24 md:w-24 shrink-0 cursor-pointer overflow-hidden transition-all duration-300 rounded-sm ${
+                    selectedImage === i
+                      ? "border-2 border-ivory opacity-100"
+                      : "border border-white/10 opacity-50 hover:opacity-100"
+                  }`}
+                >
+                  {isVideo(img) ? (
+                    <video src={img} className="w-full h-full object-cover" muted loop playsInline />
+                  ) : (
+                    <Image src={img} alt={`${product.name} view ${i + 1}`} fill sizes="20vw" className="object-cover" />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Right: Product Info (40%) */}
-        <AnimatedWrapper delay={0.3} className="lg:col-span-4 flex flex-col">
+        {/* Right: Product Info (~40%) */}
+        <AnimatedWrapper delay={0.3} className="flex flex-col lg:sticky lg:top-24 lg:h-fit">
           {/* Category */}
           <span className="font-label-caps text-label-caps text-brand-red uppercase tracking-[0.2em] mb-2">
             {product.category || "Collection"}
