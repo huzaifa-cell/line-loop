@@ -253,7 +253,7 @@ export async function createStorefrontOrder(rawData: unknown) {
     }
 
     // Prepare email promises (using allSettled to ensure failure of one doesn't break the other)
-    const emailPromises = [
+    const emailPromises: Promise<unknown>[] = [
       sendNewOrderAdminNotification(
         orderNumber,
         data.shippingAddress.fullName || "Customer",
