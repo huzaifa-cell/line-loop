@@ -3,6 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 
 const baseUrl = "https://lineandloop.shop";
 
+export const revalidate = 3600; // Revalidate every hour
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [

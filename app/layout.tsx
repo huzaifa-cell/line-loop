@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     "women clothing Pakistan",
   ],
   alternates: {
-    canonical: "https://lineandloop.shop",
+    canonical: "/",
   },
   openGraph: {
     title: "LINE&LOOP — Handmade Ladies' Garments, Made Slowly",
