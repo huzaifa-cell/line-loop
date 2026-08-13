@@ -50,6 +50,14 @@ export const metadata: Metadata = {
     "hand stitched",
     "women clothing Pakistan",
   ],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
   alternates: {
     canonical: "/",
   },
