@@ -234,7 +234,9 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
   const { add } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
-  const [selectedColor, setSelectedColor] = useState(0);
+  const [selectedColor, setSelectedColor] = useState<number | null>(
+    (product.colors && product.colors.length > 1) ? null : 0
+  );
   const [quantity, setQuantity] = useState(1);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<{ url: string, isVideo: boolean } | null>(null);
@@ -249,7 +251,7 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
   const sizes = product.sizes || ["S", "M", "L"];
 
   const selectedVariant = product.variants?.find(
-    (v) => v.size === selectedSize && v.color === colors[selectedColor].name
+    (v) => v.size === selectedSize && selectedColor !== null && v.color === colors[selectedColor].name
   );
   
   const isOutOfStock = product.totalStock === 0 
@@ -259,7 +261,7 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
         : false);
 
   const handleAddToCart = () => {
-    if (!selectedSize) return;
+    if (!selectedSize || selectedColor === null || quantity < 1) return;
     add(product, selectedSize, colors[selectedColor].name, quantity);
   };
 
@@ -420,7 +422,7 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
           {/* Color Selector */}
           <div className="mb-8">
             <span className="font-label-caps text-label-caps uppercase tracking-widest text-beige block mb-3">
-              Color: {colors[selectedColor].name}
+              Color: {selectedColor !== null ? colors[selectedColor].name : "Select a Color"}
             </span>
             <div className="flex gap-3">
               {colors.map((color, i) => (
@@ -491,18 +493,20 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
 
           {/* Actions */}
           <div className="flex flex-col gap-3">
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={handleAddToCart}
-              disabled={isOutOfStock}
-              className={`w-full py-4 font-label-caps text-label-caps uppercase tracking-[0.2em] rounded-md transition-all duration-500 shadow-lg ${
-                isOutOfStock 
-                  ? "bg-espresso/50 text-white cursor-not-allowed shadow-none" 
-                  : "bg-brand-red text-white hover:bg-white hover:text-brand-red shadow-brand-red/20"
-              }`}
-            >
-              {isOutOfStock ? "Sold Out" : "Add to Bag"}
-            </motion.button>
+            {selectedSize && selectedColor !== null && quantity > 0 && (
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={handleAddToCart}
+                disabled={isOutOfStock}
+                className={`w-full py-4 font-label-caps text-label-caps uppercase tracking-[0.2em] rounded-md transition-all duration-500 shadow-lg ${
+                  isOutOfStock 
+                    ? "bg-espresso/50 text-white cursor-not-allowed shadow-none" 
+                    : "bg-brand-red text-white hover:bg-white hover:text-brand-red shadow-brand-red/20"
+                }`}
+              >
+                {isOutOfStock ? "Sold Out" : "Add to Bag"}
+              </motion.button>
+            )}
             <WishlistButton 
               productId={product.id} 
               showText={true}
