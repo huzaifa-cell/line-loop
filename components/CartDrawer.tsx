@@ -141,7 +141,7 @@ export default function CartDrawer() {
                             onClick={() => {
                               const maxQty = line.stock ?? 10;
                               if (line.qty >= maxQty) {
-                                toast("Not much quantity is there", "error");
+                                toast(`Sorry only ${maxQty} units are currently available in the stock`, "error");
                               } else {
                                 setQty(line.id, line.size, line.colour, line.qty + 1);
                               }
