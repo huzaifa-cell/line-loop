@@ -520,13 +520,56 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
               {product.description || "Handcrafted with care using premium materials and traditional techniques."}
             </ProductAccordion>
             <ProductAccordion title="Fabric & Care">
-              {product.fabric || "Please refer to the garment label for care instructions."}
+              {product.fabric ? (
+                product.fabric
+              ) : (
+                <div className="flex flex-col gap-1">
+                  <p>Product color may slightly vary due to photographic lighting sources and screen display of your phone</p>
+                  <p>Dry clean or hand wash</p>
+                  <p>Wash separately in cold water</p>
+                  <p>Dry in shade or diffused light</p>
+                  <p>Do Not Bleach</p>
+                </div>
+              )}
             </ProductAccordion>
             <ProductAccordion title="Sizing Guide">
               Our garments are designed with a relaxed, feminine fit. We recommend selecting your usual size. For between-size customers, we suggest sizing up for a more flowing silhouette.
             </ProductAccordion>
             <ProductAccordion title="Shipping & Returns">
-              Free nationwide shipping on orders over Rs. 10,000. Returns accepted within 7 days of delivery for unworn items with tags attached.
+              <div className="space-y-6 text-sm text-beige/90">
+                <section className="space-y-3">
+                  <h4 className="font-label-caps text-[11px] uppercase tracking-widest text-ivory">Shipping</h4>
+                  <ul className="list-disc pl-5 space-y-1.5">
+                    <li>Orders are dispatched within 2–4 working days after confirmation.</li>
+                    <li>Delivery within Pakistan usually takes 3–5 working days, depending on the location.</li>
+                    <li>Delivery charges are calculated at checkout or communicated before dispatch.</li>
+                  </ul>
+                  <p className="text-xs pt-1">
+                    Please ensure that your contact number and delivery address are correct when placing your order.<br/>
+                    Line N Loop is not responsible for delays caused by courier services, incorrect addresses, or circumstances beyond our control.
+                  </p>
+                </section>
+
+                <section className="space-y-3">
+                  <h4 className="font-label-caps text-[11px] uppercase tracking-widest text-ivory">Returns & Exchanges</h4>
+                  <ul className="list-disc pl-5 space-y-1.5">
+                    <li>We carefully inspect every item before dispatch to ensure it meets our quality standards.</li>
+                    <li>Returns are accepted only in case of a damaged, defective, or incorrect item.</li>
+                    <li>Any issue must be reported within 48 hours of receiving the order, along with clear photos/videos of the item and packaging.</li>
+                    <li>Items must be unused, unwashed, unaltered, and returned with their original tags and packaging.</li>
+                    <li>Items damaged due to washing, ironing, alteration, or improper handling will not be eligible for return or exchange.</li>
+                    <li>Sale, discounted, customized, and made-to-order items are non-returnable and non-exchangeable.</li>
+                    <li>Once the returned item is received and inspected, we will arrange a replacement or refund, as applicable.</li>
+                  </ul>
+                </section>
+
+                <section className="space-y-2 pt-2 border-t border-white/10">
+                  <h4 className="font-label-caps text-[11px] uppercase tracking-widest text-ivory">Important</h4>
+                  <p className="text-xs">
+                    Please check your order carefully before removing tags or using the product. By placing an order with Line N Loop, you agree to the terms of this Shipping & Returns Policy.
+                  </p>
+                </section>
+              </div>
             </ProductAccordion>
             <ProductAccordion title="Reviews">
               <ReviewsSection productId={product.id} reviews={reviews} onMediaClick={setSelectedMedia} />
