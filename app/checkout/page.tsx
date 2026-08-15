@@ -192,9 +192,11 @@ export default function CheckoutPage() {
           <section>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 md:mb-6">
               <h2 className="font-headline-sm text-headline-sm text-espresso uppercase tracking-[0.1em]">Contact</h2>
-              <span className="font-label-caps text-[11px] text-espresso/70 uppercase tracking-widest">
-                Already have an account? <button className="text-espresso underline underline-offset-4 cursor-pointer">Log in</button>
-              </span>
+              {isLoaded && !isSignedIn && (
+                <Link href="/sign-in?redirect_url=/checkout" className="font-label-caps text-[11px] text-espresso underline underline-offset-4 cursor-pointer hover:text-brand-red transition-colors uppercase tracking-widest">
+                  Login / Signup
+                </Link>
+              )}
             </div>
             <div className="space-y-4">
               <input

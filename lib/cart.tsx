@@ -19,6 +19,7 @@ export interface CartLine {
   colour: string;
   qty: number;
   variantId: string;
+  stock?: number;
 }
 
 /** Orders above this amount get free shipping */
@@ -79,10 +80,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const existing = prev.find(
           (l) => lineKey(l.id, l.size, l.colour) === k
         );
+        const variant = product.variants?.find((v) => v.size === size && v.color === colour);
+        const stock = variant ? variant.stock : (product.totalStock ?? 10);
+
         if (existing) {
           return prev.map((l) =>
             lineKey(l.id, l.size, l.colour) === k
-              ? { ...l, qty: l.qty + qty }
+              ? { ...l, qty: Math.min(l.qty + qty, stock), stock }
               : l
           );
         }
@@ -95,8 +99,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             image: product.image,
             size,
             colour,
-            qty,
+            qty: Math.min(qty, stock),
             variantId: variantId ?? `${product.id}-${size}-${colour}`,
+            stock,
           },
         ];
       });
@@ -118,11 +123,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       setLines((prev) =>
-        prev.map((l) =>
-          lineKey(l.id, l.size, l.colour) === lineKey(id, size, colour)
-            ? { ...l, qty }
-            : l
-        )
+        prev.map((l) => {
+          if (lineKey(l.id, l.size, l.colour) === lineKey(id, size, colour)) {
+            const max = l.stock ?? 10;
+            return { ...l, qty: Math.min(qty, max) };
+          }
+          return l;
+        })
       );
     },
     [remove]

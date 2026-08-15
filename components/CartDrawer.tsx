@@ -4,10 +4,12 @@ import { useCart, FREE_SHIPPING_THRESHOLD } from "@/lib/cart";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "@/components/Toast";
 
 export default function CartDrawer() {
   const isVideo = (url: string) => url?.match(/\.(mp4|webm|mov)$/i);
   const { lines, isOpen, close, remove, setQty, count, subtotal, shipping, total, freeShippingRemaining } = useCart();
+  const { toast } = useToast();
 
   return (
     <AnimatePresence>
@@ -123,7 +125,11 @@ export default function CartDrawer() {
                         {/* Quantity Stepper */}
                         <div className="flex items-center border border-espresso/20 rounded-sm w-fit mt-2">
                           <button
-                            onClick={() => setQty(line.id, line.size, line.colour, line.qty - 1)}
+                            onClick={() => {
+                              if (line.qty > 1) {
+                                setQty(line.id, line.size, line.colour, line.qty - 1);
+                              }
+                            }}
                             className="px-2.5 py-1 text-espresso/70 hover:text-brand-red transition-colors cursor-pointer"
                           >
                             <span className="material-symbols-outlined text-[16px]">remove</span>
@@ -132,7 +138,14 @@ export default function CartDrawer() {
                             {line.qty}
                           </span>
                           <button
-                            onClick={() => setQty(line.id, line.size, line.colour, line.qty + 1)}
+                            onClick={() => {
+                              const maxQty = line.stock ?? 10;
+                              if (line.qty >= maxQty) {
+                                toast("Not much quantity is there", "error");
+                              } else {
+                                setQty(line.id, line.size, line.colour, line.qty + 1);
+                              }
+                            }}
                             className="px-2.5 py-1 text-espresso/70 hover:text-brand-red transition-colors cursor-pointer"
                           >
                             <span className="material-symbols-outlined text-[16px]">add</span>

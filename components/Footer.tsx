@@ -21,14 +21,11 @@ export function Footer() {
             Curating luxury artisanal garments with a focus on sustainable slow fashion and heritage craftsmanship. Designed for the feminine silhouette.
           </p>
           <div className="flex gap-4">
-            <Link href="#" className="text-ivory hover:text-brand-red transition-colors">
-              <span className="material-symbols-outlined">face_nod</span>
+            <Link href="https://www.instagram.com/line.n.loopofficial?igsh=MTNscjYwajN0a2xuYg==" target="_blank" rel="noopener noreferrer" className="text-ivory hover:text-brand-red transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16.113 7.893h.01"/><circle cx="12" cy="12" r="4"/></svg>
             </Link>
-            <Link href="#" className="text-ivory hover:text-brand-red transition-colors">
-              <span className="material-symbols-outlined">photo_camera</span>
-            </Link>
-            <Link href="#" className="text-ivory hover:text-brand-red transition-colors">
-              <span className="material-symbols-outlined">play_circle</span>
+            <Link href="https://www.tiktok.com/@line.n.loopofficial?_r=1&_t=ZS-98kYR3JJxLR" target="_blank" rel="noopener noreferrer" className="text-ivory hover:text-brand-red transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
             </Link>
           </div>
         </div>
@@ -38,8 +35,8 @@ export function Footer() {
           <div className="flex flex-col gap-2 md:gap-0">
             <Link href="/shop" className="font-body-md text-beige hover:text-brand-red transition-colors">SHOP</Link>
             <Link href="/about" className="font-body-md text-beige hover:text-brand-red transition-colors">ABOUT</Link>
-            <Link href="#" className="font-body-md text-beige hover:text-brand-red transition-colors">INSTAGRAM</Link>
-            <Link href="#" className="font-body-md text-beige hover:text-brand-red transition-colors">PINTEREST</Link>
+            <Link href="https://www.instagram.com/line.n.loopofficial?igsh=MTNscjYwajN0a2xuYg==" target="_blank" rel="noopener noreferrer" className="font-body-md text-beige hover:text-brand-red transition-colors">INSTAGRAM</Link>
+            <Link href="https://www.tiktok.com/@line.n.loopofficial?_r=1&_t=ZS-98kYR3JJxLR" target="_blank" rel="noopener noreferrer" className="font-body-md text-beige hover:text-brand-red transition-colors">TIKTOK</Link>
           </div>
         </div>
       </div>
