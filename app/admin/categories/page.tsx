@@ -7,6 +7,7 @@ type Category = {
   id: string;
   name: string;
   slug: string;
+  code: string | null;
   description: string | null;
   sort_order: number;
   is_published: boolean;
@@ -20,6 +21,7 @@ export default function AdminCategories() {
   // Form state
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
+  const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
   const [sortOrder, setSortOrder] = useState(0);
   const [isPublished, setIsPublished] = useState(true);
@@ -39,6 +41,7 @@ export default function AdminCategories() {
     setEditingId(category.id);
     setName(category.name);
     setSlug(category.slug);
+    setCode(category.code || "");
     setDescription(category.description || "");
     setSortOrder(category.sort_order);
     setIsPublished(category.is_published);
@@ -52,6 +55,7 @@ export default function AdminCategories() {
   const resetForm = () => {
     setName("");
     setSlug("");
+    setCode("");
     setDescription("");
     setSortOrder(0);
     setIsPublished(true);
@@ -63,6 +67,7 @@ export default function AdminCategories() {
     formData.append("categoryId", editingId || "new");
     formData.append("name", name);
     formData.append("slug", slug);
+    formData.append("code", code);
     formData.append("description", description);
     formData.append("sortOrder", sortOrder.toString());
     formData.append("isPublished", isPublished.toString());
@@ -143,6 +148,19 @@ export default function AdminCategories() {
             </div>
             <div className="md:col-span-2">
               <label className="block text-xs uppercase tracking-widest opacity-60 mb-1">
+                Category Code (For SKU prefix)
+              </label>
+              <input
+                type="text"
+                value={code}
+                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                placeholder="e.g. SH"
+                maxLength={10}
+                className="w-full bg-white border border-ink-black/20 px-3 py-2 text-sm focus:border-brand-red outline-none rounded-sm uppercase"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs uppercase tracking-widest opacity-60 mb-1">
                 Description
               </label>
               <textarea
@@ -204,6 +222,7 @@ export default function AdminCategories() {
             <thead className="bg-ink-black text-ivory-mist text-[10px] uppercase tracking-widest">
               <tr>
                 <th className="p-4 font-normal">Name</th>
+                <th className="p-4 font-normal hidden md:table-cell">Code</th>
                 <th className="p-4 font-normal hidden md:table-cell">Slug</th>
                 <th className="p-4 font-normal text-center">Sort</th>
                 <th className="p-4 font-normal text-center">Status</th>
@@ -214,6 +233,9 @@ export default function AdminCategories() {
               {categories.map((category) => (
                 <tr key={category.id} className="hover:bg-ivory-mist/30">
                   <td className="p-4 font-bold">{category.name}</td>
+                  <td className="p-4 font-mono text-xs hidden md:table-cell">
+                    {category.code || "-"}
+                  </td>
                   <td className="p-4 opacity-70 hidden md:table-cell">
                     {category.slug}
                   </td>
@@ -247,7 +269,7 @@ export default function AdminCategories() {
               ))}
               {categories.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center opacity-50">
+                  <td colSpan={6} className="p-8 text-center opacity-50">
                     No categories found. Create one to get started.
                   </td>
                 </tr>

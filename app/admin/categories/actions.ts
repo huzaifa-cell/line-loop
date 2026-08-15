@@ -26,6 +26,7 @@ export async function saveCategory(formData: FormData) {
   const categoryId = formData.get("categoryId") as string;
   const name = formData.get("name") as string;
   let slug = formData.get("slug") as string;
+  const code = (formData.get("code") as string) || null;
   const description = (formData.get("description") as string) || null;
   const sortOrder = parseInt(formData.get("sortOrder") as string) || 0;
   const isPublished = formData.get("isPublished") === "true";
@@ -40,6 +41,7 @@ export async function saveCategory(formData: FormData) {
   const categoryData = {
     name,
     slug,
+    code,
     description,
     sort_order: sortOrder,
     is_published: isPublished,

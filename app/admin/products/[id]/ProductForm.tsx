@@ -64,9 +64,12 @@ export function ProductForm({ productId, initialData, categories }: { productId:
   );
 
   const addVariant = () => {
+    const selectedCategory = categories.find(c => c.id === categoryId);
+    const prefix = selectedCategory?.code ? `${selectedCategory.code}-` : "";
+    
     setVariants([...variants, {
       id: Math.random().toString(36).substring(7),
-      sku: "",
+      sku: prefix,
       colorName: "",
       colorCode: "#131313",
       size: "",
