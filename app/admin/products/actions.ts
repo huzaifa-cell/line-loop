@@ -106,6 +106,7 @@ export async function saveProduct(formData: FormData) {
     const productId = formData.get("productId") as string;
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
+    const productDetails = formData.get("productDetails") as string;
     const basePrice = parseFloat(formData.get("basePrice") as string);
     const comparePriceRaw = formData.get("comparePrice") as string;
     const comparePrice = comparePriceRaw && comparePriceRaw !== "" && !isNaN(parseFloat(comparePriceRaw)) ? parseFloat(comparePriceRaw) : null;
@@ -127,6 +128,7 @@ export async function saveProduct(formData: FormData) {
     const productData: any = {
       title,
       description,
+      product_details: productDetails,
       base_price: basePrice,
       compare_at_price: comparePrice,
       category_id: categoryId,

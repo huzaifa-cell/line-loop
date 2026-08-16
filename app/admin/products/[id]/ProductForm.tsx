@@ -31,6 +31,7 @@ export function ProductForm({ productId, initialData, categories }: { productId:
   const [title, setTitle] = useState(initialData?.title || "");
   const [slug, setSlug] = useState(initialData?.slug || "");
   const [description, setDescription] = useState(initialData?.description || "");
+  const [productDetails, setProductDetails] = useState(initialData?.product_details || "");
   const [basePrice, setBasePrice] = useState(initialData?.base_price?.toString() || "");
   const [comparePrice, setComparePrice] = useState(initialData?.compare_at_price?.toString() || "");
   const [categoryId, setCategoryId] = useState(initialData?.category_id || "");
@@ -163,6 +164,7 @@ export function ProductForm({ productId, initialData, categories }: { productId:
       formData.append("title", title);
       formData.append("slug", slug);
       formData.append("description", description);
+      formData.append("productDetails", productDetails);
       formData.append("basePrice", basePrice);
       formData.append("comparePrice", comparePrice);
       formData.append("categoryId", categoryId);
@@ -295,6 +297,16 @@ export function ProductForm({ productId, initialData, categories }: { productId:
             rows={4}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            className="w-full bg-transparent border border-ink-black p-3 focus:outline-none focus:ring-2 focus:ring-ink-black rounded-none"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-widest mb-2">Product Details (Accordion)</label>
+          <textarea 
+            rows={4}
+            value={productDetails}
+            onChange={(e) => setProductDetails(e.target.value)}
             className="w-full bg-transparent border border-ink-black p-3 focus:outline-none focus:ring-2 focus:ring-ink-black rounded-none"
           />
         </div>

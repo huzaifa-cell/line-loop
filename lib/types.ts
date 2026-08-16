@@ -7,6 +7,7 @@ export interface Product {
   tag?: 'SALE' | 'NEW';
   category?: string;
   description?: string;
+  productDetails?: string;
   fabric?: string;
   colors?: { name: string; hex: string }[];
   sizes?: string[];

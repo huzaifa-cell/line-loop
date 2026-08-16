@@ -516,8 +516,8 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
 
           {/* Accordions */}
           <div className="mt-12 border-t border-white/10">
-            <ProductAccordion title="Description">
-              {product.description || "Handcrafted with care using premium materials and traditional techniques."}
+            <ProductAccordion title="Product Details">
+              {product.productDetails || product.description || "Handcrafted with care using premium materials and traditional techniques."}
             </ProductAccordion>
             <ProductAccordion title="Fabric & Care">
               {product.fabric ? (
