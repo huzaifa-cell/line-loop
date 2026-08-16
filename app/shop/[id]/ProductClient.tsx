@@ -78,7 +78,7 @@ function ReviewsSection({ productId, reviews, onMediaClick }: { productId: strin
       {/* Existing Reviews */}
       <div className="space-y-6">
         {reviews.length === 0 ? (
-          <p className="text-sm text-beige/60">No reviews yet. Be the first to review this product!</p>
+          <p className="text-sm text-espresso/60">No reviews yet. Be the first to review this product!</p>
         ) : (
           reviews.map((review) => {
             let parsedBody = { text: review.body, media: [] as string[] };
@@ -91,18 +91,18 @@ function ReviewsSection({ productId, reviews, onMediaClick }: { productId: strin
             }
 
             return (
-              <div key={review.id} className="border-b border-white/10 pb-6">
+              <div key={review.id} className="border-b border-espresso/10 pb-6">
                 <div className="flex items-center gap-3 mb-2">
                   <StarRating rating={review.rating} />
-                  <span className="font-label-caps text-[10px] text-beige uppercase tracking-widest">
+                  <span className="font-label-caps text-[10px] text-espresso uppercase tracking-widest">
                     {review.profiles?.full_name || review.guest_name || 'Anonymous'}
                   </span>
-                  <span className="text-xs text-beige/50">
+                  <span className="text-xs text-espresso/50">
                     {new Date(review.created_at).toLocaleDateString()}
                   </span>
                 </div>
-                {review.title && <h4 className="font-bold text-ivory mb-1">{review.title}</h4>}
-                {parsedBody.text && <p className="text-sm text-beige leading-relaxed">{parsedBody.text}</p>}
+                {review.title && <h4 className="font-bold text-espresso mb-1">{review.title}</h4>}
+                {parsedBody.text && <p className="text-sm text-espresso/80 leading-relaxed">{parsedBody.text}</p>}
                 {parsedBody.media && parsedBody.media.length > 0 && (
                   <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
                     {parsedBody.media.map((url, i) => {
@@ -127,8 +127,8 @@ function ReviewsSection({ productId, reviews, onMediaClick }: { productId: strin
       </div>
 
       {/* Review Form */}
-      <div className="mt-8 bg-white/5 p-6 rounded-sm">
-        <h3 className="font-label-caps text-sm text-ivory uppercase tracking-widest mb-4">Write a Review</h3>
+      <div className="mt-8 bg-black/5 p-6 rounded-sm">
+        <h3 className="font-label-caps text-sm text-espresso uppercase tracking-widest mb-4">Write a Review</h3>
         
         {message && (
           <div className={`p-4 mb-4 text-sm ${message.type === 'success' ? 'bg-green-500/20 text-green-200' : 'bg-brand-red/20 text-brand-red'}`}>
@@ -138,34 +138,34 @@ function ReviewsSection({ productId, reviews, onMediaClick }: { productId: strin
 
         <form onSubmit={handleReviewSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-label-caps uppercase tracking-widest text-beige mb-2">Rating</label>
+            <label className="block text-xs font-label-caps uppercase tracking-widest text-espresso mb-2">Rating</label>
             <StarRating rating={rating} setRating={setRating} interactive />
           </div>
           <div>
-            <label htmlFor="name" className="block text-xs font-label-caps uppercase tracking-widest text-beige mb-2">Name</label>
-            <input type="text" id="name" name="name" required className="w-full bg-black/50 border border-white/10 px-4 py-2 text-ivory focus:border-ivory outline-none" />
+            <label htmlFor="name" className="block text-xs font-label-caps uppercase tracking-widest text-espresso mb-2">Name</label>
+            <input type="text" id="name" name="name" required className="w-full bg-white/50 border border-espresso/10 px-4 py-2 text-espresso focus:border-espresso outline-none" />
           </div>
           <div>
-            <label htmlFor="title" className="block text-xs font-label-caps uppercase tracking-widest text-beige mb-2">Review Title (Optional)</label>
-            <input type="text" id="title" name="title" className="w-full bg-black/50 border border-white/10 px-4 py-2 text-ivory focus:border-ivory outline-none" />
+            <label htmlFor="title" className="block text-xs font-label-caps uppercase tracking-widest text-espresso mb-2">Review Title (Optional)</label>
+            <input type="text" id="title" name="title" className="w-full bg-white/50 border border-espresso/10 px-4 py-2 text-espresso focus:border-espresso outline-none" />
           </div>
           <div>
-            <label htmlFor="body" className="block text-xs font-label-caps uppercase tracking-widest text-beige mb-2">Review</label>
-            <textarea id="body" name="body" required rows={4} className="w-full bg-black/50 border border-white/10 px-4 py-2 text-ivory focus:border-ivory outline-none" />
+            <label htmlFor="body" className="block text-xs font-label-caps uppercase tracking-widest text-espresso mb-2">Review</label>
+            <textarea id="body" name="body" required rows={4} className="w-full bg-white/50 border border-espresso/10 px-4 py-2 text-espresso focus:border-espresso outline-none" />
           </div>
           <div>
-            <label htmlFor="media" className="block text-xs font-label-caps uppercase tracking-widest text-beige mb-2">Photos & Videos (Optional)</label>
-            <input type="file" id="media" name="media" accept="image/*,video/*" multiple onChange={handleFileChange} className="w-full text-xs text-beige file:mr-4 file:py-2 file:px-4 file:border-0 file:text-xs file:font-label-caps file:uppercase file:tracking-widest file:bg-white/10 file:text-ivory hover:file:bg-white/20" />
+            <label htmlFor="media" className="block text-xs font-label-caps uppercase tracking-widest text-espresso mb-2">Photos & Videos (Optional)</label>
+            <input type="file" id="media" name="media" accept="image/*,video/*" multiple onChange={handleFileChange} className="w-full text-xs text-espresso file:mr-4 file:py-2 file:px-4 file:border-0 file:text-xs file:font-label-caps file:uppercase file:tracking-widest file:bg-black/5 file:text-espresso hover:file:bg-black/10" />
             
             {selectedFiles.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-3">
                 {selectedFiles.map((file, i) => (
                   <div key={i} className="relative group">
-                    <div className="h-16 w-16 bg-black/50 border border-white/10 flex items-center justify-center overflow-hidden rounded-sm">
+                    <div className="h-16 w-16 bg-white/50 border border-espresso/10 flex items-center justify-center overflow-hidden rounded-sm">
                       {file.type.startsWith('image/') ? (
                         <img src={URL.createObjectURL(file)} alt="preview" className="h-full w-full object-cover" />
                       ) : (
-                        <span className="text-[10px] text-beige uppercase font-label-caps p-1 text-center truncate">{file.name}</span>
+                        <span className="text-[10px] text-espresso uppercase font-label-caps p-1 text-center truncate">{file.name}</span>
                       )}
                     </div>
                     <button type="button" onClick={() => removeFile(i)} className="absolute -top-2 -right-2 h-5 w-5 bg-thread-red text-white flex items-center justify-center rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity">
@@ -176,7 +176,7 @@ function ReviewsSection({ productId, reviews, onMediaClick }: { productId: strin
               </div>
             )}
           </div>
-          <button type="submit" disabled={isSubmitting} className="bg-ivory text-espresso px-6 py-3 font-label-caps uppercase tracking-widest text-xs hover:bg-white transition-colors disabled:opacity-50">
+          <button type="submit" disabled={isSubmitting} className="bg-espresso text-white px-6 py-3 font-label-caps uppercase tracking-widest text-xs hover:bg-black transition-colors disabled:opacity-50">
             {isSubmitting ? 'Submitting...' : 'Submit Review'}
           </button>
         </form>
@@ -189,18 +189,18 @@ function ReviewsSection({ productId, reviews, onMediaClick }: { productId: strin
 function ProductAccordion({ title, children }: { title: string; children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className="border-b border-white/10">
+    <div className="border-b border-espresso/10">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full py-6 flex justify-between items-center cursor-pointer group"
       >
-        <span className="font-label-caps text-label-caps uppercase tracking-widest text-ivory group-hover:text-brand-red transition-colors">
+        <span className="font-label-caps text-label-caps uppercase tracking-widest text-espresso group-hover:text-brand-red transition-colors">
           {title}
         </span>
         <motion.span
           animate={{ rotate: isOpen ? 45 : 0 }}
           transition={{ duration: 0.3 }}
-          className="material-symbols-outlined text-beige"
+          className="material-symbols-outlined text-espresso/70"
         >
           add
         </motion.span>
@@ -214,7 +214,7 @@ function ProductAccordion({ title, children }: { title: string; children: React.
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="pb-6 font-body-md text-beige leading-relaxed">
+            <div className="pb-6 font-body-md text-espresso/80 leading-relaxed">
               {children}
             </div>
           </motion.div>
@@ -266,19 +266,19 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
   };
 
   return (
-    <>
+    <div className="bg-white text-espresso min-h-screen">
       {/* Breadcrumbs */}
       <nav className="px-margin-mobile md:px-margin-desktop pt-6 md:pt-8 mb-6 md:mb-8">
-        <ol className="flex items-center gap-2 font-label-caps text-[11px] text-beige uppercase tracking-widest flex-wrap">
+        <ol className="flex items-center gap-2 font-label-caps text-[11px] text-taupe uppercase tracking-widest flex-wrap">
           <li>
-            <Link href="/" className="hover:text-ivory transition-colors">Home</Link>
+            <Link href="/" className="hover:text-espresso transition-colors">Home</Link>
           </li>
           <li className="material-symbols-outlined text-[14px]">chevron_right</li>
           <li>
-            <Link href="/shop" className="hover:text-ivory transition-colors">Shop</Link>
+            <Link href="/shop" className="hover:text-espresso transition-colors">Shop</Link>
           </li>
           <li className="material-symbols-outlined text-[14px]">chevron_right</li>
-          <li className="text-ivory truncate max-w-[150px] md:max-w-none">{product.name}</li>
+          <li className="text-espresso truncate max-w-[150px] md:max-w-none">{product.name}</li>
         </ol>
       </nav>
 
@@ -398,14 +398,14 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
           </span>
 
           {/* Title */}
-          <h1 className="font-headline-md text-headline-md text-ivory uppercase tracking-wide mb-4">
+          <h1 className="font-headline-md text-headline-md text-espresso uppercase tracking-wide mb-4">
             {product.name}
           </h1>
 
           {/* Price */}
           <div className="mb-6">
             {product.originalPrice && (
-              <span className="line-through text-beige mr-4 font-body-md">
+              <span className="line-through text-taupe mr-4 font-body-md">
                 Rs. {product.originalPrice.toLocaleString()}
               </span>
             )}
@@ -415,13 +415,13 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
           </div>
 
           {/* Description */}
-          <p className="font-body-md text-beige leading-relaxed mb-8">
+          <p className="font-body-md text-espresso/80 leading-relaxed mb-8">
             {product.description || "A beautifully crafted piece from the LINE&LOOP collection."}
           </p>
 
           {/* Color Selector */}
           <div className="mb-8">
-            <span className="font-label-caps text-label-caps uppercase tracking-widest text-beige block mb-3">
+            <span className="font-label-caps text-label-caps uppercase tracking-widest text-espresso block mb-3">
               Color: {selectedColor !== null ? colors[selectedColor].name : "Select a Color"}
             </span>
             <div className="flex gap-3">
@@ -432,8 +432,8 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
                   title={color.name}
                   className={`w-8 h-8 rounded-full transition-all duration-300 ${
                     selectedColor === i
-                      ? "border-2 border-ivory scale-110"
-                      : "border border-white/20 hover:border-white/60"
+                      ? "border-2 border-espresso scale-110"
+                      : "border border-espresso/20 hover:border-espresso/60"
                   }`}
                   style={{ backgroundColor: color.hex }}
                 />
@@ -444,11 +444,11 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
           {/* Size Selector */}
           <div className="mb-10">
             <div className="flex justify-between items-center mb-3">
-              <span className="font-label-caps text-label-caps uppercase tracking-widest text-beige">Size</span>
+              <span className="font-label-caps text-label-caps uppercase tracking-widest text-espresso">Size</span>
               {product.size_guide_url && (
                 <button 
                   onClick={() => setIsSizeGuideOpen(true)}
-                  className="font-label-caps text-[11px] text-ivory underline underline-offset-4 decoration-white/20 hover:decoration-white transition-all"
+                  className="font-label-caps text-[11px] text-espresso underline underline-offset-4 decoration-espresso/20 hover:decoration-espresso transition-all"
                 >
                   Size Guide
                 </button>
@@ -461,8 +461,8 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
                   onClick={() => setSelectedSize(size)}
                   className={`px-6 py-2.5 font-label-caps text-label-caps transition-all duration-300 rounded-sm ${
                     selectedSize === size
-                      ? "bg-ivory text-espresso border border-ivory"
-                      : "border border-white/10 text-ivory hover:border-ivory"
+                      ? "bg-espresso text-white border border-espresso"
+                      : "border border-espresso/20 text-espresso hover:border-espresso"
                   }`}
                 >
                   {size}
@@ -473,18 +473,18 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
 
           {/* Quantity */}
           <div className="mb-8 flex items-center gap-4">
-            <span className="font-label-caps text-label-caps uppercase tracking-widest text-beige">Qty</span>
-            <div className="flex items-center border border-white/10 rounded-sm">
+            <span className="font-label-caps text-label-caps uppercase tracking-widest text-espresso">Qty</span>
+            <div className="flex items-center border border-espresso/20 rounded-sm">
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="px-4 py-2 text-ivory hover:bg-white/5 transition-colors"
+                className="px-4 py-2 text-espresso hover:bg-espresso/5 transition-colors"
               >
                 <span className="material-symbols-outlined text-[18px]">remove</span>
               </button>
-              <span className="px-4 py-2 font-body-md text-ivory min-w-[40px] text-center">{quantity}</span>
+              <span className="px-4 py-2 font-body-md text-espresso min-w-[40px] text-center">{quantity}</span>
               <button
                 onClick={() => setQuantity(quantity + 1)}
-                className="px-4 py-2 text-ivory hover:bg-white/5 transition-colors"
+                className="px-4 py-2 text-espresso hover:bg-espresso/5 transition-colors"
               >
                 <span className="material-symbols-outlined text-[18px]">add</span>
               </button>
@@ -501,7 +501,7 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
                 className={`w-full py-4 font-label-caps text-label-caps uppercase tracking-[0.2em] rounded-md transition-all duration-500 shadow-lg ${
                   isOutOfStock 
                     ? "bg-espresso/50 text-white cursor-not-allowed shadow-none" 
-                    : "bg-brand-red text-white hover:bg-white hover:text-brand-red shadow-brand-red/20"
+                    : "bg-brand-red text-white hover:bg-brand-red/90 shadow-brand-red/20"
                 }`}
               >
                 {isOutOfStock ? "Sold Out" : "Add to Bag"}
@@ -510,14 +510,14 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
             <WishlistButton 
               productId={product.id} 
               showText={true}
-              className="w-full border border-white/20 text-ivory py-4 font-label-caps text-label-caps uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-white/5 transition-all rounded-md"
+              className="w-full border border-espresso/20 text-espresso py-4 font-label-caps text-label-caps uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-espresso/5 transition-all rounded-md"
             />
           </div>
 
           {/* Accordions */}
-          <div className="mt-12 border-t border-white/10">
+          <div className="mt-12 border-t border-espresso/10">
             <ProductAccordion title="Product Details">
-              <div className="whitespace-pre-wrap font-body-md text-beige leading-relaxed">
+              <div className="whitespace-pre-wrap font-body-md text-espresso/80 leading-relaxed">
                 {product.productDetails || product.description || "Handcrafted with care using premium materials and traditional techniques."}
               </div>
             </ProductAccordion>
@@ -538,9 +538,9 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
               Our garments are designed with a relaxed, feminine fit. We recommend selecting your usual size. For between-size customers, we suggest sizing up for a more flowing silhouette.
             </ProductAccordion>
             <ProductAccordion title="Shipping & Returns">
-              <div className="space-y-6 text-sm text-beige/90">
+              <div className="space-y-6 text-sm text-espresso/80">
                 <section className="space-y-3">
-                  <h4 className="font-label-caps text-[11px] uppercase tracking-widest text-ivory">Shipping</h4>
+                  <h4 className="font-label-caps text-[11px] uppercase tracking-widest text-espresso">Shipping</h4>
                   <ul className="list-disc pl-5 space-y-1.5">
                     <li>Orders are dispatched within 2–4 working days after confirmation.</li>
                     <li>Delivery within Pakistan usually takes 3–5 working days, depending on the location.</li>
@@ -553,7 +553,7 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
                 </section>
 
                 <section className="space-y-3">
-                  <h4 className="font-label-caps text-[11px] uppercase tracking-widest text-ivory">Returns & Exchanges</h4>
+                  <h4 className="font-label-caps text-[11px] uppercase tracking-widest text-espresso">Returns & Exchanges</h4>
                   <ul className="list-disc pl-5 space-y-1.5">
                     <li>We carefully inspect every item before dispatch to ensure it meets our quality standards.</li>
                     <li>Returns are accepted only in case of a damaged, defective, or incorrect item.</li>
@@ -565,8 +565,8 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
                   </ul>
                 </section>
 
-                <section className="space-y-2 pt-2 border-t border-white/10">
-                  <h4 className="font-label-caps text-[11px] uppercase tracking-widest text-ivory">Important</h4>
+                <section className="space-y-2 pt-2 border-t border-espresso/10">
+                  <h4 className="font-label-caps text-[11px] uppercase tracking-widest text-espresso">Important</h4>
                   <p className="text-xs">
                     Please check your order carefully before removing tags or using the product. By placing an order with Line N Loop, you agree to the terms of this Shipping & Returns Policy.
                   </p>
@@ -690,7 +690,7 @@ export default function ProductClient({ product, related, reviews = [] }: Produc
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }
 

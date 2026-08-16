@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Fraunces } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart";
@@ -8,24 +7,7 @@ import { ToastProvider } from "@/components/Toast";
 import { StorefrontShell } from "@/components/StorefrontShell";
 import AnnouncementBar from "@/components/AnnouncementBar";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-  adjustFontFallback: true,
-  preload: true,
-});
-
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  weight: "variable",
-  axes: ["opsz"],
-  display: "swap",
-  adjustFontFallback: true,
-  preload: true,
-});
+// Fonts are loaded via <link> tags in the document head below to bypass Next.js 16 build-time network timeout issues
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://lineandloop.shop"),
@@ -103,14 +85,17 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${fraunces.variable} antialiased`}
-      data-scroll-behavior="smooth"
+      className="antialiased font-sans"
     >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400..900&display=swap"
+        />
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=block"

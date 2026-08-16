@@ -139,8 +139,8 @@ export async function getStorefrontProduct(idOrSlug: string): Promise<Product | 
     .single();
 
   if (error) {
-    console.error("Error fetching product:", error);
-    throw new Error("Failed to load product. Database unavailable.");
+    console.error("Error fetching product raw:", JSON.stringify(error, null, 2));
+    throw new Error(`Failed to load product. Database unavailable. Details: ${error.message || 'unknown'}`);
   }
   if (!data) return null;
   return mapToUIProduct(data);
