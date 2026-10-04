@@ -83,7 +83,7 @@ export default async function Home() {
       />
 
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex flex-col justify-end items-center text-center px-margin-mobile md:px-margin-desktop pb-24 md:pb-32 overflow-hidden bg-espresso">
+      <section className="relative min-h-[90vh] flex flex-col justify-start items-center text-center px-margin-mobile md:px-margin-desktop pt-32 md:pt-48 overflow-hidden bg-espresso">
         <div className="absolute inset-0 opacity-40 z-0">
           <Image
             src={heroImage}
@@ -92,7 +92,7 @@ export default async function Home() {
             priority
             sizes="100vw"
             quality={70}
-            className="object-cover object-[center_15%] md:object-top"
+            className="object-cover object-center md:object-[center_60%]"
           />
         </div>
         <AnimatedWrapper className="relative z-10 max-w-5xl space-y-8 px-4" delay={0.2}>
