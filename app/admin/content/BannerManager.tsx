@@ -5,7 +5,8 @@ import { saveBanner } from "./actions";
 import { useRouter } from "next/navigation";
 
 const PLACEMENTS = [
-  { value: 'homepage_hero', label: 'Homepage Hero' },
+  { value: 'homepage_hero', label: 'Homepage Hero (Desktop)' },
+  { value: 'homepage_hero_mobile', label: 'Homepage Hero (Mobile)' },
   { value: 'announcement_bar', label: 'Announcement Bar' },
   { value: 'category_banner', label: 'Category Banner' },
   { value: 'homepage_category_1', label: 'Homepage Category Left' },

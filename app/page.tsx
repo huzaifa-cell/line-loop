@@ -5,9 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default async function Home() {
-  const [products, heroBanner, cat1Banner, cat2Banner, craftBanner] = await Promise.all([
+  const [products, heroBanner, heroBannerMobile, cat1Banner, cat2Banner, craftBanner] = await Promise.all([
     getFeaturedProducts(4),
     getLiveBanner("homepage_hero"),
+    getLiveBanner("homepage_hero_mobile"),
     getLiveBanner("homepage_category_1"),
     getLiveBanner("homepage_category_2"),
     getLiveBanner("homepage_craft"),
@@ -28,6 +29,13 @@ export default async function Home() {
         ? heroBanner.storage_path
         : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${heroBanner.storage_path}`)
     : "https://images.unsplash.com/photo-1597983073750-16f5ded1321f?auto=format&fit=crop&q=80&w=2560";
+
+  const mobileBanner = heroBannerMobile || heroBanner;
+  const heroImageMobile = mobileBanner?.storage_path
+    ? (mobileBanner.storage_path.startsWith("http")
+        ? mobileBanner.storage_path
+        : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${mobileBanner.storage_path}`)
+    : heroImage;
 
   const getImageUrl = (path?: string | null, fallback = "") => {
     if (!path) return fallback;
@@ -83,8 +91,9 @@ export default async function Home() {
       />
 
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex flex-col justify-start items-center text-center px-margin-mobile md:px-margin-desktop pt-32 md:pt-48 overflow-hidden bg-espresso">
+      <section className="relative min-h-[90vh] flex flex-col justify-center items-center text-center px-margin-mobile md:px-margin-desktop overflow-hidden bg-espresso">
         <div className="absolute inset-0 opacity-40 z-0">
+          {/* Desktop Image */}
           <Image
             src={heroImage}
             alt=""
@@ -92,7 +101,17 @@ export default async function Home() {
             priority
             sizes="100vw"
             quality={70}
-            className="object-cover object-center md:object-[center_60%]"
+            className="object-cover object-top hidden md:block"
+          />
+          {/* Mobile Image */}
+          <Image
+            src={heroImageMobile}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            quality={70}
+            className="object-cover object-center block md:hidden"
           />
         </div>
         <AnimatedWrapper className="relative z-10 max-w-5xl space-y-8 px-4" delay={0.2}>
