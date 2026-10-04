@@ -92,7 +92,7 @@ export default async function Home() {
             priority
             sizes="100vw"
             quality={70}
-            className="object-cover"
+            className="object-cover object-[center_15%] md:object-[center_20%]"
           />
         </div>
         <AnimatedWrapper className="relative z-10 max-w-5xl space-y-8 px-4" delay={0.2}>
