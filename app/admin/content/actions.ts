@@ -86,6 +86,7 @@ export async function saveBanner(formData: FormData) {
   });
 
   revalidatePath("/admin/content");
+  revalidatePath("/", "layout");
   return { success: true };
 }
 
@@ -102,6 +103,7 @@ export async function toggleBannerLive(id: string, currentStatus: boolean) {
 
   if (error) throw new Error(error.message);
   revalidatePath("/admin/content");
+  revalidatePath("/", "layout");
 }
 
 export async function deleteBanner(id: string) {
@@ -113,4 +115,5 @@ export async function deleteBanner(id: string) {
   const { error } = await supabase.from('banners').delete().eq('id', id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/content");
+  revalidatePath("/", "layout");
 }
